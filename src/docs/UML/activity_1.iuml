@@ -1,0 +1,30 @@
+@startuml
+|User| 
+  start
+  :Starts Program;
+  :Adds .kif-File;
+  if (Documentation \nWidget active) then (true) 
+
+  else (false) 
+     :Activates Documentation Widget;
+  endif
+
+  :Searches for information about a term in the Documentation Widget;
+  |pySUMO|
+  :Searches for existing term in WordNet;
+  |User|
+  if (Graph Widget\n active) then (true) 
+
+  else (false)
+    :Activates GraphWidget;
+  endif
+
+:Clicks around in GraphWidget;
+|pySUMO|
+:Adds relation to GraphWidget;
+:Synchronizes TextEdtior;
+|User|
+:Saves;
+stop
+
+@enduml

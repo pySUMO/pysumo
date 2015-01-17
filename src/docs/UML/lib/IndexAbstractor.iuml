@@ -1,0 +1,30 @@
+class IndexAbstractor {
+  - index : HashMap<String key, AST element>[]
+  + search(term : String) : AST
+  + get_graph(variant, node, depth=None) : AbstractGraph
+  + wordnet_locate(term: String) : String
+}
+
+class AbstractGraph {
+  - nodes : AbstractGraphNode[]
+  - relations : Enum[][]
+  + __init__(variant : Enum, root : AbstractGraphNode, depth : int) : AbstractGraph
+}
+
+class AbstractGraphNode {
+  - name : String
+  + __init__(name : String) : AbstractGraphNode
+}
+
+class DotGraph {
+  + __init__(graph : AbstractGraph) : DotGraph
+  + get_node_from_position(x : double,y : double) : String
+  + get_edge_from_position(x : double,y : double) : String
+  + get_position_from_node(node : AbstractGraphNode) : (Double, Double)
+
+  + get_pic()
+}
+
+AbstractGraph -->  DotGraph : > uses
+AbstractGraph "1" --> "1..n" AbstractGraphNode
+IndexAbstractor --> AbstractGraph : > uses 

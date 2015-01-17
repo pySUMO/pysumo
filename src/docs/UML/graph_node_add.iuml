@@ -1,0 +1,60 @@
+@startuml
+
+actor User
+activate User
+User -> GraphWidget: Adds Node
+
+activate GraphWidget
+GraphWidget -> SyntaxController: parse_graph(graph)
+
+activate SyntaxController
+SyntaxController -> Parser: kifparse(ontology, graph)
+activate Parser
+Parser -> AbstractSyntaxTree: add_child(entry)
+
+activate AbstractSyntaxTree
+AbstractSyntaxTree -> Parser:
+deactivate AbstractSyntaxTree
+
+Parser --> SyntaxController: return AST
+deactivate Parser
+SyntaxController --> GraphWidget: return AST
+deactivate SyntaxController
+
+GraphWidget -> GraphWidget: commit()
+activate GraphWidget
+GraphWidget -> IndexAbstractor: index.replace(old_AST, new_AST)
+
+activate IndexAbstractor
+IndexAbstractor -> GraphWidget:
+deactivate IndexAbstractor
+
+GraphWidget -> GraphWidget:
+deactivate GraphWidget
+
+GraphWidget -> IndexAbstractor: get_graph(variant, root, depth)
+activate IndexAbstractor
+IndexAbstractor --> GraphWidget: return AbstractGraph
+deactivate IndexAbstractor
+
+destroy DotGraph
+
+GraphWidget -> DotGraph: init()
+
+activate DotGraph
+DotGraph -> GraphWidget: return self
+deactivate DotGraph
+GraphWidget -> DotGraph: get_pic()
+activate DotGraph
+DotGraph --> GraphWidget: return picture
+deactivate DotGraph
+
+GraphWidget -> GraphWidget: draw_graph()
+activate GraphWidget
+GraphWidget -> GraphWidget:
+deactivate GraphWidget
+GraphWidget -> User: Display Graph
+deactivate GraphWidget
+deactivate User
+
+@enduml

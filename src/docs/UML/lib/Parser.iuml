@@ -1,0 +1,32 @@
+class Parser << (M,#FF7700) >>{
+	+ kifparse(Ontology, Graph=None) : AST
+	+ astmerge((AST1, AST2)) : AST
+	+ kifserialize(AST, Ontology)
+	+ wparse(mapping) : Dictionary
+}
+
+class AbstractSyntaxTree {
+	- parent_node : AST
+	- children : AST[]
+	- name : String
+	- element_type : Enum
+	- is_indexed : Boolean
+
+	+ __init__(ontology : Ontology, parent=None : AbstractSyntaxTree) : AbstractSyntaxTree
+	+ get_children() : AST[]
+	+ add_child(AST)
+	+ remove_child(AST)
+}
+class Ontology {
+	- name : String
+	- revision : Float
+	- path : String
+	- url : String
+	- active : Boolean
+
+	+ __init__(path : String, name=None : String, url=None : String) : Ontology
+}
+
+Parser -- AbstractSyntaxTree : > uses
+AbstractSyntaxTree "0..n" o-- "1" AbstractSyntaxTree
+AbstractSyntaxTree -- Ontology

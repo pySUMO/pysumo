@@ -1,0 +1,3 @@
+class TextEditor {
+	+ show_autocomplete(txt : String) : String[]
+}

@@ -1,0 +1,5 @@
+Entwurf/src/docs/_build/*
+*.png
+*.pyc
+*~
+*.backup

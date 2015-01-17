@@ -1,0 +1,26 @@
+@startuml
+|GraphWidget|
+start
+while (gw.isVisible()) is (true)
+	repeat
+		:waitForMouseEvents();
+	repeat while (Mouse events still incoming or no valid action occurred)
+	fork
+		:pass;
+	fork again
+		:parse_graph(graph);
+		|SyntaxController|
+		:kifparse(ontology, graph);
+		|Parser|
+		:add_child(entry);
+		|GraphWidget|
+		:commit();
+		:get_graph(variant, root, depth);
+		:get_pic();
+		:draw_graph();
+		stop
+	end fork
+endwhile (false)
+stop
+
+@enduml

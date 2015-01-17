@@ -1,0 +1,77 @@
+graph {
+rankdir=LT;
+
+subgraph clusterView {
+	label="View";
+	MainWindow -- Widgets
+	MainWindow -- Toolbar
+	MainWindow -- Status
+	MainWindow -- Menu
+	Menu -- Update
+	RWidget -- Hierarchie
+	Widgets -- RWidget
+	Widgets -- RWWidget
+	RWWidget -- "Graph"	
+	RWWidget -- Text
+	RWidget -- Documentation 
+	Menu -- OptionDialog
+	OptionDialog -- HelpDialog
+	OptionDialog -- PluginManager
+	OptionDialog -- Shortcuts
+	Text -- CodeC
+	Text -- Syntax;
+}
+subgraph clusterController {
+	node [style=filled];
+	color=blue;
+	label="Controller";
+	SyntaxController -- IndexAbstractor
+	SyntaxController -- Logger
+	IndexAbstractor -- Logger;
+	V1[style=invis];
+	V2[style=invis];
+	IndexAbstractor -- V1 -- V2[style=invis];
+	IndexAbstractor --NLToolkit --V4[style=invis];
+}
+subgraph clusterModel {
+	label="Model";
+	Parser -- Lexer
+	Parser -- AST
+	AST -- Index
+	Lexer -- Serialize
+	Parser -- KIF
+	KIF -- Updater
+	KIF -- Serialize;
+	V3[style=invis];
+	V4[style=invis];
+	Index--V3--V4[style=invis];
+}
+edge[constraint=false,style=dotted];
+Widgets -- IndexAbstractor
+"Graph" -- IndexAbstractor
+RWWidget -- SyntaxController
+Status -- Logger
+SyntaxController -- Parser
+SyntaxController -- Serialize
+IndexAbstractor -- AST
+IndexAbstractor -- NLToolkit
+IndexAbstractor -- Index;
+
+SyntaxController[label="SyntaxController"]
+IndexAbstractor[label="IndexAbstractor"]
+KIF[label="KIF"]
+AST[label="AST"]
+Parser[label="Parser"]
+Text[label="Text"]
+"Graph"[label="Graph"]
+Updater[label="Updater"]
+Documentation[label="Documentation"]
+Hierarchie[label="Hierarchie"]
+MainWindow[label="MainWindow"]
+Widgets[label="Widgets"]
+Status[label="Status"]
+OptionDialog[label="OptionDialog"]
+NLToolkit[label="NLToolkit"]
+Logger[label="Logger"]
+HelpDialog[label="HelpDialog"]
+}

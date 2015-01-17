@@ -1,0 +1,25 @@
+class Actionlog {
+  - actionlog : Stack
+  - redolog : Stack
+  - queue : Dictionary
+  + __init__(path=None : String) : ActionLog
+  + queue_log(data) : int
+  + ok_log_item(log_queue_ok_num : int)
+  + undo()
+  + redo()
+}
+
+class LogIO {
+  - path: String
+  - write_queue: String[]
+  - timeout: Int
+  - max_size: Int
+  + __init__(path : String) : LogIO
+  + write()
+  + read(): String[]
+  + flush_write_queue()
+  + append_write_queue(entry)
+  
+}
+
+Actionlog *- LogIO

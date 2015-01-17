@@ -1,0 +1,35 @@
+@startuml
+page 2x1
+!include lib/package_lib.iuml
+!include ui/package_ui.iuml
+
+package "Extern" {
+  !include QSyntaxHighlighter.iuml
+  class NLTK {
+  
+}
+}
+
+note as N3
+Note that all classes have an __init__() method that
+ returns a new object of that class, but only those
+ that accept arguments are listed.
+end note
+
+TextEditor *- QSyntaxHighlighter
+
+DocumentationWidget -- WordNet
+Statusbar -- InfoLog
+InfoLog --* MainWindow
+Widget o-- "1" IndexAbstractor
+RWWidget o-- "1" SyntaxController
+
+HierarchyWidget o-- AbstractGraph
+DotGraph -- AbstractGraph
+GraphWidget "1" - "1" DotGraph
+GraphWidget o-- AbstractGraph
+
+WordNet --> NLTK : > uses
+
+
+@enduml

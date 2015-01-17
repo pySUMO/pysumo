@@ -1,0 +1,56 @@
+class MainWindow {
+	- widgets : Widget[]
+
+	+ loadOptions()
+	+ synchronize()
+	+ addWidget(widget : Widget)
+	+ deleteWidget(widget : Widget)
+	
+	+ openFile()
+	+ saveFile()
+	+ showHelp()
+	
+}
+class Statusbar {
+  - log : InfoLog
+  - statusBar : QStatusBar
+  + __init__(QStatusBar, InfoLog) : Statusbar
+  + initialize()
+  + update()
+  + clear()
+  + setProgressBarActivated(activated : Boolean)
+  + setProgressBarText(msg : String)
+  + clearProgressBarText()
+  + setProgressValue(val : Integer)
+}
+
+class Toolbar {
+  - mainWindow : QMainWindow
+  + __init__(mainWindow : QMainWindow) : Toolbar
+  + initFileToolBar()
+  + initEditToolBar()
+  + initOntologyToolBar()
+  + initViewToolBar()
+  + initToolsToolBar()
+  + initHelpToolBar()
+}
+
+class Menubar {
+ - menuBar : QMenuBar
+ + __init__(menuBar : QMenuBar) : Menubar
+ + initFileMenu()
+ + initEditMenu()
+ + initOntologyMenu()
+ + initViewMenu()
+ + initToolsMenu()
+ + initHelpMenu()
+}
+
+class HelpDialog {
+ + initView()
+}
+
+Toolbar -* MainWindow 
+MainWindow *- Statusbar
+MainWindow *- Menubar
+MainWindow o-- HelpDialog

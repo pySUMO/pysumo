@@ -1,0 +1,11 @@
+class SyntaxController {
+	- actionlog : ActionLog
+	- index : IndexAbstractor
+	+ __init__(index : IndexAbstractor) : SyntaxController
+	+ parse_partial(code_block)
+	+ parse_add(code_block)
+	+ parse_graph(graph)
+	+ add_ontology(ontology)
+	+ remove_ontology(ontology)
+	+ serialize(ontology, path=None)
+}

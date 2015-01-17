@@ -1,0 +1,3 @@
+class GraphWidget {
+	+ draw_graph()
+}
