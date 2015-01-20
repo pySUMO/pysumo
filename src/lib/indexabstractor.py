@@ -20,9 +20,8 @@ class IndexAbstractor():
     Methods:
 
     - search: searches for a term in the Ontology
-    - get_hierarchy: creates a hierarchical view of the Ontology
-    - wordnet_locate_term: returns information about a term from WordNet
-    - wordnet_locate_axiom: returns information about an axiom from WordNet
+    - get_graph: creates an abstract graph containing a view of the Ontology
+    - wordnet_locate: returns information about a term from WordNet
 
     """
 
