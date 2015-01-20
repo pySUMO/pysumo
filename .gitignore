@@ -3,3 +3,7 @@ Entwurf/src/docs/_build/*
 *.pyc
 *~
 *.backup
+.checkstyle
+.project
+.pydevproject
+.settings
