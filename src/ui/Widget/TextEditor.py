@@ -49,17 +49,38 @@ class TextEditor(RWWidget, Ui_Form):
         IndexAbstractor to process the terms which can complete the given
         string. string has to be greater than or equal to 3 characters. """
 
+class SyntaxHighlightSetting():
+    def __init__(self, expression, font_weight, font_color):
+        self.expression = expression
+        self.font_weight = font_weight
+        self.font_color = font_color
+            
+        self.createFormat()
+    def createFormat(self):
+        self.class_format = QTextCharFormat()
+        self.class_format.setFontWeight(self.font_weight)
+        self.class_format.setForeground(self.font_color)
+            
+    def get_format(self):
+        return self.class_format
+
 class SyntaxHighlighter(QSyntaxHighlighter):
+
+    def __init__(self, document):
+        super(SyntaxHighlighter, self).__init__(document)
+        #Comments
+        self.classes = []
+        self.classes.append(SyntaxHighlightSetting(";.*$", QFont.Bold, Qt.darkMagenta))
+        self.classes.append(SyntaxHighlightSetting("(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)\W", QFont.Bold, Qt.darkGreen))
+        self.classes.append(SyntaxHighlightSetting("(and|not|or)\W", QFont.Bold, Qt.black))    
     def highlightBlock(self, text):
-        myClassFormat = QTextCharFormat()
-        myClassFormat.setFontWeight(QFont.Bold)
-        myClassFormat.setForeground(Qt.darkMagenta)
-        expression = QRegExp(";.*$")
-        index = expression.indexIn(text)
-        while index >= 0:
-            length = expression.matchedLength()
-            self.setFormat(index, length, myClassFormat)
-            index = expression.indexIn(text, index + length)
+        for h in self.classes:
+            expression = QRegExp(h.expression)
+            index = expression.indexIn(text)
+            while index >= 0:
+                length = expression.matchedLength()
+                self.setFormat(index, length, h.get_format())
+                index = expression.indexIn(text, index + length)
   
     
 if __name__ == "__main__":

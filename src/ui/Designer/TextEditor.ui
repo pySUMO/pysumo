@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>503</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPlainTextEdit" name="plainTextEdit">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>501</width>
+     <height>291</height>
+    </rect>
+   </property>
+   <property name="plainText">
+    <string>;; Ontology of Communication Concepts used in the CIA World Fact Book 2002
+
+;; Access to and use of these products is governed by the GNU General Public 
+;; License &lt;http://www.gnu.org/copyleft/gpl.html&gt;. 
+;; By using these products, you agree to be bound by the terms 
+;; of the GPL.
+
+;; Those who are interested in making use of this ontology are urged 
+;; to contact Adam Pease (apease@articulatesoftware.com).
+;; We ask the people using or referencing this work cite our primary paper:
+
+;; Niles, I., and Pease, A.  2001.  Towards a Standard Upper Ontology.  In 
+;; Proceedings of the 2nd International Conference on Formal Ontology in 
+;; Information Systems (FOIS-2001), Chris Welty and Barry Smith, eds, 
+;; Ogunquit, Maine, October 17-19, 2001.  See also www.ontologyportal.org 
+
+;; 
+;; ==========================================================================
+;; VI. Communications
+
+(subclass CommunicationRadio CommunicationDevice)
+(documentation CommunicationRadio EnglishLanguage &quot;Relatively low power broadcasting
+devices designed for voice communication among specialized groups
+in which each receiver also has the power to transmit, unlike
+broadcast radio where most components transmitting or receiving on
+a given frequency or set of frequencies are receivers only.  This 
+includes unlicensed walkie-talkies, public safety radios, military
+communication systems and CB radios.&quot;)
+
+;; 	A. Telephones - main lines in use
+
+(subclass TelephoneSystem CommunicationSystem)
+(documentation TelephoneSystem EnglishLanguage &quot;A &amp;%TelephoneSystem consists of a complete
+interconnection of &amp;%Telephones, &amp;%MainTelephoneLines, and other components
+that work together to make telephonic communication possible from point to
+point in a given area.&quot;)
+
+(termFormat EnglishLanguage Telephone &quot;telephone&quot;)
+
+(=&gt;
+	(instance ?SYSTEM TelephoneSystem)
+	(exists (?PHONE)
+		(and
+			(instance ?PHONE Telephone)
+			(engineeringSubcomponent ?PHONE ?SYSTEM))))
+
+(subclass MainTelephoneLine CommunicationDevice)
+(synonymousExternalConcept &quot;main telephone line&quot; MainTelephoneLine EnglishLanguage)
+(documentation MainTelephoneLine EnglishLanguage &quot;A &amp;%MainTelephoneLine is one 
+&amp;%engineeringSubcomponent of a &amp;%TelephoneSystem used for voice communication 
+or computer data transfer.&quot;)
+(=&gt;
+	(instance ?SYSTEM TelephoneSystem)
+	(exists (?LINE)
+		(and
+			(instance ?LINE MainTelephoneLine)
+			(engineeringSubcomponent ?LINE ?SYSTEM))))
+
+(subclass TelephoneCradle Device)
+(documentation TelephoneCradle EnglishLanguage &quot;&amp;%TelephoneCradle is the part of the
+&amp;%Telephone that is connected to the &amp;%TelephoneSystem through some wire.&quot;)
+(termFormat EnglishLanguage TelephoneCradle &quot;telephone cradle&quot;)
+
+(=&gt;
+  (instance ?X TelephoneCradle)
+  (hasPurpose ?X
+    (exists (?SYS ?WIRE)
+      (and
+        (instance ?SYS TelephoneSystem)
+        (instance ?WIRE WireLine)
+        (connectsEngineeringComponents ?WIRE ?X ?SYS)))))      
+
+(subclass CordedTelephone FixedPhone)
+(documentation CordedTelephone EnglishLanguage &quot;&amp;%CordedTelephone is a type of &amp;%FixedPhone 
+whose &amp;%TelephoneHandset is connected to its &amp;%TelephoneCradle by a &amp;%WireLine&quot;)
+(termFormat EnglishLanguage CordedTelephone &quot;corded telephone&quot;)
+
+(=&gt;
+  (instance ?X CordedTelephone)
+  (exists (?HANDSET ?CRADLE ?WIRE)
+    (and
+      (instance ?HANDSET TelephoneHandset)
+      (instance ?CRADLE TelephoneCradle)
+      (part ?HANDSET ?X)
+      (part ?CRADLE ?X)
+      (instance ?WIRE WireLine)
+      (connectsEngineeringComponents ?WIRE ?HANDSET ?CRADLE))))
+        
+(subclass CordlessTelephone FixedPhone)
+(documentation CordlessTelephone EnglishLanguage &quot;&amp;%CordlessTelephone is a type of 
+&amp;%FixedPhone whose &amp;%TelephoneHandset is not connected to its &amp;%TelephoneCradle by a 
+&amp;%WireLine&quot;)
+(termFormat EnglishLanguage CordlessTelephone &quot;cordless telephone&quot;)
+
+(=&gt;
+  (instance ?X CordlessTelephone)
+  (exists (?HANDSET ?CRADLE)
+    (and
+      (instance ?HANDSET TelephoneHandset)
+      (instance ?CRADLE TelephoneCradle)
+      (part ?HANDSET ?X)
+      (part ?CRADLE ?X)
+      (not 
+        (exists (?WIRE)
+          (and
+            (instance ?WIRE WireLine)
+            (connectsEngineeringComponents ?WIRE ?HANDSET ?CRADLE)))))))
+        
+;;	B. Telephones - mobile cellular
+
+;;	C. Telephone system
+(subclass ArtificialSatellite Satellite)
+(subclass ArtificialSatellite EngineeringComponent)
+(termFormat EnglishLanguage ArtificialSatellite &quot;satellite&quot;)
+(documentation ArtificialSatellite EnglishLanguage &quot;An &amp;%ArtificialSatellite is a &amp;%Device
+that orbits the earth in space and performs various functions such as
+aiding in communication, photographing the earth's surface, and others.&quot;)
+
+(subclass CommunicationSatellite ArtificialSatellite)
+(subclass CommunicationSatellite CommunicationDevice)
+(termFormat EnglishLanguage CommunicationSatellite &quot;communications satellite&quot;)
+(documentation CommunicationSatellite EnglishLanguage &quot;A &amp;%CommunicationSatellite is an
+&amp;%ArtificialSatellite that serves as one &amp;%engineeringSubcomponent of a 
+&amp;%CommunicationSystem.&quot;)
+(=&gt;
+	(instance ?SAT CommunicationSatellite)
+	(exists (?SYSTEM)
+		(and
+			(instance ?SYSTEM CommunicationSystem)
+			(engineeringSubcomponent ?SAT ?SYSTEM))))
+
+(instance communicationSatelliteForArea TernaryPredicate)
+(domain communicationSatelliteForArea 1 GeopoliticalArea)
+(domainSubclass communicationSatelliteForArea 2 Satellite)
+(domain communicationSatelliteForArea 3 Integer)
+(documentation communicationSatelliteForArea EnglishLanguage &quot;The expression
+(communicationSatelliteForArea ?AREA ?SATELLITE ?INTEGER) means that 
+?INTEGER number of &amp;%CommunicationSatellites of the type ?SATELLITE serve
+as an &amp;%engineeringSubcomponent of a &amp;%TelephoneSystem of the GeopoliticalArea
+?AREA.&quot;)
+
+(=&gt;
+	(communicationSatelliteForArea ?AREA ?SATELLITETYPE ?INTEGER)
+	(equal ?INTEGER
+		(CardinalityFn
+			(KappaFn ?SATELLITE
+				(and
+					(instance ?SATELLITE ?SATELLITETYPE)
+					(instance ?SYSTEM CommunicationSystem)
+					(located ?SYSTEM ?AREA)
+					(engineeringSubcomponent ?SATELLITE ?SYSTEM))))))
+
+(subclass Eutelsat CommunicationSatellite)
+(documentation Eutelsat EnglishLanguage &quot;An &amp;%Eutelsat is one type of 
+&amp;%CommunicationSatellite.&quot;)
+
+(subclass Inmarsat CommunicationSatellite)
+(documentation Inmarsat EnglishLanguage &quot;An &amp;%Inmarsat is one type of 
+&amp;%CommunicationSatellite.&quot;)
+
+(subclass Intelsat CommunicationSatellite)
+(documentation Intelsat EnglishLanguage &quot;An &amp;%Intelsat is one type of 
+&amp;%CommunicationSatellite.&quot;)
+
+(subclass Intersputnik CommunicationSatellite)
+(documentation Intersputnik EnglishLanguage &quot;An &amp;%Intersputnik is one type of 
+&amp;%CommunicationSatellite.&quot;)
+
+(subclass Orbita CommunicationSatellite)
+(documentation Orbita EnglishLanguage &quot;An &amp;%Orbita is one type of 
+&amp;%CommunicationSatellite.&quot;)
+
+(subclass Telex CommunicationDevice)
+(documentation Telex EnglishLanguage &quot;&amp;%Telex is a &amp;%Telegraph-like &amp;%CommunicationDevice 
+that is used to send messages over a &amp;%TelephoneSystem.&quot;)
+(termFormat EnglishLanguage Telex &quot;telex&quot;)
+
+(=&gt;
+  (instance ?TELEX Telex)
+  (exists (?PRINTER)
+    (and
+      (instance ?PRINTER Printer)
+      (part ?PRINTER ?TELEX))))
+      
+(=&gt;
+  (instance ?TELEX Telex)
+  (hasPurpose ?TELEX
+    (exists (?SYS ?TELEX2 ?MSG)
+      (and
+        (instance ?SYS TelephoneSystem)
+        (instance ?TELEX2 Telex)
+        (instance ?MSG Messaging)
+        (or
+          (and
+            (origin ?MSG ?TELEX)
+            (destination ?MSG ?TELEX2))
+          (and
+            (origin ?MSG ?TELEX2)
+            (destination ?MSG ?TELEX)))
+        (path ?MSG ?SYS)))))
+
+(=&gt;
+  (and
+    (destination ?MSG ?TELEX)
+    (instance ?MSG Messaging)
+    (patient ?MSG ?M)
+    (instance ?TELEX Telex))
+  (exists (?PROC ?TEXT)
+    (and
+      (instrument ?PROC ?TELEX)
+      (result ?PROC ?TEXT)
+      (represents ?TEXT ?M)
+      (instance ?TEXT Text)
+      (before (BeginFn (WhenFn ?MSG)) (BeginFn (WhenFn ?PROC))))))
+
+
+;;	D. Radio broadcast stations
+(subclass BroadcastingStation StationaryArtifact)
+(subclass BroadcastingStation CommunicationDevice)
+(engineeringSubcomponent BroadcastingStation CommunicationSystem)
+(documentation BroadcastingStation EnglishLanguage &quot;A &amp;%BroadcastingStation is
+an &amp;%engineeringSubcomponent of either a &amp;%TelevisionSystem or
+a &amp;%RadioStation.&quot;)
+
+(=&gt;
+	(instance ?STATION BroadcastingStation)
+	(or
+		(instance ?STATION TelevisionStation)
+		(instance ?STATION RadioStation)))
+
+(subclass RadioSystem CommunicationSystem)
+(documentation RadioSystem EnglishLanguage &quot;A &amp;%RadioSystem consists of &amp;%Radios, 
+&amp;%RadioStations, and other components that work together to make 
+radio broadcasting possible in a given area.&quot;)
+
+(subclass AMRadioSystem RadioSystem)
+(documentation AMRadioSystem EnglishLanguage &quot;An &amp;%AMRadioSystem consists of &amp;%Radios, 
+&amp;%AMRadioStations, and other components that work together to make 
+AM radio broadcasting possible in a given area.&quot;)
+
+(subclass FMRadioSystem RadioSystem)
+(documentation FMRadioSystem EnglishLanguage &quot;A &amp;%FMRadioSystem consists of &amp;%Radios, 
+&amp;%FMRadioStations, and other components that work together to make 
+FM radio broadcasting possible in a given area.&quot;)
+
+(subclass ShortwaveRadioSystem RadioSystem)
+(documentation ShortwaveRadioSystem EnglishLanguage &quot;A &amp;%ShortwaveRadioSystem consists 
+of &amp;%Radios, &amp;%ShortwaveRadioStations, and other components that work 
+together to make shortwave radio broadcasting possible in a given area.&quot;)
+
+(subclass BabyMonitoringSystem RadioSystem)
+(documentation BabyMonitoringSystem EnglishLanguage &quot;&amp;%BabyMonitoringSystem refers to
+the radio system that &amp;%Broadcasting at 49Mhz, consisting of a transmitter and receiver,
+where the transmitter is kept where the baby is kept, and the receiver is kept with
+the person looking after the baby to be able to hear sounds and monitor the baby&quot;)
+(termFormat EnglishLanguage BabyMonitoringSystem &quot;baby monitor&quot;)
+
+(=&gt;
+  (instance ?X BabyMonitoringSystem)
+  (exists (?TX ?RX)
+    (and
+      (instance ?RX RadioReceiver)
+      (instance ?TX Device)
+      (engineeringSubcomponent ?RX ?X)
+      (engineeringSubcomponent ?TX ?X)
+      (hasPurpose ?X
+        (exists (?BABY ?CARER ?SOUND ?LOC1 ?LOC2 ?PROC ?RADIO)
+          (and
+            (instance ?BABY HumanBaby)
+            (instance ?CARER Human)
+            (located ?BABY ?LOC1)
+            (located ?CARER ?LOC2)
+            (not (equal ?LOC1 ?LOC2))
+            (instance ?PROC Maintaining)
+            (patient ?PROC ?BABY)
+            (agent ?PROC ?CARER)
+            (located ?TX ?LOC1)
+            (located ?RX ?LOC2)
+            (instance ?SOUND RadiatingSound)
+            (eventLocated ?SOUND ?LOC1)
+            (instance ?RADIO RadioEmission)
+            (patient ?RADIO ?SOUND)
+            (destination ?RADIO ?RX)
+            (agent ?RADIO ?TX)))))))
+            
+
+(subclass RadioStation BroadcastingStation)
+(subclass BroadcastingStation EngineeringComponent)
+(engineeringSubcomponent RadioStation RadioSystem)
+(documentation RadioStation EnglishLanguage &quot;A &amp;%RadioStation is an 
+&amp;%engineeringSubcomponent of a &amp;%RadioSystem.&quot;)
+
+(subclass AMRadioStation RadioStation)
+(engineeringSubcomponent AMRadioStation RadioSystem)
+(documentation AMRadioStation EnglishLanguage &quot;An &amp;%AMRadioStation is an 
+&amp;%engineeringSubcomponent of an &amp;%AMRadioSystem.&quot;)
+
+(subclass FMRadioStation RadioStation)
+(engineeringSubcomponent FMRadioStation RadioSystem)
+(documentation FMRadioStation EnglishLanguage &quot;A &amp;%FMRadioStation is an 
+&amp;%engineeringSubcomponent of an &amp;%FMRadioSystem.&quot;)
+
+(subclass ShortwaveRadioStation RadioStation)
+(engineeringSubcomponent ShortwaveRadioStation RadioSystem)
+(documentation ShortwaveRadioStation EnglishLanguage &quot;A &amp;%ShortwaveRadioStation 
+is an &amp;%engineeringSubcomponent of a &amp;%ShortwaveRadioSystem.&quot;)
+
+;;	E. Radios
+
+(=&gt;
+	(instance ?SYSTEM RadioSystem)
+	(exists (?DEVICE)
+		(and
+			(instance ?DEVICE RadioReceiver)
+			(engineeringSubcomponent ?DEVICE ?SYSTEM))))
+
+;;	F. Television broadcast stations
+(subclass TelevisionSystem CommunicationSystem)
+(documentation TelevisionSystem EnglishLanguage &quot;A system for &amp;%Broadcasting and 
+receiving television signals.&quot;)
+
+(subclass TelevisionStation BroadcastingStation)
+(engineeringSubcomponent TelevisionStation TelevisionSystem)
+(documentation TelevisionStation EnglishLanguage &quot;A &amp;%TelevisionStation is an 
+&amp;%engineeringSubcomponent of a &amp;%TelevisionSystem.&quot;)
+(=&gt;
+	(instance ?SYSTEM TelevisionSystem)
+	(exists (?STATION)
+		(and
+			(instance ?STATION TelevisionStation)
+			(engineeringSubcomponent ?STATION ?SYSTEM))))
+
+(subclass CableTelevisionSystem CommunicationSystem)
+(documentation CableTelevisionSystem EnglishLanguage &quot;A &amp;%CableTelevisionSystem
+is a &amp;%CommunicationSystem for cable television.&quot;)
+
+(=&gt;
+  (instance ?SYSTEM CableTelevisionSystem)
+  (exists (?DEVICE)
+    (and
+      (instance ?DEVICE TelevisionReceiver)
+      (engineeringSubcomponent ?DEVICE ?SYSTEM))))
+
+(subclass SatelliteTelevisionSystem CommunicationSystem)
+(documentation SatelliteTelevisionSystem EnglishLanguage &quot;&amp;%SatelliteTelevisionSystem       
+is a &amp;%CommunicationSystem where &amp;%ArtificialSatellite is used to transfer TV signals&quot;)
+(termFormat EnglishLanguage SatelliteTelevisionSystem &quot;satellite tv&quot;)
+
+(=&gt;
+  (instance ?TV SatelliteTelevisionSystem)
+  (exists (?SAT ?RECEIVE)
+    (and
+      (instance ?SAT ArtificialSatellite)
+      (member ?SAT ?TV)
+      (instance ?RECEIVE TelevisionReceiver)
+      (member ?RECEIVE ?TV))))      
+      
+(subclass BroadcastNetwork CommunicationSystem)
+(documentation BroadcastNetwork EnglishLanguage &quot;&amp;%BroadcastNetwork is the subclass of 
+&amp;%CommunicationSystems consisting of &amp;%BroadcastingStations that are linked 
+electronically and managed or owned by one organization.&quot;)
+(=&gt;
+  (instance ?N BroadcastNetwork)
+  (forall (?M)
+    (=&gt;
+      (member ?M ?N)
+      (instance ?M BroadcastingStation))))
+
+(=&gt;
+  (instance ?N BroadcastNetwork)
+  (exists (?O)
+    (and
+      (instance ?O Organization)
+      (forall (?M)
+        (=&gt;
+          (member ?M ?N)
+          (possesses ?O ?M))))))
+
+;;	G. Televisions
+(subclass TelevisionReceiver ReceiverDevice)
+(subclass TelevisionReceiver EngineeringComponent)
+(termFormat EnglishLanguage TelevisionReceiver &quot;television&quot;)
+(termFormat EnglishLanguage TelevisionReceiver &quot;TV&quot;)
+(documentation TelevisionReceiver EnglishLanguage &quot;A &amp;%TelevisionReceiver is a &amp;%Device for receiving 
+television broadcast signals from a &amp;%TelevisionStation or signals
+transmitted through a cable from a &amp;%CableTelevisionSystem.&quot;)
+(=&gt;
+  (instance ?SYSTEM TelevisionSystem)
+  (exists (?DEVICE)
+    (and
+      (instance ?DEVICE TelevisionReceiver)
+      (engineeringSubcomponent ?DEVICE ?SYSTEM))))
+
+(=&gt;
+  (instance ?T TelevisionReceiver)
+  (capability TelevisionBroadcasting patient ?T))
+
+(subclass TelevisionSet ElectricDevice)
+(documentation TelevisionSet EnglishLanguage &quot;&amp;%TelevisionSet is an &amp;%ElectricDevice
+comprised of a &amp;%TelevisionReceiver and some form of &amp;%VideoDisplay and is part of
+a &amp;%TelevisionSystem&quot;)
+(termFormat EnglishLanguage TelevisionSet &quot;television set&quot;)
+
+(=&gt;
+  (instance ?TV TelevisionSet)
+  (exists (?RECEIVER ?DISPLAY)
+    (and
+      (instance ?RECEIVER TelevisionReceiver)
+      (instance ?DISPLAY VideoDisplay)
+      (part ?RECEIVER ?TV)
+      (part ?DISPLAY ?TV))))
+
+(subclass TVRemoteControl RemoteControl)
+(documentation TVRemoteControl EnglishLanguage &quot;&amp;%TVRemoteControl is a type of 
+&amp;%RemoteControl that signals to a &amp;%TelevisionReceiver&quot;)
+(termFormat EnglishLanguage TVRemoteControl &quot;tv remote&quot;)
+
+(=&gt;
+  (instance ?X TVRemoteControl)
+  (hasPurpose ?X
+    (exists (?SIGNAL ?DEVICE)
+      (and
+        (instance ?SIGNAL ElectronicSignalling)
+        (agent ?SIGNAL ?X)
+        (destination ?SIGNAL ?DEVICE)
+        (instance ?DEVICE TelevisionReceiver)))))
+
+  
+;;	H. Internet country code
+(instance Internet CommunicationSystem)	
+(documentation Internet EnglishLanguage &quot;The &amp;%Internet is a &amp;%CommunicationSystem
+for the rapid delivery of information between computers.&quot;)
+
+(instance internetCountryCode BinaryPredicate)
+(domain internetCountryCode 1 GeopoliticalArea)
+(domain internetCountryCode 2 SymbolicString)
+(documentation internetCountryCode EnglishLanguage &quot;(internetCountryCode ?AREA ?CODE)
+relates a &amp;%GeopoliticalArea to the &amp;%SymbolicString ?CODE used to
+identify the ?AREA on internet websites.&quot;)
+
+;;	I. Internet Service Providers (ISPs)
+(subclass InternetServiceProvider CommunicationSystem)
+(engineeringSubcomponent InternetServiceProvider Internet)
+(documentation InternetServiceProvider EnglishLanguage &quot;An &amp;%InternetServiceProvider
+serves as an &amp;%engineeringSubcomponent of the &amp;%Internet for a given
+area.&quot;)
+(=&gt;
+	(instance ?PART InternetServiceProvider)
+	(engineeringSubcomponent ?PART Internet))
+
+;;	J. Internet users
+(instance InternetUser SocialRole)
+(documentation InternetUser EnglishLanguage &quot;An &amp;%InternetUser is an individual who
+uses the &amp;%Internet.&quot;)
+
+(=&gt;
+	(attribute ?INDIVIDUAL InternetUser)
+	(exists (?PROCESS)
+		(and
+			(agent ?PROCESS ?INDIVIDUAL)
+			(instrument ?PROCESS Internet))))
+
+;;	K. Communications - note
+
+;; ==========================================================================
+</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
