@@ -15,6 +15,14 @@ import re
 from os.path import basename
 from enum import Enum
 
+def tokenize(chars):
+    return chars.replace('(', ' ( ').replace(')', ' ) ').split(' ')
+
+def cleanup(chars):
+    chars = chars.rstrip()
+    chars = chars[:chars.index(';')]
+    return chars
+
 def kifparse(ontology, graph=None, ast=None):
     """ Parse an ontology and return an AbstractSyntaxTree.
 
@@ -29,7 +37,14 @@ def kifparse(ontology, graph=None, ast=None):
     - AbstractSyntaxTree
 
     """
-    pass
+    f = open(ontology.path, 'r')
+    for line in f:
+        line = cleanup(line)
+        if line == "":
+            break
+        line = tokenize(line)
+
+
 
 def astmerge(trees):
     """ Merge two Abstract Syntax Trees
