@@ -34,12 +34,12 @@ def kifparse(ontology, graph=None, ast=None):
     - AbstractSyntaxTree
 
     """
-    f = open(ontology.path, 'r')
-    for line in f:
-        line = cleanup(line)
-        if line == "":
-            break
-        line = tokenize(line)
+    with open(ontology.path, 'r') as f:
+        for line in f:
+            line = cleanup(line)
+            if line == "":
+                break
+            line = tokenize(line)
 
 
 
