@@ -38,15 +38,15 @@ lib.indexabstractor module
     :undoc-members:
     :show-inheritance:
 
-lib.nltoolkit module
+lib.wordnet module
 --------------------
 .. uml::
-    !include ./UML/lib/NLToolkit.iuml
+    !include ./UML/lib/WordNet.iuml
 
 |
 
 
-.. automodule:: lib.nltoolkit
+.. automodule:: lib.wordnet
     :members:
     :undoc-members:
     :show-inheritance:
