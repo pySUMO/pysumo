@@ -10,7 +10,7 @@ end note
     !include logger/InfoLog.iuml
   }
   !include IndexAbstractor.iuml
-  !include NLToolkit.iuml
+  !include WordNet.iuml
   
   !include SyntaxController.iuml
   !include Updater.iuml

@@ -1,4 +1,4 @@
-""" The interface to the Natural Language Toolkit.
+""" The interface to WordNet.
 
 This module contains:
 
@@ -6,13 +6,10 @@ This module contains:
 
 """
 
-#from nltk.corpus import wordnet
-
 class WordNet():
-    """ An interface to locate and search for items in WordNet. Uses NLTK to
-    search WordNet for information about terms in the Ontology, to find
-    colloquial variations of term names and to find terms that are synonyms of
-    a word.
+    """ An interface to locate and search for items in WordNet. Searches
+    WordNet for information about terms in the Ontology, to find colloquial
+    variations of term names and to find terms that are synonyms of a word.
 
     Methods:
 

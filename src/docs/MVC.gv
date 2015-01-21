@@ -31,7 +31,7 @@ subgraph clusterController {
 	V1[style=invis];
 	V2[style=invis];
 	IndexAbstractor -- V1 -- V2[style=invis];
-	IndexAbstractor --NLToolkit --V4[style=invis];
+	IndexAbstractor --WordNet --V4[style=invis];
 }
 subgraph clusterModel {
 	label="Model";
@@ -54,7 +54,7 @@ Status -- Logger
 SyntaxController -- Parser
 SyntaxController -- Serialize
 IndexAbstractor -- AST
-IndexAbstractor -- NLToolkit
+IndexAbstractor -- WordNet
 IndexAbstractor -- Index;
 
 SyntaxController[label="SyntaxController"]
@@ -71,7 +71,7 @@ MainWindow[label="MainWindow"]
 Widgets[label="Widgets"]
 Status[label="Status"]
 OptionDialog[label="OptionDialog"]
-NLToolkit[label="NLToolkit"]
+WordNet[label="WordNet"]
 Logger[label="Logger"]
 HelpDialog[label="HelpDialog"]
 }
