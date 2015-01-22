@@ -11,6 +11,7 @@ from PySide.QtGui import QSyntaxHighlighter as QSyntaxHighlighter
 from PySide.QtCore import Qt, QRegExp
 from ui.Widget.Widget import RWWidget as RWWidget
 from ui.Designer.TextEditor import Ui_Form as Ui_Form
+from uno import setCurrentContext
 class TextEditor(RWWidget, Ui_Form):
     """ Contains many features of popular text editors adapted for use with
     Ontologies such as syntax highlighting, and autocompletion. One column on
@@ -52,12 +53,15 @@ class TextEditor(RWWidget, Ui_Form):
         string. string has to be greater than or equal to 3 characters. """
 
 class SyntaxHighlightSetting():
-    def __init__(self, expression, font_weight, font_color):
+    def __init__(self, expression, font_weight, font_color, expression_end = ''):
         self.expression = expression
+        if expression_end != '':
+            self.expression_end = expression_end
         self.font_weight = font_weight
         self.font_color = font_color
         self.createFormat()
-        
+    
+
     def createFormat(self):
         self.class_format = QTextCharFormat()
         self.class_format.setFontWeight(self.font_weight)
@@ -86,21 +90,44 @@ class SyntaxHighlighter(QSyntaxHighlighter):
 
     def __init__(self, document):
         super(SyntaxHighlighter, self).__init__(document)
-        self.classes = []
-        self.classes.append(SyntaxHighlightSetting(";.*$", QFont.StyleItalic, Qt.darkMagenta))
-        self.classes.append(SyntaxHighlightSetting("(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W'\n']", QFont.Bold, Qt.darkGreen))
-        self.classes.append(SyntaxHighlightSetting("(and|=>|not|or)(?!\w)", QFont.Bold, Qt.black))   
+        self.singleline = []
+        self.singleline.append(SyntaxHighlightSetting("(and|=>|not|or)(?!\w)", QFont.Bold, Qt.black))
+
+        self.singleline.append(SyntaxHighlightSetting("(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W'\n']", QFont.Bold, Qt.darkGreen))
+        self.singleline.append(SyntaxHighlightSetting(";.*$", QFont.StyleItalic, Qt.darkMagenta))           
+        
+        self.multiline = []
+        self.multiline.append(SyntaxHighlightSetting('"', QFont.Normal, Qt.red, '"'))
         
     def highlightBlock(self, text):
-        for h in self.classes:
-            h.deserialize(h.serialize())
+        for h in self.singleline:
             expression = QRegExp(h.expression)
             index = expression.indexIn(text)
             while index >= 0:
                 length = expression.matchedLength()
                 self.setFormat(index, length, h.get_format())
                 index = expression.indexIn(text, index + length)
-  
+        
+        for h in self.multiline:
+            startIndex = 0
+            self.setCurrentBlockState(0);
+            expression = QRegExp(h.expression);
+            expression_end = QRegExp(h.expression_end)
+            
+            if(self.previousBlockState() != 1):
+                startIndex = expression.indexIn(text)
+                
+            while startIndex >= 0:
+                endIndex = expression_end.indexIn(text,startIndex+1)
+                if endIndex == -1:
+                    self.setCurrentBlockState(1)
+                    commentLength = len(text) - startIndex
+                else:
+                    commentLength = endIndex - startIndex + expression_end.matchedLength()
+                self.setFormat(startIndex, commentLength, h.get_format())
+                startIndex = expression.indexIn(text,startIndex + commentLength)  
+    
+            
     
 if __name__ == "__main__":
     application = QApplication(sys.argv)
@@ -108,5 +135,4 @@ if __name__ == "__main__":
     x = TextEditor(mainwindow)
     mainwindow.show()
     sys.exit(application.exec_())
-    #x.
     
