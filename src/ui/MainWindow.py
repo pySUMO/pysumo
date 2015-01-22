@@ -10,6 +10,7 @@ from PySide import QtGui
 from PySide.QtGui import QMainWindow
 from PySide.QtGui import QApplication
 import sys
+import ui.Widget.TextEditor
 from ui.Designer import MainWindow
 
 class MainWindow(MainWindow.Ui_mainwindow):
@@ -29,6 +30,8 @@ class MainWindow(MainWindow.Ui_mainwindow):
         self.mainwindow = QMainWindow()
         self.setupUi(self.mainwindow)
         self.mainwindow.show()
+        texteditor = ui.Widget.TextEditor.TextEditor(self.mainwindow)
+        self.mainwindow.setCentralWidget(texteditor.getWidget())
         
     def loadOptions(self):
         """ Loads the options of the main window and all its widgets. """
