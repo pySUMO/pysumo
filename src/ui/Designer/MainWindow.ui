@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mainwindow</class>
+ <widget class="QMainWindow" name="mainwindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>680</width>
+    <height>364</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>pySUMO</string>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>680</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <widget class="QMenu" name="openOntology">
+     <property name="toolTip">
+      <string notr="true"/>
+     </property>
+     <property name="statusTip">
+      <string notr="true"/>
+     </property>
+     <property name="whatsThis">
+      <string notr="true"/>
+     </property>
+     <property name="accessibleName">
+      <string notr="true"/>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
+     <property name="title">
+      <string notr="true">Open</string>
+     </property>
+     <addaction name="openLocalOntologyAction"/>
+     <addaction name="separator"/>
+     <addaction name="openRemoteOntologyAction"/>
+    </widget>
+    <widget class="QMenu" name="menuRecent_Ontologies">
+     <property name="title">
+      <string>Recent Ontologies</string>
+     </property>
+     <addaction name="action1_Table_kif"/>
+     <addaction name="action2_Distance_kif"/>
+     <addaction name="separator"/>
+     <addaction name="clearHistoryAction"/>
+    </widget>
+    <addaction name="newOntologyAction"/>
+    <addaction name="openOntology"/>
+    <addaction name="menuRecent_Ontologies"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionPrint"/>
+    <addaction name="actionQuickPrint"/>
+    <addaction name="separator"/>
+    <addaction name="actionProperties"/>
+    <addaction name="actionRevert"/>
+    <addaction name="actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete"/>
+    <addaction name="actionSelectAll"/>
+    <addaction name="separator"/>
+    <addaction name="actionFind"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <widget class="QMenu" name="menuToolbar">
+     <property name="title">
+      <string>Toolbar</string>
+     </property>
+     <addaction name="actionFile"/>
+     <addaction name="actionEdit"/>
+     <addaction name="actionOntology"/>
+     <addaction name="actionTools"/>
+     <addaction name="actionHelp"/>
+     <addaction name="separator"/>
+     <addaction name="actionConfigureToollbars"/>
+    </widget>
+    <addaction name="actionHierarchyWidget"/>
+    <addaction name="actionDocumentationWidget"/>
+    <addaction name="actionGraphWidget"/>
+    <addaction name="actionTextEditorWidget"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="separator"/>
+    <addaction name="menuToolbar"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionPySUMOHelp"/>
+    <addaction name="actionPySUMOTutorials"/>
+    <addaction name="separator"/>
+    <addaction name="actionFAQ"/>
+    <addaction name="separator"/>
+    <addaction name="actionAboutSUMO"/>
+    <addaction name="actionAboutSUOKIF"/>
+    <addaction name="actionAboutpySUMO"/>
+   </widget>
+   <widget class="QMenu" name="menuOntology">
+    <property name="title">
+     <string>Ontology</string>
+    </property>
+    <addaction name="actionAddTerms"/>
+    <addaction name="actionRemoveTerms"/>
+    <addaction name="separator"/>
+    <addaction name="actionUpdate"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuOntology"/>
+   <addaction name="menuView"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QToolBar" name="toolBarFile">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="newOntologyAction"/>
+   <addaction name="openLocalOntologyAction"/>
+   <addaction name="openRemoteOntologyAction"/>
+   <addaction name="separator"/>
+   <addaction name="actionSave"/>
+   <addaction name="actionPrint"/>
+  </widget>
+  <widget class="QToolBar" name="toolBarEdit">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="separator"/>
+   <addaction name="actionCut"/>
+   <addaction name="actionCopy"/>
+   <addaction name="actionPaste"/>
+  </widget>
+  <widget class="QToolBar" name="toolBarOntology">
+   <property name="windowTitle">
+    <string>toolBar_3</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionAddTerms"/>
+   <addaction name="actionRemoveTerms"/>
+   <addaction name="separator"/>
+   <addaction name="actionUpdate"/>
+  </widget>
+  <widget class="QToolBar" name="toolBarTools">
+   <property name="windowTitle">
+    <string>toolBar_4</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionSettings"/>
+  </widget>
+  <widget class="QToolBar" name="toolBarHelp">
+   <property name="windowTitle">
+    <string>toolBar_5</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionPySUMOHelp"/>
+   <addaction name="actionPySUMOTutorials"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="newOntologyAction">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-new.png</normaloff>:/actions/gfx/actions/document-new.png</iconset>
+   </property>
+   <property name="text">
+    <string notr="true">New Ontology</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">New Ontology</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">New Ontology</string>
+   </property>
+   <property name="statusTip">
+    <string notr="true"/>
+   </property>
+   <property name="whatsThis">
+    <string notr="true"/>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+N</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="openLocalOntologyAction">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-open.png</normaloff>:/actions/gfx/actions/document-open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Local Ontology</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="openRemoteOntologyAction">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-open-remote.png</normaloff>:/actions/gfx/actions/document-open-remote.png</iconset>
+   </property>
+   <property name="text">
+    <string notr="true">Remote Ontology</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">Remote Ontology</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">Remote Ontology</string>
+   </property>
+   <property name="statusTip">
+    <string notr="true"/>
+   </property>
+   <property name="whatsThis">
+    <string notr="true"/>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+R</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::ApplicationSpecificRole</enum>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="action1_Table_kif">
+   <property name="text">
+    <string>1 Table.kif</string>
+   </property>
+  </action>
+  <action name="action2_Distance_kif">
+   <property name="text">
+    <string>2 Distance.kif</string>
+   </property>
+  </action>
+  <action name="clearHistoryAction">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-clear-history.png</normaloff>:/actions/gfx/actions/edit-clear-history.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clear History</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-save.png</normaloff>:/actions/gfx/actions/document-save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-save-as.png</normaloff>:/actions/gfx/actions/document-save-as.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionRevert">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-revert.png</normaloff>:/actions/gfx/actions/document-revert.png</iconset>
+   </property>
+   <property name="text">
+    <string>Revert</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-print.png</normaloff>:/actions/gfx/actions/document-print.png</iconset>
+   </property>
+   <property name="text">
+    <string>Print...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-close.png</normaloff>:/actions/gfx/actions/document-close.png</iconset>
+   </property>
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/application-exit.png</normaloff>:/actions/gfx/actions/application-exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionProperties">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-properties.png</normaloff>:/actions/gfx/actions/document-properties.png</iconset>
+   </property>
+   <property name="text">
+    <string>Properties...</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionQuickPrint">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/document-quickprint.png</normaloff>:/actions/gfx/actions/document-quickprint.png</iconset>
+   </property>
+   <property name="text">
+    <string>Quick Print</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-undo.png</normaloff>:/actions/gfx/actions/edit-undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-redo.png</normaloff>:/actions/gfx/actions/edit-redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-cut.png</normaloff>:/actions/gfx/actions/edit-cut.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-copy.png</normaloff>:/actions/gfx/actions/edit-copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-paste.png</normaloff>:/actions/gfx/actions/edit-paste.png</iconset>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-delete.png</normaloff>:/actions/gfx/actions/edit-delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-select-all.png</normaloff>:/actions/gfx/actions/edit-select-all.png</iconset>
+   </property>
+   <property name="text">
+    <string>Select All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionPySUMOHelp">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/help-contents.png</normaloff>:/actions/gfx/actions/help-contents.png</iconset>
+   </property>
+   <property name="text">
+    <string>pySUMO Help</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionPySUMOTutorials">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/help-hint.png</normaloff>:/actions/gfx/actions/help-hint.png</iconset>
+   </property>
+   <property name="text">
+    <string>pySUMO Tutorials</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionFAQ">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/help-faq.png</normaloff>:/actions/gfx/actions/help-faq.png</iconset>
+   </property>
+   <property name="text">
+    <string>F.A.Q</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionAboutSUMO">
+   <property name="text">
+    <string>About SUMO</string>
+   </property>
+  </action>
+  <action name="actionAboutSUOKIF">
+   <property name="text">
+    <string>About SUO-KIF</string>
+   </property>
+  </action>
+  <action name="actionAboutpySUMO">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/help-about.png</normaloff>:/actions/gfx/actions/help-about.png</iconset>
+   </property>
+   <property name="text">
+    <string>About pySUMO</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/configure.png</normaloff>:/actions/gfx/actions/configure.png</iconset>
+   </property>
+   <property name="text">
+    <string>Settings...</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionHierarchyWidget">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hierarchy Widget</string>
+   </property>
+  </action>
+  <action name="actionDocumentationWidget">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Documentation Widget</string>
+   </property>
+  </action>
+  <action name="actionGraphWidget">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Graph Widget</string>
+   </property>
+  </action>
+  <action name="actionTextEditorWidget">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Text Editor Widget</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/zoom-in.png</normaloff>:/actions/gfx/actions/zoom-in.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom In </string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/zoom-out.png</normaloff>:/actions/gfx/actions/zoom-out.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionFile">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>File</string>
+   </property>
+  </action>
+  <action name="actionEdit">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Edit</string>
+   </property>
+  </action>
+  <action name="actionTools">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tools</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </action>
+  <action name="actionConfigureToollbars">
+   <property name="text">
+    <string>Configure Toolbars...</string>
+   </property>
+  </action>
+  <action name="actionAddTerms">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/list-add.png</normaloff>:/actions/gfx/actions/list-add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add Terms</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionRemoveTerms">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/list-remove.png</normaloff>:/actions/gfx/actions/list-remove.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove Terms</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionUpdate">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/update-product.png</normaloff>:/actions/gfx/actions/update-product.png</iconset>
+   </property>
+   <property name="text">
+    <string>Update </string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="icon">
+    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+     <normaloff>:/actions/gfx/actions/edit-find.png</normaloff>:/actions/gfx/actions/edit-find.png</iconset>
+   </property>
+   <property name="text">
+    <string>Find</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionOntology">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ontology</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionFile</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>toolBarFile</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>101</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdit</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>toolBarEdit</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionOntology</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>toolBarOntology</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>473</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTools</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>toolBarTools</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>564</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHelp</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>toolBarHelp</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>634</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
