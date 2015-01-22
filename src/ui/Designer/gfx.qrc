@@ -1,0 +1,54 @@
+<RCC>
+  <qresource prefix="actions">
+    <file>gfx/actions/update-product.png</file>
+    <file>gfx/actions/edit-select-all.png</file>
+    <file>gfx/actions/document-edit.png</file>
+    <file>gfx/actions/document-export.png</file>
+    <file>gfx/actions/document-import.png</file>
+    <file>gfx/actions/document-print.png</file>
+    <file>gfx/actions/document-properties.png</file>
+    <file>gfx/actions/document-quickprint.png</file>
+    <file>gfx/actions/document-revert.png</file>
+    <file>gfx/actions/document-save.png</file>
+    <file>gfx/actions/document-save-as.png</file>
+    <file>gfx/actions/edit-add.png</file>
+    <file>gfx/actions/edit.png</file>
+    <file>gfx/actions/edit-clear.png</file>
+    <file>gfx/actions/edit-clear-history.png</file>
+    <file>gfx/actions/edit-copy.png</file>
+    <file>gfx/actions/edit-cut.png</file>
+    <file>gfx/actions/edit-delete.png</file>
+    <file>gfx/actions/edit-find.png</file>
+    <file>gfx/actions/edit-history.png</file>
+    <file>gfx/actions/edit-paste.png</file>
+    <file>gfx/actions/edit-redo.png</file>
+    <file>gfx/actions/edit-undo.png</file>
+    <file>gfx/actions/edit.png</file>
+    <file>gfx/actions/feed-subscribe.png</file>
+    <file>gfx/actions/help-about.png</file>
+    <file>gfx/actions/help.png</file>
+    <file>gfx/actions/help-hint.png</file>
+    <file>gfx/actions/help-contents.png</file>
+    <file>gfx/actions/help-faq.png</file>
+    <file>gfx/actions/list-add.png</file>
+    <file>gfx/actions/list-remove.png</file>
+    <file>gfx/actions/zoom-in.png</file>
+    <file>gfx/actions/zoom-out.png</file>
+    <file>gfx/actions/application-exit.png</file>
+    <file>gfx/actions/configure.png</file>
+    <file>gfx/actions/dialog-ok-apply.png</file>
+    <file>gfx/actions/dialog-cancel.png</file>
+    <file>gfx/actions/document-close.png</file>
+    <file>gfx/actions/document-new.png</file>
+    <file>gfx/actions/document-open-remote.png</file>
+    <file>gfx/actions/document-open.png</file>
+  </qresource>
+  <qresource prefix="status">
+    <file>gfx/status/network-connect.png</file>
+    <file>gfx/status/network-disconnect.png</file>
+    <file>gfx/status/network-error.png</file>
+    <file>gfx/status/network-idle.png</file>
+    <file>gfx/status/network-transmit-receive.png</file>
+    <file>gfx/status/network-transmit.png</file>
+  </qresource>
+</RCC>
