@@ -3,16 +3,19 @@ widget. It contains the textual representation of the currently loaded
 Ontologies allowing conventional kif editing with features such as syntax
 highlighting and autocompletion.
 """
-import sys
-from PySide.QtGui import QApplication, QMainWindow
+from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint
+from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QPainter
+from PySide.QtGui import QFont, QSyntaxHighlighter as QSyntaxHighlighter
 from PySide.QtGui import QTextCharFormat
-from PySide.QtGui import QFont
-from PySide.QtGui import QSyntaxHighlighter as QSyntaxHighlighter
-from PySide.QtCore import Qt, QRegExp
-from ui.Widget.Widget import RWWidget as RWWidget
+import re
+import sys
+
 from ui.Designer.TextEditor import Ui_Form as Ui_Form
-from uno import setCurrentContext
+from ui.Widget.Widget import RWWidget as RWWidget
+
+
 class TextEditor(RWWidget, Ui_Form):
+
     """ Contains many features of popular text editors adapted for use with
     Ontologies such as syntax highlighting, and autocompletion. One column on
     the left of the text editor contains line numbers and another contains
@@ -32,17 +35,99 @@ class TextEditor(RWWidget, Ui_Form):
 
     """
 
-    def __init__(self,mainwindow):
+    def __init__(self, mainwindow):
         """ Initializes the text editor widget. """
         super(TextEditor, self).__init__(mainwindow)
         self.setupUi(self.mw)
         self.plainTextEdit.show()
         self.highlighter = SyntaxHighlighter(self.plainTextEdit.document())
-        #self.syntax_highlighter = QSyntaxHighlighter()
+        self.initAutocomplete()
+        QObject.connect(
+            self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
+#         self.numberbarPaint()
+        self.number_bar = NumberBar(self)
+
+        self.horizontalLayout.setSpacing(0)
+#         hbox.setMargin(0)
+        self.horizontalLayout.addWidget(self.number_bar)
+        self.horizontalLayout.addWidget(self.plainTextEdit)
+
+        self.plainTextEdit.blockCountChanged.connect(
+            self.number_bar.adjustWidth)
+        self.plainTextEdit.updateRequest.connect(
+            self.number_bar.updateContents)
+        self.plainTextEdit.setTextCursor(
+            self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
+
+    def numberbarPaint(self, number_bar, event):
+        """Paints the line numbers of the code file"""
+        font_metrics = self.getWidget().fontMetrics()
+        current_line = self.getWidget().document().findBlock(
+            self.getWidget().textCursor().position()).blockNumber() + 1
+
+        block = self.getWidget().firstVisibleBlock()
+        line_count = block.blockNumber()
+        painter = QPainter(number_bar)
+        # TODO: second argument is color -> to settings
+        painter.fillRect(event.rect(), self.getWidget().palette().base())
+
+        # Iterate over all visible text blocks in the document.
+        while block.isValid():
+            line_count += 1
+            block_top = self.getWidget().blockBoundingGeometry(
+                block).translated(self.getWidget().contentOffset()).top()
+
+            # Check if the position of the block is out side of the visible
+            # area.
+            if not block.isVisible() or block_top >= event.rect().bottom():
+                break
+
+            # We want the line number for the selected line to be bold.
+            if line_count == current_line:
+                font = painter.font()
+                font.setBold(True)
+                painter.setFont(font)
+            else:
+                font = painter.font()
+                font.setBold(False)
+                painter.setFont(font)
+
+            # Draw the line number right justified at the position of the
+            # line.
+            paint_rect = QRect(
+                0, block_top, number_bar.width(), font_metrics.height())
+            painter.drawText(paint_rect, Qt.AlignRight, str(line_count))
+
+            block = block.next()
+
+        painter.end()
+
+    def initAutocomplete(self):
+        self.completer = QCompleter(
+            list(OrderedDict.fromkeys(re.split("\\W", self.plainTextEdit.toPlainText()))))
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setWidget(self.getWidget())
+        self.completer.activated.connect(self.insertCompletion)
+
+    def searchCompletion(self):
+        """Searches for possible completion from QCompleter to the current text position"""
+        tc = self.getWidget().textCursor()
+        tc.movePosition(QTextCursor.StartOfWord, QTextCursor.KeepAnchor)
+        beginning = tc.selectedText()
+        if len(beginning) >= 3:
+            self.completer.setCompletionPrefix(beginning)
+            self.completer.complete()
+
+    @Slot(str)
+    def insertCompletion(self, completion):
+        tc = self.getWidget().textCursor()
+        tc.movePosition(QTextCursor.StartOfWord, QTextCursor.KeepAnchor)
+        tc.removeSelectedText()
+        tc.insertText(completion)
 
     def getWidget(self):
         return self.plainTextEdit
-    
+
     def commit(self):
         """ Overrides commit from RWWidget. """
 
@@ -52,53 +137,59 @@ class TextEditor(RWWidget, Ui_Form):
         IndexAbstractor to process the terms which can complete the given
         string. string has to be greater than or equal to 3 characters. """
 
+
 class SyntaxHighlightSetting():
-    def __init__(self, expression, font_weight, font_color, expression_end = ''):
+
+    def __init__(self, expression, font_weight, font_color, expression_end=''):
         self.expression = expression
         if expression_end != '':
             self.expression_end = expression_end
         self.font_weight = font_weight
         self.font_color = font_color
         self.createFormat()
-    
 
     def createFormat(self):
         self.class_format = QTextCharFormat()
         self.class_format.setFontWeight(self.font_weight)
         self.class_format.setForeground(self.font_color)
-            
+
     def get_format(self):
         return self.class_format
-    
+
     def getValues(self):
         return [self.expression, self.font_color, self.font_weight]
-        
+
     def serialize(self):
         str1 = ""
         str1 += self.expression + "//"
         str1 += str(self.font_color) + "//"
         str1 += str(self.font_weight) + "//"
         return str1
-    
-    def deserialize(self,string):
+
+    def deserialize(self, string):
         splitted = string.split("//")
         self.expression = splitted[0]
         self.font_color = splitted[1]
         self.font_weight = splitted[2]
-        
+
+
 class SyntaxHighlighter(QSyntaxHighlighter):
 
     def __init__(self, document):
         super(SyntaxHighlighter, self).__init__(document)
         self.singleline = []
-        self.singleline.append(SyntaxHighlightSetting("(and|=>|not|or)(?!\w)", QFont.Bold, Qt.black))
+        self.singleline.append(
+            SyntaxHighlightSetting("(and|=>|not|or)(?!\w)", QFont.Bold, Qt.black))
 
-        self.singleline.append(SyntaxHighlightSetting("(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W'\n']", QFont.Bold, Qt.darkGreen))
-        self.singleline.append(SyntaxHighlightSetting(";.*$", QFont.StyleItalic, Qt.darkMagenta))           
-        
+        self.singleline.append(SyntaxHighlightSetting(
+            "(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W'\n']", QFont.Bold, Qt.darkGreen))
+        self.singleline.append(
+            SyntaxHighlightSetting(";.*$", QFont.StyleItalic, Qt.darkMagenta))
+
         self.multiline = []
-        self.multiline.append(SyntaxHighlightSetting('"', QFont.Normal, Qt.red, '"'))
-        
+        self.multiline.append(
+            SyntaxHighlightSetting('"', QFont.Normal, Qt.red, '"'))
+
     def highlightBlock(self, text):
         for h in self.singleline:
             expression = QRegExp(h.expression)
@@ -107,32 +198,60 @@ class SyntaxHighlighter(QSyntaxHighlighter):
                 length = expression.matchedLength()
                 self.setFormat(index, length, h.get_format())
                 index = expression.indexIn(text, index + length)
-        
+
         for h in self.multiline:
             startIndex = 0
-            self.setCurrentBlockState(0);
-            expression = QRegExp(h.expression);
+            self.setCurrentBlockState(0)
+            expression = QRegExp(h.expression)
             expression_end = QRegExp(h.expression_end)
-            
+
             if(self.previousBlockState() != 1):
                 startIndex = expression.indexIn(text)
-                
+
             while startIndex >= 0:
-                endIndex = expression_end.indexIn(text,startIndex+1)
+                endIndex = expression_end.indexIn(text, startIndex + 1)
                 if endIndex == -1:
                     self.setCurrentBlockState(1)
                     commentLength = len(text) - startIndex
                 else:
-                    commentLength = endIndex - startIndex + expression_end.matchedLength()
+                    commentLength = endIndex - startIndex + \
+                        expression_end.matchedLength()
                 self.setFormat(startIndex, commentLength, h.get_format())
-                startIndex = expression.indexIn(text,startIndex + commentLength)  
-    
-            
-    
+                startIndex = expression.indexIn(
+                    text, startIndex + commentLength)
+
+
+class NumberBar(QWidget):
+
+    def __init__(self, edit):
+        QWidget.__init__(self, edit.getWidget())
+        self.edit = edit
+        self.adjustWidth(100)
+
+    def paintEvent(self, event):
+        self.edit.numberbarPaint(self, event)
+        QWidget.paintEvent(self, event)
+
+    def adjustWidth(self, count):
+        width = self.fontMetrics().width(str(count))
+        if self.width() != width:
+            self.setFixedWidth(width)
+
+    def updateContents(self, rect, scroll):
+        if scroll:
+            self.scroll(0, scroll)
+        else:
+            # It would be nice to do
+            # self.update(0, rect.y(), self.width(), rect.height())
+            # But we can't because it will not remove the bold on the
+            # current line if word wrap is enabled and a new block is
+            # selected.
+            self.update()
+
+
 if __name__ == "__main__":
     application = QApplication(sys.argv)
     mainwindow = QMainWindow()
     x = TextEditor(mainwindow)
     mainwindow.show()
     sys.exit(application.exec_())
-    

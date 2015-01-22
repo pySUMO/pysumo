@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'TextEditor.ui'
 #
-# Created: Tue Jan 20 18:04:35 2015
+# Created: Fri Jan 23 18:42:19 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,10 +12,17 @@ from PySide import QtCore, QtGui
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(503, 300)
-        self.plainTextEdit = QtGui.QPlainTextEdit(Form)
-        self.plainTextEdit.setGeometry(QtCore.QRect(0, 0, 501, 291))
+        Form.resize(833, 475)
+        self.layoutWidget = QtGui.QWidget(Form)
+        self.layoutWidget.setGeometry(QtCore.QRect(1, 1, 831, 471))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.horizontalLayout = QtGui.QHBoxLayout(self.layoutWidget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.plainTextEdit = QtGui.QPlainTextEdit(self.layoutWidget)
+        self.plainTextEdit.setMinimumSize(QtCore.QSize(500, 0))
         self.plainTextEdit.setObjectName("plainTextEdit")
+        self.horizontalLayout.addWidget(self.plainTextEdit)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
