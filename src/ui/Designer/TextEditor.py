@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'TextEditor.ui'
 #
-# Created: Tue Jan 20 18:04:35 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.1
+# Created: Fri Jan 23 01:23:41 2015
+#      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,10 +12,24 @@ from PySide import QtCore, QtGui
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(503, 300)
-        self.plainTextEdit = QtGui.QPlainTextEdit(Form)
-        self.plainTextEdit.setGeometry(QtCore.QRect(0, 0, 501, 291))
+        Form.resize(833, 475)
+        self.widget = QtGui.QWidget(Form)
+        self.widget.setGeometry(QtCore.QRect(1, 1, 831, 471))
+        self.widget.setObjectName("widget")
+        self.horizontalLayout = QtGui.QHBoxLayout(self.widget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.plainTextEdit_2 = QtGui.QPlainTextEdit(self.widget)
+        self.plainTextEdit_2.setMaximumSize(QtCore.QSize(40, 16777215))
+        self.plainTextEdit_2.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.plainTextEdit_2.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.plainTextEdit_2.setReadOnly(True)
+        self.plainTextEdit_2.setObjectName("plainTextEdit_2")
+        self.horizontalLayout.addWidget(self.plainTextEdit_2)
+        self.plainTextEdit = QtGui.QPlainTextEdit(self.widget)
+        self.plainTextEdit.setMinimumSize(QtCore.QSize(500, 0))
         self.plainTextEdit.setObjectName("plainTextEdit")
+        self.horizontalLayout.addWidget(self.plainTextEdit)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
