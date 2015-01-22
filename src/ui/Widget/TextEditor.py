@@ -4,14 +4,16 @@ Ontologies allowing conventional kif editing with features such as syntax
 highlighting and autocompletion.
 """
 import sys
-from PySide.QtGui import QApplication, QMainWindow
+import re
+from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor
 from PySide.QtGui import QTextCharFormat
 from PySide.QtGui import QFont
 from PySide.QtGui import QSyntaxHighlighter as QSyntaxHighlighter
-from PySide.QtCore import Qt, QRegExp
+from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot
 from ui.Widget.Widget import RWWidget as RWWidget
 from ui.Designer.TextEditor import Ui_Form as Ui_Form
-from uno import setCurrentContext
+
+
 class TextEditor(RWWidget, Ui_Form):
     """ Contains many features of popular text editors adapted for use with
     Ontologies such as syntax highlighting, and autocompletion. One column on
@@ -38,8 +40,29 @@ class TextEditor(RWWidget, Ui_Form):
         self.setupUi(self.mw)
         self.plainTextEdit.show()
         self.highlighter = SyntaxHighlighter(self.plainTextEdit.document())
-        #self.syntax_highlighter = QSyntaxHighlighter()
-
+        self.initAutocomplete()
+        QObject.connect(self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
+        
+    def initAutocomplete(self):
+        self.completer = QCompleter(re.split("\\W",self.plainTextEdit.toPlainText()))
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setWidget(self.getWidget())
+        self.completer.activated.connect(self.insertCompletion)
+    def searchCompletion(self):
+        """Searches for possible completion from QCompleter to the current text position"""
+        tc = self.getWidget().textCursor()
+        tc.movePosition(QTextCursor.StartOfWord,QTextCursor.KeepAnchor)
+        beginning = tc.selectedText()
+        if len(beginning) >= 3:
+            self.completer.setCompletionPrefix(beginning)
+            self.completer.complete()
+    
+    @Slot(str)    
+    def insertCompletion(self,completion):
+        tc = self.getWidget().textCursor()
+        tc.movePosition(QTextCursor.StartOfWord,QTextCursor.KeepAnchor)
+        tc.removeSelectedText()
+        tc.insertText(completion)
     def getWidget(self):
         return self.plainTextEdit
     
