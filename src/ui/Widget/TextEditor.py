@@ -5,11 +5,11 @@ highlighting and autocompletion.
 """
 import sys
 import re
-from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor
+from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QHBoxLayout, QPainter, QFrame
 from PySide.QtGui import QTextCharFormat
 from PySide.QtGui import QFont
 from PySide.QtGui import QSyntaxHighlighter as QSyntaxHighlighter
-from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot
+from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QSize, QRect, QPoint
 from ui.Widget.Widget import RWWidget as RWWidget
 from ui.Designer.TextEditor import Ui_Form as Ui_Form
 
@@ -42,7 +42,21 @@ class TextEditor(RWWidget, Ui_Form):
         self.highlighter = SyntaxHighlighter(self.plainTextEdit.document())
         self.initAutocomplete()
         QObject.connect(self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
-        
+        self.numberbarPaint()
+        self.plainTextEdit_2.setTextCursor(self.plainTextEdit_2.cursorForPosition(QPoint(0,0)))
+    def numberbarPaint(self):
+        font_metrics = self.getWidget().fontMetrics()
+        current_line = self.getWidget().document().findBlock(self.getWidget().textCursor().position()).blockNumber() + 1
+ 
+        block = self.getWidget().firstVisibleBlock()
+        line_count = block.blockNumber()
+        # Iterate over all visible text blocks in the document.
+        while block.isValid():
+            line_count += 1
+            self.plainTextEdit_2.insertPlainText(str(line_count) + '\n')
+            block = block.next()
+
+            
     def initAutocomplete(self):
         self.completer = QCompleter(re.split("\\W",self.plainTextEdit.toPlainText()))
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -149,9 +163,36 @@ class SyntaxHighlighter(QSyntaxHighlighter):
                     commentLength = endIndex - startIndex + expression_end.matchedLength()
                 self.setFormat(startIndex, commentLength, h.get_format())
                 startIndex = expression.indexIn(text,startIndex + commentLength)  
-    
-            
-    
+
+class NumberBar(QWidget):
+ 
+        def __init__(self, edit):
+            QWidget.__init__(self, edit.getWidget())
+ 
+            self.edit = edit
+            self.adjustWidth(100)
+ 
+        def paintEvent(self, event):
+            self.edit.numberbarPaint(self, event)
+            QWidget.paintEvent(self, event)
+ 
+        def adjustWidth(self, count):
+            width = self.fontMetrics().width(str(count))
+            if self.width() != width:
+                self.setFixedWidth(width)
+ 
+        def updateContents(self, rect, scroll):
+            if scroll:
+                self.scroll(0, scroll)
+            else:
+                # It would be nice to do
+                # self.update(0, rect.y(), self.width(), rect.height())
+                # But we can't because it will not remove the bold on the
+                # current line if word wrap is enabled and a new block is
+                # selected.
+                self.update()    
+
+
 if __name__ == "__main__":
     application = QApplication(sys.argv)
     mainwindow = QMainWindow()
