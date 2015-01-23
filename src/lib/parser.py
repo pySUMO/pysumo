@@ -13,12 +13,21 @@ This module contains:
 from os.path import basename
 
 def tokenize(chars):
-    return chars.replace('(', ' ( ').replace(')', ' ) ').split(' ')
+    return chars.replace('(', ' ( ').replace(')', ' ) ').split()
 
 def cleanup(chars):
-    chars = chars.rstrip()
-    chars = chars[:chars.index(';')]
+    if ";" in chars:
+        chars = chars[:chars.index(';')]
+    chars = chars.strip()
     return chars
+
+def atom(token):
+    "Numbers become numbers; every other token is a symbol."
+    try: return int(token)
+    except ValueError:
+        try: return float(token)
+        except ValueError:
+            return Symbol(token)
 
 def kifparse(ontology, graph=None, ast=None):
     """ Parse an ontology and return an AbstractSyntaxTree.
@@ -35,13 +44,30 @@ def kifparse(ontology, graph=None, ast=None):
 
     """
     with open(ontology.path, 'r') as f:
-        for line in f:
+        root = AbstractSyntaxTree(ontology)
+        oldline = None
+        for i, line in enumerate(f):
             line = cleanup(line)
             if line == "":
-                break
+                continue
             line = tokenize(line)
-
-
+            if oldline != None:
+                line = oldline + line
+                oldline = None
+            if line[0] != '(':
+                raise Exception("parse error in line",  i+1)
+            if line.count('(') != line.count(')'):
+                oldline = line
+                continue
+            node = AbstractSyntaxTree(ontology)
+            parsed = node.parse(line)
+            if len(line) != parsed:
+                print(line)
+                print(len(line))
+                print(parsed)
+                raise Exception("parse error in line", i+1)
+            root.add_child(node)
+        return root
 
 def astmerge(trees):
     """ Merge two Abstract Syntax Trees
@@ -111,19 +137,43 @@ class AbstractSyntaxTree():
     """
 
     def __init__(self, ontology, parent=None):
-        self.parent = parent
+        if parent != None:
+            self.parent = parent
         self.children = []
         self.name = ''
         self.element_type = ''
         self.ontology = ontology
         self.is_indexed = False
 
-    def get_children(self):
-        """ Returns all children of self. """
-        pass
+    def parse(self, tokens):
+        scip = 0
+        for i, token in enumerate(tokens):
+            if scip > 0:
+                scip -= 1
+                continue
+            if token == '(':
+                if self.name == '':
+                    self.name = tokens[i+1]
+                    scip += 1
+                else:
+                    child = AbstractSyntaxTree(self.ontology, parent=self)
+                    scip += child.parse(tokens[i:])
+                    scip -= 1
+                    self.add_child(child)
+            elif token == ')':
+                return i+1
+            else:
+                child = AbstractSyntaxTree(self.ontology, parent=self)
+                child.name = token
+                self.add_child(child)
 
     def add_child(self, entry):
         """ Adds entry as a child to self. """
+        entry.parent = self
+        self.children.append(entry)
+
+    def get_children(self):
+        """ Returns all children of self. """
         pass
 
     def remove_child(self, entry):
