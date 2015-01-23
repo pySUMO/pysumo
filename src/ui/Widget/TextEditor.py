@@ -42,20 +42,67 @@ class TextEditor(RWWidget, Ui_Form):
         self.highlighter = SyntaxHighlighter(self.plainTextEdit.document())
         self.initAutocomplete()
         QObject.connect(self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
-        self.numberbarPaint()
+#         self.numberbarPaint()
+        self.number_bar = NumberBar(self)
+        
+        self.horizontalLayout.setSpacing(0)
+#         hbox.setMargin(0)
+        self.horizontalLayout.addWidget(self.number_bar)
+        self.horizontalLayout.addWidget(self.plainTextEdit)
+        
+        self.plainTextEdit.blockCountChanged.connect(self.number_bar.adjustWidth)
+        self.plainTextEdit.updateRequest.connect(self.number_bar.updateContents)
+        self.plainTextEdit.setTextCursor(self.plainTextEdit.cursorForPosition(QPoint(0,0)))
         self.plainTextEdit_2.setTextCursor(self.plainTextEdit_2.cursorForPosition(QPoint(0,0)))
-    def numberbarPaint(self):
-        font_metrics = self.getWidget().fontMetrics()
-        current_line = self.getWidget().document().findBlock(self.getWidget().textCursor().position()).blockNumber() + 1
+        
+#     def numberbarPaint(self):
+#         font_metrics = self.getWidget().fontMetrics()
+#         current_line = self.getWidget().document().findBlock(self.getWidget().textCursor().position()).blockNumber() + 1
+#  
+#         block = self.getWidget().firstVisibleBlock()
+#         line_count = block.blockNumber()
+#         # Iterate over all visible text blocks in the document.
+#         while block.isValid():
+#             line_count += 1
+#             self.plainTextEdit_2.insertPlainText(str(line_count) + '\n')
+#             block = block.next()
+            
+    def numberbarPaint(self, number_bar, event):
+            font_metrics = self.getWidget().fontMetrics()
+            current_line = self.getWidget().document().findBlock(self.getWidget().textCursor().position()).blockNumber() + 1
  
-        block = self.getWidget().firstVisibleBlock()
-        line_count = block.blockNumber()
-        # Iterate over all visible text blocks in the document.
-        while block.isValid():
-            line_count += 1
-            self.plainTextEdit_2.insertPlainText(str(line_count) + '\n')
-            block = block.next()
-
+            block = self.getWidget().firstVisibleBlock()
+            line_count = block.blockNumber()
+            painter = QPainter(number_bar)
+            painter.fillRect(event.rect(), self.getWidget().palette().base())
+ 
+            # Iterate over all visible text blocks in the document.
+            while block.isValid():
+                line_count += 1
+                block_top = self.getWidget().blockBoundingGeometry(block).translated(self.getWidget().contentOffset()).top()
+ 
+                # Check if the position of the block is out side of the visible
+                # area.
+                if not block.isVisible() or block_top >= event.rect().bottom():
+                    break
+ 
+                # We want the line number for the selected line to be bold.
+                if line_count == current_line:
+                    font = painter.font()
+                    font.setBold(True)
+                    painter.setFont(font)
+                else:
+                    font = painter.font()
+                    font.setBold(False)
+                    painter.setFont(font)
+ 
+                # Draw the line number right justified at the position of the line.
+                paint_rect = QRect(0, block_top, number_bar.width(), font_metrics.height())
+                painter.drawText(paint_rect, Qt.AlignRight, unicode(line_count))
+ 
+                block = block.next()
+ 
+            painter.end()
             
     def initAutocomplete(self):
         self.completer = QCompleter(re.split("\\W",self.plainTextEdit.toPlainText()))
@@ -165,10 +212,9 @@ class SyntaxHighlighter(QSyntaxHighlighter):
                 startIndex = expression.indexIn(text,startIndex + commentLength)  
 
 class NumberBar(QWidget):
- 
+        
         def __init__(self, edit):
             QWidget.__init__(self, edit.getWidget())
- 
             self.edit = edit
             self.adjustWidth(100)
  
