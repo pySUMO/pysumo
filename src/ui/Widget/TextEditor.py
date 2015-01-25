@@ -59,7 +59,10 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
 
+        self.hidden = []
+
     def numberbarPaint(self, number_bar, event):
+        self.number_bar.link = []
         """Paints the line numbers of the code file"""
         font_metrics = self.getWidget().fontMetrics()
         current_line = self.getWidget().document().findBlock(
@@ -74,30 +77,42 @@ class TextEditor(RWWidget, Ui_Form):
         # Iterate over all visible text blocks in the document.
         while block.isValid():
             line_count += 1
+            text = str(line_count)
             block_top = self.getWidget().blockBoundingGeometry(
                 block).translated(self.getWidget().contentOffset()).top()
 
+            self.number_bar.link.append((block_top, line_count))
             # Check if the position of the block is out side of the visible
             # area.
-            if not block.isVisible() or block_top >= event.rect().bottom():
+            if block_top >= event.rect().bottom():
                 break
 
+            if not block.isVisible():
+                block = block.next()
+                while not block.isVisible():
+                    line_count += 1
+                    block = block.next()
+                continue
             # We want the line number for the selected line to be bold.
             if line_count == current_line:
                 font = painter.font()
                 font.setBold(True)
-                painter.setFont(font)
+
             else:
                 font = painter.font()
                 font.setBold(False)
-                painter.setFont(font)
+            # line opens a block
+            if line_count in self.hidden:
+                text += "+"
+            elif block.text().count("(") > block.text().count(")"):
+                text += "-"
 
+            painter.setFont(font)
             # Draw the line number right justified at the position of the
             # line.
             paint_rect = QRect(
                 0, block_top, number_bar.width(), font_metrics.height())
-            painter.drawText(paint_rect, Qt.AlignRight, str(line_count))
-
+            painter.drawText(paint_rect, Qt.AlignLeft, text)
             block = block.next()
 
         painter.end()
@@ -117,6 +132,30 @@ class TextEditor(RWWidget, Ui_Form):
         if len(beginning) >= 3:
             self.completer.setCompletionPrefix(beginning)
             self.completer.complete()
+
+    def hideFrom(self, line):
+        visibility = False
+        """ if already hidden show lines"""
+        if line in self.hidden:
+            visibility = True
+            self.hidden.remove(line)
+        else:
+            self.hidden.append(line)
+        block = self.getWidget().firstVisibleBlock()
+        # go to line >= line: block starts counting by 0
+        while block.blockNumber() < line - 1:
+            block = block.next()
+
+        openB = block.text().count("(")
+        closeB = block.text().count(")")
+        while openB > closeB:
+            block = block.next()
+            block.setVisible(visibility)
+            openB += block.text().count("(")
+            closeB += block.text().count(")")
+        self.getWidget().hide()
+        self.getWidget().show()
+        self.number_bar.update()
 
     @Slot(str)
     def insertCompletion(self, completion):
@@ -227,13 +266,14 @@ class NumberBar(QWidget):
         QWidget.__init__(self, edit.getWidget())
         self.edit = edit
         self.adjustWidth(100)
+        self.link = []
 
     def paintEvent(self, event):
         self.edit.numberbarPaint(self, event)
         QWidget.paintEvent(self, event)
 
     def adjustWidth(self, count):
-        width = self.fontMetrics().width(str(count))
+        width = self.fontMetrics().width(str(count) + "+")
         if self.width() != width:
             self.setFixedWidth(width)
 
@@ -247,6 +287,13 @@ class NumberBar(QWidget):
             # current line if word wrap is enabled and a new block is
             # selected.
             self.update()
+
+    def mouseDoubleClickEvent(self, event):
+        """Hides the lines from the line clicked on. """
+        for (height, line) in self.link:
+            if height >= event.y():
+                break
+        self.edit.hideFrom(line - 1)
 
 
 if __name__ == "__main__":
