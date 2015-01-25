@@ -1,9 +1,9 @@
 class InfoLog {
   - file_name : String
-  - last_entry : String
+  - root_logger : logger
+  - f_handler : RotatingFileHandler
+  - s_handler : SocketHandler
   
-  + __init__(loglevel=logging.WARNING : int, filename=default_log_path : String) : InfoLog
+  + __init__(loglevel=logging.WARNING : int, filename=default_log_path : String, socket_path : String) : InfoLog
   + set_loglevel(level : int)
-  + get_log() : String[]
-  + get_log_tail(num=10 : int) : String[]
 }
