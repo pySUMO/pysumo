@@ -87,11 +87,13 @@ class TextEditor(RWWidget, Ui_Form):
             # area.
             if block_top >= event.rect().bottom():
                 break
+
             if not block.isVisible():
+                block = block.next()
                 while not block.isVisible():
                     line_count += 1
                     block = block.next()
-
+                continue
             # We want the line number for the selected line to be bold.
             if line_count == current_line:
                 font = painter.font()
@@ -272,7 +274,7 @@ class NumberBar(QWidget):
         QWidget.paintEvent(self, event)
 
     def adjustWidth(self, count):
-        width = self.fontMetrics().width(str(count))
+        width = self.fontMetrics().width(str(count) + "+")
         if self.width() != width:
             self.setFixedWidth(width)
 
