@@ -89,7 +89,7 @@ def wparse(path):
                         except KeyError:
                             mapping[item.sumo_concept] = {item}
     #TODO: Remove the fixed assertions/replace with dynamic assertions
-    assert total == 117939
+    assert total == 117939, '%d lines were read, but %d lines should have been read' % (total, 117939)
     assert processed >= 117659 - 2000, 'processed %d, should have processed %d' % (processed, 117659)
     return mapping
 
@@ -112,7 +112,7 @@ def _wtokenize(line, pos):
             syn_marker = None
         lex_id = int(items.pop(0), 16)
         synset[i] = (word, syn_marker, lex_id)
-    assert len(synset) == w_cnt
+    assert len(synset) == w_cnt, 'line %s has %d synsets, but should have %d' % (line, w_cnt, len(synset))
     p_cnt = int(items.pop(0))
     ptr_list = list()
     for i in range(0, p_cnt):
@@ -129,13 +129,13 @@ def _wtokenize(line, pos):
         f_cnt = int(items.pop(0))
         frames = set()
         for i in range(0, f_cnt):
-            assert items.pop(0) == '+'
+            assert items.pop(0) == '+', "Frames not separated by a '+'"
             f_num = int(items.pop(0))
             w_num = int(items.pop(0), 16)
             frames.add((f_num, w_num))
-        assert len(frames) == f_cnt
-    assert items.pop(0) == '|'
-    assert len(items) != 0
+        assert len(frames) == f_cnt, 'line %s has %d frames, but should have %d' % (line, f_cnt, len(frames))
+    assert items.pop(0) == '|', "Missing '|' separator"
+    assert len(items) != 0, 'No gloss or SUMO-term in %s' % line
     string = ' '.join(items)
     assert string != ''
     items = string.split('&%')
