@@ -51,7 +51,7 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         super(MainWindow, self).__init__()
         self.setupUi(self)
         texteditor = ui.Widget.TextEditor.TextEditor(self)
-        self.setCentralWidget(texteditor.getWidget())
+        self.setCentralWidget(texteditor.getLayoutWidget())
         self.createStatusBar()
         self.show()
         

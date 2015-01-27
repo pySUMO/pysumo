@@ -61,6 +61,9 @@ class TextEditor(RWWidget, Ui_Form):
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
 
         self.hidden = []
+        
+    def getLayoutWidget(self):
+        return self.layoutWidget
 
     def numberbarPaint(self, number_bar, event):
         self.number_bar.link = []
