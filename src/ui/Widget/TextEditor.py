@@ -65,6 +65,10 @@ class TextEditor(RWWidget, Ui_Form):
 
         self.hidden = []
 
+    def LineAndColumn(self):
+        a = self.getWidget().textCursor()
+        return (a.blockNumber() + 1, a.positionInBlock())
+
     def numberbarPaint(self, number_bar, event):
         """Paints the line numbers of the code file"""
         self.number_bar.link = []
