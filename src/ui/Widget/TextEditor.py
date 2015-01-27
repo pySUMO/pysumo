@@ -29,10 +29,14 @@ class TextEditor(RWWidget, Ui_Form):
     - syntax_highlighter: The syntax highlighter object for the text editor.
 
     Methods:
-
+    - __init__: Initalizes the Object and the QPlainTextEdit
     - commit: Notifies other Widgets of changes.
     - show_autocomplete: Returns autocompletion choices.
-
+    - getWidget: returns the QPlainTextEdit
+    - numberbarPaint: Paints the numberbar
+    - searchCompletion: Asks QCompleter if a whole word exists starting with user input
+    - hideFrom: Starts hides all lines from the ()-block started by line
+    - insertCompletion: Puts the selected Completion into the TextEditor
     """
 
     def __init__(self, mainwindow):
@@ -44,11 +48,10 @@ class TextEditor(RWWidget, Ui_Form):
         self.initAutocomplete()
         QObject.connect(
             self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
-#         self.numberbarPaint()
+
         self.number_bar = NumberBar(self)
 
         self.horizontalLayout.setSpacing(0)
-#         hbox.setMargin(0)
         self.horizontalLayout.addWidget(self.number_bar)
         self.horizontalLayout.addWidget(self.plainTextEdit)
 
@@ -62,8 +65,8 @@ class TextEditor(RWWidget, Ui_Form):
         self.hidden = []
 
     def numberbarPaint(self, number_bar, event):
-        self.number_bar.link = []
         """Paints the line numbers of the code file"""
+        self.number_bar.link = []
         font_metrics = self.getWidget().fontMetrics()
         current_line = self.getWidget().document().findBlock(
             self.getWidget().textCursor().position()).blockNumber() + 1
@@ -118,6 +121,7 @@ class TextEditor(RWWidget, Ui_Form):
         painter.end()
 
     def initAutocomplete(self):
+        """Inits the QCompleter and gives him a list of words"""
         self.completer = QCompleter(
             list(OrderedDict.fromkeys(re.split("\\W", self.plainTextEdit.toPlainText()))))
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -169,12 +173,6 @@ class TextEditor(RWWidget, Ui_Form):
 
     def commit(self):
         """ Overrides commit from RWWidget. """
-
-    def show_autocomplete(self, string):
-        """ Returns a list of possible words which can be created from string.
-        When the user triggers autocompletion, the text editor uses the
-        IndexAbstractor to process the terms which can complete the given
-        string. string has to be greater than or equal to 3 characters. """
 
 
 class SyntaxHighlightSetting():
