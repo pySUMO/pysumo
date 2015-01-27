@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="actions">
+    <file>gfx/zoom-fit-best.png</file>
     <file>gfx/actions/update-product.png</file>
     <file>gfx/actions/edit-select-all.png</file>
     <file>gfx/actions/document-edit.png</file>
