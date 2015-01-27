@@ -12,7 +12,26 @@ This module contains:
 
 from os.path import basename
 
+def tokenize_docstring(chars, f):
+    n = 0
+    chars = chars.split('"')
+    if len(chars) == 3
+    while len(chars) != 3:
+        n += 1
+        line = f.readline()
+        line = cleanup(line)
+        if '"' in line:
+            line = line.slit('"')
+            chars[1].append(line[0])
+            chars.join(line[1])
+        else:
+            chars[1].join(line)
+
+
+
 def tokenize(chars):
+    if '"' in chars:
+        return handel_docstring(chars)
     return chars.replace('(', ' ( ').replace(')', ' ) ').split()
 
 def cleanup(chars):
@@ -44,13 +63,18 @@ def kifparse(ontology, graph=None, ast=None):
 
     """
     with open(ontology.path, 'r') as f:
+        docstring = False
         root = AbstractSyntaxTree(ontology)
         oldline = None
         for i, line in enumerate(f):
             line = cleanup(line)
             if line == "":
                 continue
-            line = tokenize(line)
+            if '"' in line:
+                line, n = tokenize_docstring(line, f)
+                i += n
+            else:
+                line = tokenize(line)
             if oldline != None:
                 line = oldline + line
                 oldline = None
