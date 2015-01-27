@@ -2,13 +2,12 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Thu Jan 22 17:01:59 2015
+# Created: Tue Jan 27 15:18:03 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PySide import QtCore, QtGui
-from ui.Designer import gfx_rc
 
 class Ui_mainwindow(object):
     def setupUi(self, mainwindow):
@@ -301,6 +300,10 @@ class Ui_mainwindow(object):
         self.actionOntology.setCheckable(True)
         self.actionOntology.setChecked(True)
         self.actionOntology.setObjectName("actionOntology")
+        self.actionStatusbar = QtGui.QAction(mainwindow)
+        self.actionStatusbar.setCheckable(True)
+        self.actionStatusbar.setChecked(True)
+        self.actionStatusbar.setObjectName("actionStatusbar")
         self.openOntology.addAction(self.openLocalOntologyAction)
         self.openOntology.addSeparator()
         self.openOntology.addAction(self.openRemoteOntologyAction)
@@ -350,6 +353,7 @@ class Ui_mainwindow(object):
         self.menuView.addAction(self.actionZoomOut)
         self.menuView.addSeparator()
         self.menuView.addAction(self.menuToolbar.menuAction())
+        self.menuView.addAction(self.actionStatusbar)
         self.menuTools.addAction(self.actionSettings)
         self.menuHelp.addAction(self.actionPySUMOHelp)
         self.menuHelp.addAction(self.actionPySUMOTutorials)
@@ -395,6 +399,7 @@ class Ui_mainwindow(object):
         QtCore.QObject.connect(self.actionOntology, QtCore.SIGNAL("triggered(bool)"), self.toolBarOntology.setVisible)
         QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered(bool)"), self.toolBarTools.setVisible)
         QtCore.QObject.connect(self.actionHelp, QtCore.SIGNAL("triggered(bool)"), self.toolBarHelp.setVisible)
+        QtCore.QObject.connect(self.actionStatusbar, QtCore.SIGNAL("triggered(bool)"), self.statusBar.setVisible)
         QtCore.QMetaObject.connectSlotsByName(mainwindow)
 
     def retranslateUi(self, mainwindow):
@@ -457,7 +462,9 @@ class Ui_mainwindow(object):
         self.actionGraphWidget.setText(QtGui.QApplication.translate("mainwindow", "Graph Widget", None, QtGui.QApplication.UnicodeUTF8))
         self.actionTextEditorWidget.setText(QtGui.QApplication.translate("mainwindow", "Text Editor Widget", None, QtGui.QApplication.UnicodeUTF8))
         self.actionZoomIn.setText(QtGui.QApplication.translate("mainwindow", "Zoom In ", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionZoomIn.setShortcut(QtGui.QApplication.translate("mainwindow", "Ctrl++", None, QtGui.QApplication.UnicodeUTF8))
         self.actionZoomOut.setText(QtGui.QApplication.translate("mainwindow", "Zoom Out", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionZoomOut.setShortcut(QtGui.QApplication.translate("mainwindow", "Ctrl+-", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFile.setText(QtGui.QApplication.translate("mainwindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionEdit.setText(QtGui.QApplication.translate("mainwindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.actionTools.setText(QtGui.QApplication.translate("mainwindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))
@@ -468,4 +475,6 @@ class Ui_mainwindow(object):
         self.actionUpdate.setText(QtGui.QApplication.translate("mainwindow", "Update ", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFind.setText(QtGui.QApplication.translate("mainwindow", "Find", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOntology.setText(QtGui.QApplication.translate("mainwindow", "Ontology", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStatusbar.setText(QtGui.QApplication.translate("mainwindow", "Statusbar", None, QtGui.QApplication.UnicodeUTF8))
 
+import ui.Designer.gfx_rc

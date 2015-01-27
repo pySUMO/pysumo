@@ -119,6 +119,7 @@
     <addaction name="actionZoomOut"/>
     <addaction name="separator"/>
     <addaction name="menuToolbar"/>
+    <addaction name="actionStatusbar"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -659,6 +660,9 @@
    <property name="text">
     <string>Zoom In </string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
    </property>
@@ -670,6 +674,9 @@
    </property>
    <property name="text">
     <string>Zoom Out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
@@ -783,6 +790,17 @@
     <string>Ontology</string>
    </property>
   </action>
+  <action name="actionStatusbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Statusbar</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc"/>
@@ -865,6 +883,22 @@
     <hint type="destinationlabel">
      <x>634</x>
      <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStatusbar</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>statusBar</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>352</y>
     </hint>
    </hints>
   </connection>

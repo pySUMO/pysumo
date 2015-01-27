@@ -7,13 +7,34 @@ This module contains:
 
 """
 from PySide import QtGui
-from PySide.QtGui import QMainWindow
-from PySide.QtGui import QApplication
-import sys
+from PySide.QtGui import QMainWindow, QApplication, QStatusBar, QLabel, QWidget, QPixmap
 import ui.Widget.TextEditor
-from ui.Designer import MainWindow
+from ui.Designer import MainWindow, ZoomWidget
+import sys
+from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo
 
-class MainWindow(MainWindow.Ui_mainwindow):
+
+QCoreApplication.setApplicationName("pySUMO")
+QCoreApplication.setApplicationVersion("1.0")
+QCoreApplication.setOrganizationName("PSE Team")
+
+class ZoomWidget(QWidget, ZoomWidget.Ui_zoomWidget):
+    def __init__(self, parent):
+        super(ZoomWidget, self).__init__(parent)
+        self.setupUi(self)
+
+def loadStyleSheet(widget, styleName):
+    print(styleName)
+    cssfile = QFile("./ui/Designer/css/" + styleName + ".css")
+    cssfile.open(QFile.ReadOnly)
+    print(cssfile.exists())
+    print(QFileInfo(cssfile).absoluteFilePath())
+    stylesheet = cssfile.readAll()
+    print(stylesheet.data())
+    widget.setStyleSheet(str(stylesheet))
+    cssfile.close()
+
+class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
     """ This class is the entry point of the application. It creates the main
     window, initiates all the subsystems and then displays the GUI.  It
     consists of: a main frame with a menu bar, toolbar, status bar and numerous
@@ -27,11 +48,60 @@ class MainWindow(MainWindow.Ui_mainwindow):
 
     def __init__(self):
         """ Constructs the main window.  """
-        self.mainwindow = QMainWindow()
-        self.setupUi(self.mainwindow)
-        self.mainwindow.show()
-        texteditor = ui.Widget.TextEditor.TextEditor(self.mainwindow)
-        self.mainwindow.setCentralWidget(texteditor.getWidget())
+        super(MainWindow, self).__init__()
+        self.setupUi(self)
+        texteditor = ui.Widget.TextEditor.TextEditor(self)
+        self.setCentralWidget(texteditor.getWidget())
+        self.createStatusBar()
+        self.show()
+        
+    def closeEvent(self, event):
+        settings = QSettings("conf", QSettings.IniFormat)
+        settings.setValue("geometry", self.saveGeometry())
+        super(MainWindow, self).closeEvent(event)
+        
+    def showEvent(self, *args, **kwargs):
+        settings = QSettings("conf", QSettings.IniFormat)
+        self.restoreGeometry(settings.value("geometry"))
+        
+    def createStatusBar(self):
+        statusbar = self.statusBar
+        statusbar.setMaximumHeight(35)
+        loadStyleSheet(statusbar, "Statusbar")
+        # encoding of the current editing file.
+        encodingLbl = QLabel(statusbar)
+        encodingLbl.setMaximumHeight(24)
+        encodingLbl.setText("UTF-8")
+        statusbar.addPermanentWidget(encodingLbl)
+        
+        # writing state of the current editing file.
+        writableLbl = QLabel(statusbar)
+        writableLbl.setText("Writable")
+        writableLbl.setMaximumHeight(24)
+        statusbar.addPermanentWidget(writableLbl)
+        
+        # keyword writing mode.
+        editModeLbl = QLabel(statusbar)
+        editModeLbl.setText("Insert")
+        editModeLbl.setMaximumHeight(24)
+        statusbar.addPermanentWidget(editModeLbl)
+        
+        # ligne and column number
+        ligneColNumber = QLabel(statusbar)
+        ligneColNumber.setText("58 : 35")
+        ligneColNumber.setMaximumHeight(24)
+        statusbar.addPermanentWidget(ligneColNumber)
+        
+        # zoom widget
+        # zoomWidget = ZoomWidget(statusbar)
+        # statusbar.addPermanentWidget(zoomWidget)
+        
+        # internet state icon
+        internetState = QLabel(statusbar)
+        internetState.setPixmap(QPixmap(":/status/gfx/status/network-connect.png").scaled(24, 24))
+        internetState.setMaximumSize(24, 24)
+        statusbar.addPermanentWidget(internetState)
+#         self.setStatusBar(statusbar)
         
     def loadOptions(self):
         """ Loads the options of the main window and all its widgets. """
@@ -48,8 +118,10 @@ class MainWindow(MainWindow.Ui_mainwindow):
         
 def main():
     app = QApplication(sys.argv)
-    mw = MainWindow()
-    sys.exit(app.exec_())
+    MainWindow()
+    
+    app.exec_()
+    sys.exit()
     
 if __name__ == '__main__':
     main()
