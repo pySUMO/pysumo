@@ -15,12 +15,30 @@ import re
 from os.path import basename
 from enum import Enum
 
+def tokenize_docstring(chars, f):
+    n = 0
+    ret = []
+
+    while  chars.count('"')%2 != 0 :
+        n += 1
+        line = f.readline()
+        line = cleanup(line)
+        chars = "".join([chars, line])
+    chars = chars.split('"')
+    while len(chars) > 1:
+        c = tokenize(chars.pop(0))
+        ret.extend(c)
+        ret.append(chars.pop(0))
+    ret.extend(tokenize(chars.pop(0)))
+    return (ret, n)
+
+
 def tokenize(chars):
     return chars.replace('(', ' ( ').replace(')', ' ) ').split()
 
 def cleanup(chars):
-    if ";" in chars:
-        chars = chars[:chars.index(';')]
+    chars = chars.split(";")
+    chars = chars[0]
     chars = chars.strip()
     return chars
 
@@ -47,13 +65,18 @@ def kifparse(ontology, graph=None, ast=None):
 
     """
     with open(ontology.path, 'r') as f:
+        docstring = False
         root = AbstractSyntaxTree(ontology)
         oldline = None
         for i, line in enumerate(f):
             line = cleanup(line)
             if line == "":
                 continue
-            line = tokenize(line)
+            if '"' in line:
+                line, n = tokenize_docstring(line, f)
+                i += n
+            else:
+                line = tokenize(line)
             if oldline != None:
                 line = oldline + line
                 oldline = None
