@@ -7,9 +7,9 @@ This module contains:
 
 """
 from PySide import QtGui
-from PySide.QtGui import QMainWindow, QApplication, QStatusBar, QLabel, QWidget, QPixmap
+from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import ui.Widget.TextEditor
-from ui.Designer import MainWindow, ZoomWidget
+from ui.Designer import MainWindow
 import sys
 from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo
 
@@ -18,7 +18,7 @@ QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
 
-class ZoomWidget(QWidget, ZoomWidget.Ui_zoomWidget):
+class ZoomWidget(QWidget):
     def __init__(self, parent):
         super(ZoomWidget, self).__init__(parent)
         self.setupUi(self)

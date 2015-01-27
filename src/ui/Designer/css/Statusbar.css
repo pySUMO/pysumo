@@ -1,0 +1,6 @@
+QStatusBar::item 
+{ 
+	border-left: 1px solid #AAAAAA;
+	padding-left: 10px;
+	padding-right: 10px;
+} 
