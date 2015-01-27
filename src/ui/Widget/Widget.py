@@ -9,8 +9,10 @@ This module contains:
 """
 from lib.indexabstractor import IndexAbstractor as IndexAbstractor
 from lib.syntaxcontroller import SyntaxController as SyntaxController
-from ui.MainWindow import MainWindow
+
+
 class Widget(object):
+
     """ The main class representing a widget in the pySUMO GUI.
 
     Methods:
@@ -19,7 +21,7 @@ class Widget(object):
 
     """
 
-    def __init__(self,mainwindow):
+    def __init__(self, mainwindow):
         super(Widget, self).__init__()
         self.mw = mainwindow
         """ Initializes the Widget object. """
@@ -27,10 +29,13 @@ class Widget(object):
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """
-    
+
     def getWidget(self):
         pass
+
+
 class RWidget(Widget):
+
     """ Class for Widgets which only has read-access to the Ontologies. This
     class should not be used directly, but extended.
     """
@@ -39,7 +44,9 @@ class RWidget(Widget):
         """ Initializes the RWidget. """
         super(RWidget, self).__init__(mainwindow)
 
+
 class RWWidget(Widget):
+
     """ Class for Widgets which have modify-access to the Ontologies. This
     class should not be used directly, but extended.
 
