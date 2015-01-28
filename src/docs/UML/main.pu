@@ -5,9 +5,6 @@ page 2x1
 
 package "Extern" {
   !include QSyntaxHighlighter.iuml
-  class NLTK {
-  
-}
 }
 
 note as N3
@@ -28,8 +25,5 @@ HierarchyWidget o-- AbstractGraph
 DotGraph -- AbstractGraph
 GraphWidget "1" - "1" DotGraph
 GraphWidget o-- AbstractGraph
-
-WordNet --> NLTK : > uses
-
 
 @enduml

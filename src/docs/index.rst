@@ -170,8 +170,6 @@ Errors
 External Libraries
 ==================
 +-------+-------------------------------------------------------------------------------------------+
-|NLTK   |Pulls information about terms from WordNet and finds possible synonyms for words and terms |
-+-------+-------------------------------------------------------------------------------------------+
 |PySide |Python bindings needed to run Qt                                                           |
 +-------+-------------------------------------------------------------------------------------------+
 |PycURL |Python bindings for libcurl                                                                |

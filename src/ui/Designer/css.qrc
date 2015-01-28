@@ -1,0 +1,9 @@
+<RCC>
+  <qresource>
+    <file>css/MainWindow.css</file>
+    <file>css/Menubar.css</file>
+    <file>css/PySumoWidget.css</file>
+    <file>css/Statusbar.css</file>
+    <file>css/Toolbar.css</file>
+  </qresource>
+</RCC>

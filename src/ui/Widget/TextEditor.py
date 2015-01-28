@@ -64,6 +64,9 @@ class TextEditor(RWWidget, Ui_Form):
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
 
         self.hidden = []
+        
+    def getLayoutWidget(self):
+        return self.layoutWidget
 
     def LineAndColumn(self):
         a = self.getWidget().textCursor()
