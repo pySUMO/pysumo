@@ -94,7 +94,7 @@ class TextEditor(RWWidget, Ui_Form):
             # area.
             if block_top >= event.rect().bottom():
                 break
-
+            # do not print line numbers for invisible blocks but do count them
             if not block.isVisible():
                 block = block.next()
                 while not block.isVisible():
