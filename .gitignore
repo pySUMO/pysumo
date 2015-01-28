@@ -7,3 +7,4 @@ Entwurf/src/docs/_build/*
 .project
 .pydevproject
 .settings
+src/conf
