@@ -11,6 +11,9 @@ This module contains:
 import logging
 import logging.handlers
 
+from os import environ, makedirs
+from os.path import dirname
+
 class InfoLog():
     """ The informational log handler for pySUMO. Initializes the python logging framework
     and contains several convenience functions. Instantiated only from the entry point.
@@ -30,10 +33,11 @@ class InfoLog():
 
     """
 
-    default_log_path = ''
-    default_socket_path = ''
+    config_path = '/'.join([environ['HOME'], '.pysumo'])
+    default_log_path = '/'.join([config_path, 'log'])
+    default_socket_path = '/'.join([config_path, 'status'])
 
-    def __init__(self, loglevel=logging.WARNING, filename=default_log_path, socket_path=default_socket_path):
+    def __init__(self, loglevel='WARNING', filename=default_log_path, socket_path=default_socket_path):
         """ Initializes the python logging framework.
 
         Kwargs:
@@ -43,16 +47,26 @@ class InfoLog():
 
         """
         self.filename = filename
+        self.socket = socket_path
+        try:
+            makedirs(dirname(self.filename), exist_ok=True)
+            makedirs(dirname(self.socket), exist_ok=True)
+            self.f_handler = logging.handlers.RotatingFileHandler(self.filename, maxBytes=102400, backupCount=2)
+            s_handler = logging.handlers.SocketHandler(self.socket, None)
+        except PermissionError:
+            makedirs(self.config_path, exist_ok=True)
+            self.filename = self.default_log_path
+            self.socket = self.default_socket_path
+            self.f_handler = logging.handlers.RotatingFileHandler(self.filename, maxBytes=102400, backupCount=2)
+            s_handler = logging.handlers.SocketHandler(self.socket, None)
         self.root_logger = logging.getLogger('')
-        self.root_logger.setLevel(loglevel)
-        f_handler = logging.handlers.RotatingFileHandler(filename, maxBytes=102400, backupCount=2)
-        f_handler.setLevel(loglevel)
-        s_handler = logging.handlers.SocketHandler(socket_path, None)
+        self.root_logger.setLevel(loglevel.upper())
+        self.f_handler.setLevel(loglevel)
         s_handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s: %(levelname)s:%(name)s:%(message)s')
-        f_handler.setFormatter(formatter)
+        self.f_handler.setFormatter(formatter)
         s_handler.setFormatter(formatter)
-        self.root_logger.addHandler(f_handler)
+        self.root_logger.addHandler(self.f_handler)
         self.root_logger.addHandler(s_handler)
 
     def set_loglevel(self, loglevel):
