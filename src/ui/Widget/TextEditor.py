@@ -9,7 +9,6 @@ from PySide.QtGui import QTextCharFormat
 from PySide.QtGui import QFont
 from PySide.QtGui import QSyntaxHighlighter as QSyntaxHighlighter
 from PySide.QtCore import Qt, QRegExp
-
 from ui.Widget.Widget import RWWidget as RWWidget
 from ui.Designer.TextEditor import Ui_Form as Ui_Form
 class TextEditor(RWWidget, Ui_Form):
@@ -57,8 +56,8 @@ class SyntaxHighlightSetting():
         self.expression = expression
         self.font_weight = font_weight
         self.font_color = font_color
-            
         self.createFormat()
+        
     def createFormat(self):
         self.class_format = QTextCharFormat()
         self.class_format.setFontWeight(self.font_weight)
@@ -66,18 +65,35 @@ class SyntaxHighlightSetting():
             
     def get_format(self):
         return self.class_format
-
+    
+    def getValues(self):
+        return [self.expression, self.font_color, self.font_weight]
+        
+    def serialize(self):
+        str1 = ""
+        str1 += self.expression + "//"
+        str1 += str(self.font_color) + "//"
+        str1 += str(self.font_weight) + "//"
+        return str1
+    
+    def deserialize(self,string):
+        splitted = string.split("//")
+        self.expression = splitted[0]
+        self.font_color = splitted[1]
+        self.font_weight = splitted[2]
+        
 class SyntaxHighlighter(QSyntaxHighlighter):
 
     def __init__(self, document):
         super(SyntaxHighlighter, self).__init__(document)
-        #Comments
         self.classes = []
-        self.classes.append(SyntaxHighlightSetting(";.*$", QFont.Bold, Qt.darkMagenta))
-        self.classes.append(SyntaxHighlightSetting("(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)\W", QFont.Bold, Qt.darkGreen))
-        self.classes.append(SyntaxHighlightSetting("(and|not|or)\W", QFont.Bold, Qt.black))    
+        self.classes.append(SyntaxHighlightSetting(";.*$", QFont.StyleItalic, Qt.darkMagenta))
+        self.classes.append(SyntaxHighlightSetting("(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W'\n']", QFont.Bold, Qt.darkGreen))
+        self.classes.append(SyntaxHighlightSetting("(and|=>|not|or)(?!\w)", QFont.Bold, Qt.black))   
+        
     def highlightBlock(self, text):
         for h in self.classes:
+            h.deserialize(h.serialize())
             expression = QRegExp(h.expression)
             index = expression.indexIn(text)
             while index >= 0:
