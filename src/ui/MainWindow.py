@@ -12,6 +12,7 @@ import ui.Widget.TextEditor
 from ui.Designer import MainWindow
 import sys
 from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo
+from _io import StringIO
 
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -50,10 +51,26 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
         self.setupUi(self)
-        texteditor = ui.Widget.TextEditor.TextEditor(self)
-        self.setCentralWidget(texteditor.getLayoutWidget())
+        self.texteditor = ui.Widget.TextEditor.TextEditor(self)
+        self.texteditor.getWidget().updateRequest.connect(self.updateStatusbar)
+        self.setCentralWidget(self.texteditor.getLayoutWidget())
         self.createStatusBar()
         self.show()
+        
+    def updateStatusbar(self):
+        plainTextEdit = self.texteditor.getWidget()
+        if (plainTextEdit == None):
+            return
+        textCursor = plainTextEdit.textCursor()
+        document = plainTextEdit.document()
+        lineNbr = document.findBlock(textCursor.position()).blockNumber()
+        cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
+        self.ligneColNumber.setText(cursorPos)
+        import chardet
+        data = str.encode(document.toPlainText())
+        encoding = chardet.detect(data)['encoding']
+        encoding = str(encoding).upper()
+        self.encodingLbl.setText(encoding)
         
     def closeEvent(self, event):
         settings = QSettings("conf", QSettings.IniFormat)
@@ -66,31 +83,33 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         
     def createStatusBar(self):
         statusbar = self.statusBar
-        statusbar.setMaximumHeight(35)
-        loadStyleSheet(statusbar, "Statusbar")
+        #statusbar.setMaximumHeight(35)
+        statusbarWrapperWidget = QWidget(statusbar)
+        statusBarLayout = QtGui.QHBoxLayout(statusbarWrapperWidget)
+        #statusBarLayout.setContentsMargins(10, 10, 10, 10)
+        statusBarLayout.setSpacing(30)
+        #loadStyleSheet(statusbar, "Statusbar")
         # encoding of the current editing file.
-        encodingLbl = QLabel(statusbar)
-        encodingLbl.setMaximumHeight(24)
-        encodingLbl.setText("UTF-8")
-        statusbar.addPermanentWidget(encodingLbl)
+        
+        self.encodingLbl = QLabel(statusbar)
+        self.encodingLbl.setMaximumHeight(24)
+        self.encodingLbl.setText("UTF-8")
+        statusBarLayout.addWidget(self.encodingLbl)
         
         # writing state of the current editing file.
         writableLbl = QLabel(statusbar)
         writableLbl.setText("Writable")
-        writableLbl.setMaximumHeight(24)
-        statusbar.addPermanentWidget(writableLbl)
+        statusBarLayout.addWidget(writableLbl)
         
         # keyword writing mode.
-        editModeLbl = QLabel(statusbar)
-        editModeLbl.setText("Insert")
-        editModeLbl.setMaximumHeight(24)
-        statusbar.addPermanentWidget(editModeLbl)
+        self.editModeLbl = QLabel(statusbar)
+        self.editModeLbl.setText("Insert")
+        statusBarLayout.addWidget(self.editModeLbl)
         
         # ligne and column number
-        ligneColNumber = QLabel(statusbar)
-        ligneColNumber.setText("58 : 35")
-        ligneColNumber.setMaximumHeight(24)
-        statusbar.addPermanentWidget(ligneColNumber)
+        self.ligneColNumber = QLabel(statusbar)
+        self.ligneColNumber.setText("")
+        statusBarLayout.addWidget(self.ligneColNumber)
         
         # zoom widget
         # zoomWidget = ZoomWidget(statusbar)
@@ -99,9 +118,9 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         # internet state icon
         internetState = QLabel(statusbar)
         internetState.setPixmap(QPixmap(":/status/gfx/status/network-connect.png").scaled(24, 24))
-        internetState.setMaximumSize(24, 24)
-        statusbar.addPermanentWidget(internetState)
+        statusBarLayout.addWidget(internetState)
 #         self.setStatusBar(statusbar)
+        statusbar.addPermanentWidget(statusbarWrapperWidget)
         
     def loadOptions(self):
         """ Loads the options of the main window and all its widgets. """
