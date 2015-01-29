@@ -178,11 +178,12 @@ class TextEditor(RWWidget, Ui_Form):
         while block.blockNumber() < line - 1:
             block = block.next()
 
-        while openB > closeB:
+        while openB > closeB and block.isValid():
             block = block.next()
             block.setVisible(visibility)
             openB += block.text().count("(")
             closeB += block.text().count(")")
+
         self.getWidget().hide()
         self.getWidget().show()
         self.number_bar.update()
