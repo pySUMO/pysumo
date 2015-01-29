@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Tue Jan 27 15:18:03 2015
+# Created: Thu Jan 29 16:34:56 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -16,6 +16,11 @@ class Ui_mainwindow(object):
         mainwindow.setDockNestingEnabled(True)
         self.centralwidget = QtGui.QWidget(mainwindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.documentArea = QtGui.QMdiArea(self.centralwidget)
+        self.documentArea.setObjectName("documentArea")
+        self.horizontalLayout.addWidget(self.documentArea)
         mainwindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(mainwindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 680, 25))
@@ -63,6 +68,24 @@ class Ui_mainwindow(object):
         self.statusBar = QtGui.QStatusBar(mainwindow)
         self.statusBar.setObjectName("statusBar")
         mainwindow.setStatusBar(self.statusBar)
+        self.hierarchyWidget = QtGui.QDockWidget(mainwindow)
+        self.hierarchyWidget.setObjectName("hierarchyWidget")
+        self.dockWidgetContents = QtGui.QWidget()
+        self.dockWidgetContents.setObjectName("dockWidgetContents")
+        self.hierarchyWidget.setWidget(self.dockWidgetContents)
+        mainwindow.addDockWidget(QtCore.Qt.DockWidgetArea(1), self.hierarchyWidget)
+        self.documentationWidget = QtGui.QDockWidget(mainwindow)
+        self.documentationWidget.setObjectName("documentationWidget")
+        self.dockWidgetContents_2 = QtGui.QWidget()
+        self.dockWidgetContents_2.setObjectName("dockWidgetContents_2")
+        self.documentationWidget.setWidget(self.dockWidgetContents_2)
+        mainwindow.addDockWidget(QtCore.Qt.DockWidgetArea(8), self.documentationWidget)
+        self.graphWidget = QtGui.QDockWidget(mainwindow)
+        self.graphWidget.setObjectName("graphWidget")
+        self.dockWidgetContents_3 = QtGui.QWidget()
+        self.dockWidgetContents_3.setObjectName("dockWidgetContents_3")
+        self.graphWidget.setWidget(self.dockWidgetContents_3)
+        mainwindow.addDockWidget(QtCore.Qt.DockWidgetArea(2), self.graphWidget)
         self.newOntologyAction = QtGui.QAction(mainwindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/actions/gfx/actions/document-new.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -232,15 +255,19 @@ class Ui_mainwindow(object):
         self.actionSettings.setObjectName("actionSettings")
         self.actionHierarchyWidget = QtGui.QAction(mainwindow)
         self.actionHierarchyWidget.setCheckable(True)
+        self.actionHierarchyWidget.setChecked(True)
         self.actionHierarchyWidget.setObjectName("actionHierarchyWidget")
         self.actionDocumentationWidget = QtGui.QAction(mainwindow)
         self.actionDocumentationWidget.setCheckable(True)
+        self.actionDocumentationWidget.setChecked(True)
         self.actionDocumentationWidget.setObjectName("actionDocumentationWidget")
         self.actionGraphWidget = QtGui.QAction(mainwindow)
         self.actionGraphWidget.setCheckable(True)
+        self.actionGraphWidget.setChecked(True)
         self.actionGraphWidget.setObjectName("actionGraphWidget")
         self.actionTextEditorWidget = QtGui.QAction(mainwindow)
-        self.actionTextEditorWidget.setCheckable(True)
+        self.actionTextEditorWidget.setCheckable(False)
+        self.actionTextEditorWidget.setEnabled(False)
         self.actionTextEditorWidget.setObjectName("actionTextEditorWidget")
         self.actionZoomIn = QtGui.QAction(mainwindow)
         icon24 = QtGui.QIcon()
@@ -400,6 +427,11 @@ class Ui_mainwindow(object):
         QtCore.QObject.connect(self.actionTools, QtCore.SIGNAL("triggered(bool)"), self.toolBarTools.setVisible)
         QtCore.QObject.connect(self.actionHelp, QtCore.SIGNAL("triggered(bool)"), self.toolBarHelp.setVisible)
         QtCore.QObject.connect(self.actionStatusbar, QtCore.SIGNAL("triggered(bool)"), self.statusBar.setVisible)
+        QtCore.QObject.connect(self.actionClose, QtCore.SIGNAL("triggered()"), self.documentArea.closeActiveSubWindow)
+        QtCore.QObject.connect(self.actionExit, QtCore.SIGNAL("triggered()"), mainwindow.close)
+        QtCore.QObject.connect(self.actionHierarchyWidget, QtCore.SIGNAL("triggered(bool)"), self.hierarchyWidget.setVisible)
+        QtCore.QObject.connect(self.actionDocumentationWidget, QtCore.SIGNAL("triggered(bool)"), self.documentationWidget.setVisible)
+        QtCore.QObject.connect(self.actionGraphWidget, QtCore.SIGNAL("triggered(bool)"), self.graphWidget.setVisible)
         QtCore.QMetaObject.connectSlotsByName(mainwindow)
 
     def retranslateUi(self, mainwindow):
@@ -477,4 +509,5 @@ class Ui_mainwindow(object):
         self.actionOntology.setText(QtGui.QApplication.translate("mainwindow", "Ontology", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStatusbar.setText(QtGui.QApplication.translate("mainwindow", "Statusbar", None, QtGui.QApplication.UnicodeUTF8))
 
+import ui.Designer.css_rc
 import ui.Designer.gfx_rc

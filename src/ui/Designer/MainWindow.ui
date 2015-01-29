@@ -16,7 +16,13 @@
   <property name="dockNestingEnabled">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QMdiArea" name="documentArea"/>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -231,9 +237,27 @@
    <addaction name="actionPySUMOTutorials"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="hierarchyWidget">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents"/>
+  </widget>
+  <widget class="QDockWidget" name="documentationWidget">
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2"/>
+  </widget>
+  <widget class="QDockWidget" name="graphWidget">
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3"/>
+  </widget>
   <action name="newOntologyAction">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-new.png</normaloff>:/actions/gfx/actions/document-new.png</iconset>
    </property>
    <property name="text">
@@ -263,7 +287,7 @@
   </action>
   <action name="openLocalOntologyAction">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-open.png</normaloff>:/actions/gfx/actions/document-open.png</iconset>
    </property>
    <property name="text">
@@ -278,7 +302,7 @@
   </action>
   <action name="openRemoteOntologyAction">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-open-remote.png</normaloff>:/actions/gfx/actions/document-open-remote.png</iconset>
    </property>
    <property name="text">
@@ -318,7 +342,7 @@
   </action>
   <action name="clearHistoryAction">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-clear-history.png</normaloff>:/actions/gfx/actions/edit-clear-history.png</iconset>
    </property>
    <property name="text">
@@ -330,7 +354,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-save.png</normaloff>:/actions/gfx/actions/document-save.png</iconset>
    </property>
    <property name="text">
@@ -345,7 +369,7 @@
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-save-as.png</normaloff>:/actions/gfx/actions/document-save-as.png</iconset>
    </property>
    <property name="text">
@@ -360,7 +384,7 @@
   </action>
   <action name="actionRevert">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-revert.png</normaloff>:/actions/gfx/actions/document-revert.png</iconset>
    </property>
    <property name="text">
@@ -372,7 +396,7 @@
   </action>
   <action name="actionPrint">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-print.png</normaloff>:/actions/gfx/actions/document-print.png</iconset>
    </property>
    <property name="text">
@@ -387,7 +411,7 @@
   </action>
   <action name="actionClose">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-close.png</normaloff>:/actions/gfx/actions/document-close.png</iconset>
    </property>
    <property name="text">
@@ -399,7 +423,7 @@
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/application-exit.png</normaloff>:/actions/gfx/actions/application-exit.png</iconset>
    </property>
    <property name="text">
@@ -417,7 +441,7 @@
   </action>
   <action name="actionProperties">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-properties.png</normaloff>:/actions/gfx/actions/document-properties.png</iconset>
    </property>
    <property name="text">
@@ -429,7 +453,7 @@
   </action>
   <action name="actionQuickPrint">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/document-quickprint.png</normaloff>:/actions/gfx/actions/document-quickprint.png</iconset>
    </property>
    <property name="text">
@@ -444,7 +468,7 @@
   </action>
   <action name="actionUndo">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-undo.png</normaloff>:/actions/gfx/actions/edit-undo.png</iconset>
    </property>
    <property name="text">
@@ -459,7 +483,7 @@
   </action>
   <action name="actionRedo">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-redo.png</normaloff>:/actions/gfx/actions/edit-redo.png</iconset>
    </property>
    <property name="text">
@@ -474,7 +498,7 @@
   </action>
   <action name="actionCut">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-cut.png</normaloff>:/actions/gfx/actions/edit-cut.png</iconset>
    </property>
    <property name="text">
@@ -489,7 +513,7 @@
   </action>
   <action name="actionCopy">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-copy.png</normaloff>:/actions/gfx/actions/edit-copy.png</iconset>
    </property>
    <property name="text">
@@ -504,7 +528,7 @@
   </action>
   <action name="actionPaste">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-paste.png</normaloff>:/actions/gfx/actions/edit-paste.png</iconset>
    </property>
    <property name="text">
@@ -519,7 +543,7 @@
   </action>
   <action name="actionDelete">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-delete.png</normaloff>:/actions/gfx/actions/edit-delete.png</iconset>
    </property>
    <property name="text">
@@ -534,7 +558,7 @@
   </action>
   <action name="actionSelectAll">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-select-all.png</normaloff>:/actions/gfx/actions/edit-select-all.png</iconset>
    </property>
    <property name="text">
@@ -549,7 +573,7 @@
   </action>
   <action name="actionPySUMOHelp">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/help-contents.png</normaloff>:/actions/gfx/actions/help-contents.png</iconset>
    </property>
    <property name="text">
@@ -564,7 +588,7 @@
   </action>
   <action name="actionPySUMOTutorials">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/help-hint.png</normaloff>:/actions/gfx/actions/help-hint.png</iconset>
    </property>
    <property name="text">
@@ -576,7 +600,7 @@
   </action>
   <action name="actionFAQ">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/help-faq.png</normaloff>:/actions/gfx/actions/help-faq.png</iconset>
    </property>
    <property name="text">
@@ -598,7 +622,7 @@
   </action>
   <action name="actionAboutpySUMO">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/help-about.png</normaloff>:/actions/gfx/actions/help-about.png</iconset>
    </property>
    <property name="text">
@@ -610,7 +634,7 @@
   </action>
   <action name="actionSettings">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/configure.png</normaloff>:/actions/gfx/actions/configure.png</iconset>
    </property>
    <property name="text">
@@ -624,12 +648,18 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Hierarchy Widget</string>
    </property>
   </action>
   <action name="actionDocumentationWidget">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -640,13 +670,19 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Graph Widget</string>
    </property>
   </action>
   <action name="actionTextEditorWidget">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Text Editor Widget</string>
@@ -654,7 +690,7 @@
   </action>
   <action name="actionZoomIn">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/zoom-in.png</normaloff>:/actions/gfx/actions/zoom-in.png</iconset>
    </property>
    <property name="text">
@@ -669,7 +705,7 @@
   </action>
   <action name="actionZoomOut">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/zoom-out.png</normaloff>:/actions/gfx/actions/zoom-out.png</iconset>
    </property>
    <property name="text">
@@ -733,7 +769,7 @@
   </action>
   <action name="actionAddTerms">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/list-add.png</normaloff>:/actions/gfx/actions/list-add.png</iconset>
    </property>
    <property name="text">
@@ -745,7 +781,7 @@
   </action>
   <action name="actionRemoveTerms">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/list-remove.png</normaloff>:/actions/gfx/actions/list-remove.png</iconset>
    </property>
    <property name="text">
@@ -757,7 +793,7 @@
   </action>
   <action name="actionUpdate">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/update-product.png</normaloff>:/actions/gfx/actions/update-product.png</iconset>
    </property>
    <property name="text">
@@ -769,7 +805,7 @@
   </action>
   <action name="actionFind">
    <property name="icon">
-    <iconset resource="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc">
+    <iconset resource="gfx.qrc">
      <normaloff>:/actions/gfx/actions/edit-find.png</normaloff>:/actions/gfx/actions/edit-find.png</iconset>
    </property>
    <property name="text">
@@ -803,7 +839,8 @@
   </action>
  </widget>
  <resources>
-  <include location="../../../../../../Dropbox/Aktuelle Vorlesungen/PSE/pysumo-ref/UI/gfx.qrc"/>
+  <include location="css.qrc"/>
+  <include location="gfx.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -899,6 +936,86 @@
     <hint type="destinationlabel">
      <x>339</x>
      <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>documentArea</receiver>
+   <slot>closeActiveSubWindow()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>339</x>
+     <y>203</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>203</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>mainwindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>181</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHierarchyWidget</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>hierarchyWidget</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>39</x>
+     <y>203</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDocumentationWidget</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>documentationWidget</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>321</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionGraphWidget</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>graphWidget</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>640</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
