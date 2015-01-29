@@ -40,6 +40,9 @@ class TextEditor(RWWidget, Ui_Form):
         self.highlighter = SyntaxHighlighter(self.plainTextEdit.document())
         #self.syntax_highlighter = QSyntaxHighlighter()
 
+    def getWidget(self):
+        return self.plainTextEdit
+    
     def commit(self):
         """ Overrides commit from RWWidget. """
 

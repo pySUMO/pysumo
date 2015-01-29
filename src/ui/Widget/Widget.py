@@ -29,7 +29,9 @@ class Widget(object):
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """
-
+    
+    def getWidget(self):
+        pass
 class RWidget(Widget):
 
     """ Class for Widgets which only has read-access to the Ontologies. This
