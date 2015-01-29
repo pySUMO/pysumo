@@ -13,7 +13,6 @@ from ui.Designer import MainWindow
 import sys
 from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo
 
-
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
@@ -52,12 +51,11 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         self.setupUi(self)
         self.texteditor = ui.Widget.TextEditor.TextEditor(self)
         self.texteditor.getWidget().updateRequest.connect(self.updateStatusbar)
-        documentArea = QtGui.QMdiArea(self)
-        documentArea.setViewMode(QtGui.QMdiArea.TabbedView)
-        widget = documentArea.addSubWindow(self.texteditor.getLayoutWidget())
+        self.documentArea.setViewMode(QtGui.QMdiArea.TabbedView)
+        widget = self.documentArea.addSubWindow(self.texteditor.getLayoutWidget())
         #widget1 = documentArea.addSubWindow(QWidget(self))
         widget.showMaximized()
-        self.setCentralWidget(documentArea)
+        self.setCentralWidget(self.documentArea)
         #documentArea.removeSubWindow(widget1)
         #widget1 = widget1.widget()
         #widget1.show()
@@ -79,11 +77,14 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         lineNbr = document.findBlock(textCursor.position()).blockNumber()
         cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
         self.ligneColNumber.setText(cursorPos)
-        import chardet
-        data = str.encode(document.toPlainText())
-        encoding = chardet.detect(data)['encoding']
-        encoding = str(encoding).upper()
-        self.encodingLbl.setText(encoding)
+        try :
+            import chardet
+            data = str.encode(document.toPlainText())
+            encoding = chardet.detect(data)['encoding']
+            encoding = str(encoding).upper()
+            self.encodingLbl.setText(encoding)
+        except ImportError :
+            print("please install chardet to detect the encodage.")
         
     def closeEvent(self, event):
         self.settings = QSettings("conf", QSettings.IniFormat)
