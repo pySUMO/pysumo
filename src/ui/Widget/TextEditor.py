@@ -121,9 +121,12 @@ class TextEditor(RWWidget, Ui_Form):
             # line opens a block
             if line_count in self.hidden:
                 text += "+"
+                font.setUnderline(True)
             elif block.text().count("(") > block.text().count(")"):
                 text += "-"
-
+                font.setUnderline(True)
+            else:
+                font.setUnderline(False)
             painter.setFont(font)
             # Draw the line number right justified at the position of the
             # line.
