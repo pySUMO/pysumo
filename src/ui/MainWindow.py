@@ -6,13 +6,12 @@ This module contains:
 - HelpDialog: The dialog that displays help in pySUMO GUI.
 
 """
-from PySide import QtGui
+from PySide import QtGui, QtCore
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import ui.Widget.TextEditor
 from ui.Designer import MainWindow
 import sys
 from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo
-from _io import StringIO
 
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -73,13 +72,105 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         self.encodingLbl.setText(encoding)
         
     def closeEvent(self, event):
-        settings = QSettings("conf", QSettings.IniFormat)
-        settings.setValue("geometry", self.saveGeometry())
+        self.settings = QSettings("conf", QSettings.IniFormat)
+        self.settings.setValue("mainWindow/geometry", self.saveGeometry())
+        self.settings.setValue("mainWindow/state", self.saveState())
+        self.saveStatusBarState()
+        self.saveToolbarsState()
         super(MainWindow, self).closeEvent(event)
         
-    def showEvent(self, *args, **kwargs):
-        settings = QSettings("conf", QSettings.IniFormat)
-        self.restoreGeometry(settings.value("geometry"))
+    def saveVisibilityState(self, qItem):
+        objName = qItem.objectName()
+        self.settings.setValue(objName + "/visible", qItem.isVisible())
+    
+    def restoreVisibilityState(self, qItem, qAction = None):
+        objName = qItem.objectName()
+        visible = self.settings.value(objName + "/visible", True)
+        visible = str(visible).lower()
+        if visible == "false" :
+            visible = False
+        else :
+            visible = True
+        #if not visible :
+        #   qAction.triggered.emit()
+        #  qAction.setChecked(False)
+        if qAction != None :
+            qAction.setChecked(visible)
+        qItem.setVisible(visible)
+    
+    def savePositionState(self, qItem):
+        objName = qItem.objectName()
+        pos = qItem.pos()
+        xPos = pos.x()
+        yPos = pos.y()
+        self.settings.setValue(objName + "/x", xPos)
+        self.settings.setValue(objName + "/y", yPos)
+    
+    def restorePositionState(self, qItem):
+        objName = qItem.objectName()
+        xPos = self.settings.value(objName + "/x")
+        yPos = self.settings.value(objName + "/y")
+        if xPos == None or yPos == None :
+            return
+        xPos = int(xPos)
+        yPos = int(yPos)
+        qItem.move(xPos, yPos)
+    
+    def saveSizeState(self, qItem):
+        objName = qItem.objectName()
+        size = qItem.size()
+        width = size.width()
+        height = size.height()
+        self.settings.setValue(objName + "/width", width)
+        self.settings.setValue(objName + "/height", height)
+        
+    def restoreSizeState(self, qItem):
+        objName = qItem.objectName()
+        width = self.settings.value(objName + "/width")
+        height = self.settings.value(objName + "/height")
+        if width == None or height == None :
+            return
+        width = int(width)
+        height = int(height)
+        qItem.resize(width, height)
+        
+    def saveStatusBarState(self):
+        self.saveVisibilityState(self.statusBar)
+        
+    def restoreStatusBarState(self):
+        self.restoreVisibilityState(self.statusBar, self.actionStatusbar)
+        
+    def saveToolBarState(self, qToolbar, qAction=None):
+        self.saveSizeState(qToolbar)
+        self.savePositionState(qToolbar)
+        self.saveVisibilityState(qToolbar)
+        
+    def restoreToolBarState(self, qToolbar, qAction=None):
+        self.restoreSizeState(qToolbar)
+        self.restorePositionState(qToolbar)
+        self.restoreVisibilityState(qToolbar, qAction)
+        
+    def saveToolbarsState(self):
+        self.saveToolBarState(self.toolBarFile)
+        self.saveToolBarState(self.toolBarEdit)
+        self.saveToolBarState(self.toolBarOntology)
+        self.saveToolBarState(self.toolBarTools)
+        self.saveToolBarState(self.toolBarHelp)
+
+    def restoreToolbarsState(self):
+        self.restoreToolBarState(self.toolBarFile, self.actionFile)
+        self.restoreToolBarState(self.toolBarEdit, self.actionEdit)
+        self.restoreToolBarState(self.toolBarOntology, self.actionOntology)
+        self.restoreToolBarState(self.toolBarTools, self.actionTools)
+        self.restoreToolBarState(self.toolBarHelp, self.actionHelp)
+        
+    def showEvent(self, event):
+        self.settings = QSettings("conf", QSettings.IniFormat)
+        self.restoreGeometry(self.settings.value("mainWindow/geometry"))
+        self.restoreState(self.settings.value("mainWindow/state"))
+        self.restoreStatusBarState()
+        self.restoreToolbarsState()
+        super(MainWindow, self).showEvent(event)
         
     def createStatusBar(self):
         statusbar = self.statusBar
