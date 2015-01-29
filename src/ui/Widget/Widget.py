@@ -7,11 +7,12 @@ This module contains:
 - RWWidget: The class of widgets which have access to the SyntaxController and the IndexAbstractor.
 
 """
+from PySide.QtCore import QObject
 from lib.indexabstractor import IndexAbstractor as IndexAbstractor
 from lib.syntaxcontroller import SyntaxController as SyntaxController
 
 
-class Widget(object):
+class Widget(QObject):
 
     """ The main class representing a widget in the pySUMO GUI.
 
