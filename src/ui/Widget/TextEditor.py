@@ -64,7 +64,17 @@ class TextEditor(RWWidget, Ui_Form):
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
 
         self.hidden = []
-        
+
+    @Slot()
+    def expandAll(self):
+        for see in self.hidden:
+            self.hideFrom(see)
+
+    @Slot()
+    def hideAll(self):
+        for i in range(self.getWidget().maximumBlockCount()):
+            self.hideFrom(i)
+
     def getLayoutWidget(self):
         return self.layoutWidget
 
@@ -143,12 +153,7 @@ class TextEditor(RWWidget, Ui_Form):
 
     def hideFrom(self, line):
         visibility = False
-        """ if already hidden show lines"""
-        if line in self.hidden:
-            visibility = True
-            self.hidden.remove(line)
-        else:
-            self.hidden.append(line)
+
         block = self.getWidget().firstVisibleBlock()
         # go to line >= line: block starts counting by 0
         while block.blockNumber() < line - 1:
@@ -156,6 +161,20 @@ class TextEditor(RWWidget, Ui_Form):
 
         openB = block.text().count("(")
         closeB = block.text().count(")")
+
+        """ if already hidden show lines"""
+        if line in self.hidden:
+            visibility = True
+            self.hidden.remove(line)
+        else:
+            if openB <= closeB:
+                return
+            self.hidden.append(line)
+        block = self.getWidget().firstVisibleBlock()
+        # go to line >= line: block starts counting by 0
+        while block.blockNumber() < line - 1:
+            block = block.next()
+
         while openB > closeB:
             block = block.next()
             block.setVisible(visibility)
