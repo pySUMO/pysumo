@@ -121,6 +121,9 @@
     <addaction name="actionGraphWidget"/>
     <addaction name="actionTextEditorWidget"/>
     <addaction name="separator"/>
+    <addaction name="actionExpand"/>
+    <addaction name="actionCollapse"/>
+    <addaction name="separator"/>
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
     <addaction name="separator"/>
@@ -835,6 +838,16 @@
    </property>
    <property name="text">
     <string>Statusbar</string>
+   </property>
+  </action>
+  <action name="actionExpand">
+   <property name="text">
+    <string>Expand</string>
+   </property>
+  </action>
+  <action name="actionCollapse">
+   <property name="text">
+    <string>Collapse</string>
    </property>
   </action>
  </widget>

@@ -72,7 +72,7 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot()
     def hideAll(self):
-        for i in range(self.getWidget().maximumBlockCount()):
+        for i in range(self.getWidget().document().blockCount()):
             self.hideFrom(i)
 
     def getLayoutWidget(self):

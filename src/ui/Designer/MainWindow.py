@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Thu Jan 29 16:34:56 2015
+# Created: Thu Jan 29 16:56:06 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -331,6 +331,10 @@ class Ui_mainwindow(object):
         self.actionStatusbar.setCheckable(True)
         self.actionStatusbar.setChecked(True)
         self.actionStatusbar.setObjectName("actionStatusbar")
+        self.actionExpand = QtGui.QAction(mainwindow)
+        self.actionExpand.setObjectName("actionExpand")
+        self.actionCollapse = QtGui.QAction(mainwindow)
+        self.actionCollapse.setObjectName("actionCollapse")
         self.openOntology.addAction(self.openLocalOntologyAction)
         self.openOntology.addSeparator()
         self.openOntology.addAction(self.openRemoteOntologyAction)
@@ -375,6 +379,9 @@ class Ui_mainwindow(object):
         self.menuView.addAction(self.actionDocumentationWidget)
         self.menuView.addAction(self.actionGraphWidget)
         self.menuView.addAction(self.actionTextEditorWidget)
+        self.menuView.addSeparator()
+        self.menuView.addAction(self.actionExpand)
+        self.menuView.addAction(self.actionCollapse)
         self.menuView.addSeparator()
         self.menuView.addAction(self.actionZoomIn)
         self.menuView.addAction(self.actionZoomOut)
@@ -508,6 +515,8 @@ class Ui_mainwindow(object):
         self.actionFind.setText(QtGui.QApplication.translate("mainwindow", "Find", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOntology.setText(QtGui.QApplication.translate("mainwindow", "Ontology", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStatusbar.setText(QtGui.QApplication.translate("mainwindow", "Statusbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExpand.setText(QtGui.QApplication.translate("mainwindow", "Expand", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCollapse.setText(QtGui.QApplication.translate("mainwindow", "Collapse", None, QtGui.QApplication.UnicodeUTF8))
 
 import ui.Designer.css_rc
 import ui.Designer.gfx_rc

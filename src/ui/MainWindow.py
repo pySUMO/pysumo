@@ -6,7 +6,7 @@ This module contains:
 - HelpDialog: The dialog that displays help in pySUMO GUI.
 
 """
-from PySide import QtGui
+from PySide import QtGui, QtCore
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import ui.Widget.TextEditor
 from ui.Designer import MainWindow
@@ -65,6 +65,8 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         #toolWidget = QtGui.QDockWidget(self)
         #toolWidget.setFeatures(QtGui.QDockWidget.DockWidgetClosable | QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
         #self.addDockWidget(QtCore.Qt.DockWidgetArea.LeftDockWidgetArea, toolWidget)
+        self.actionExpand.triggered.connect(self.texteditor.expandAll)
+        self.actionCollapse.triggered.connect(self.texteditor.hideAll)
         self.createStatusBar()
         self.show()
         
