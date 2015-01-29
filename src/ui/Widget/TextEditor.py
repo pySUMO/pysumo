@@ -7,6 +7,7 @@ from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint
 from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QPainter
 from PySide.QtGui import QFont, QSyntaxHighlighter as QSyntaxHighlighter
 from PySide.QtGui import QTextCharFormat
+from collections import OrderedDict
 import re
 import sys
 
