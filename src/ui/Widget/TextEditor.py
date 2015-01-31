@@ -62,13 +62,22 @@ class TextEditor(RWWidget, Ui_Form):
             self.number_bar.updateContents)
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
+        self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
+        self.hidden = {}
 
-        self.hidden = []
+    @Slot()
+    def expandIfBracketRemoved(self):
+        current_line = self.getWidget().document().findBlock(
+            self.getWidget().textCursor().position()).blockNumber() + 1
+        print(current_line)
+        print(self.hidden)
+        if current_line in self.hidden:
+            self.toogleVisibility(current_line)
 
     @Slot()
     def expandAll(self):
-        for see in self.hidden:
-            self.hideFrom(see)
+        for see in self.hidden.keys():
+            self.toogleVisibility(see)
 
     @Slot()
     def hideAll(self):
@@ -154,39 +163,45 @@ class TextEditor(RWWidget, Ui_Form):
             self.completer.setCompletionPrefix(beginning)
             self.completer.complete()
 
-    def hideFrom(self, line):
-        visibility = False
-
-        block = self.getWidget().firstVisibleBlock()
-        # go to line >= line: block starts counting by 0
-        while block.blockNumber() < line - 1:
-            block = block.next()
-
-        openB = block.text().count("(")
-        closeB = block.text().count(")")
-
-        """ if already hidden show lines"""
+    def toogleVisibility(self, line):
         if line in self.hidden:
-            visibility = True
-            self.hidden.remove(line)
+            self._showLines(self.hidden[line])
+            del self.hidden[line]
         else:
-            if openB <= closeB:
-                return
-            self.hidden.append(line)
-        block = self.getWidget().firstVisibleBlock()
-        # go to line >= line: block starts counting by 0
-        while block.blockNumber() < line - 1:
-            block = block.next()
-
-        while openB > closeB and block.isValid():
-            block = block.next()
-            block.setVisible(visibility)
-            openB += block.text().count("(")
-            closeB += block.text().count(")")
-
+            self.hideFrom(line)
+        print(self.hidden)
+        # update views
         self.getWidget().hide()
         self.getWidget().show()
         self.number_bar.update()
+
+    def _showLines(self, lines):
+        for line in lines:
+            self.getWidget().document().findBlockByLineNumber(
+                line - 1).setVisible(True)
+
+    def hideFrom(self, line):
+        block = self.getWidget().document().findBlockByLineNumber(
+            line - 1)
+
+        openB = block.text().count("(")
+        closeB = block.text().count(")")
+        startline = line
+        block = self.getWidget().firstVisibleBlock()
+        # go to line >= line: block starts counting by 0
+        while block.blockNumber() < line - 1:
+            block = block.next()
+        hidden = []
+        while openB > closeB and block.isValid():
+            block = block.next()
+            line = line + 1
+            if block.isVisible() == True:
+                block.setVisible(False)
+                hidden.append(line)
+            openB += block.text().count("(")
+            closeB += block.text().count(")")
+
+        self.hidden[startline] = hidden
 
     @Slot(str)
     def insertCompletion(self, completion):
@@ -318,7 +333,7 @@ class NumberBar(QWidget):
         for (height, line) in self.link:
             if height >= event.y():
                 break
-        self.edit.hideFrom(line - 1)
+        self.edit.toogleVisibility(line - 1)
 
 
 if __name__ == "__main__":
