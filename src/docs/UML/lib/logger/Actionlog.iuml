@@ -1,7 +1,8 @@
 class Actionlog {
   - actionlog : Stack
   - redolog : Stack
-  - queue : Dictionary
+  - queue : (Int, File)
+  - current : File
   + __init__(path=None : String) : ActionLog
   + queue_log(data) : int
   + ok_log_item(log_queue_ok_num : int)
@@ -10,16 +11,21 @@ class Actionlog {
 }
 
 class LogIO {
-  - path: String
-  - write_queue: String[]
-  - timeout: Int
-  - max_size: Int
+  - timeout : Int
+  - max_size : Int
+  - max_diffs : Int
+  - path : String
+  - name : String
+  - current : String
+  - uwrite_queue: File[]
+  - rwrite_queue: File[]
   + __init__(path : String) : LogIO
-  + write()
-  + read(): String[]
-  + flush_write_queue()
-  + append_write_queue(entry)
-  
+  + diff(current : File, new : File) : BytesIO
+  + read() : (File, File[], File[])
+  + flush_write_queue(_=None, __=None)
+  + clear(queue : String)
+  + undo(current : File, entry : File) : File
+  + current(current : File, entry : File, clean=False) : File
 }
 
 Actionlog *- LogIO

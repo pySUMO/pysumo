@@ -15,7 +15,8 @@ end note
   !include SyntaxController.iuml
   !include Updater.iuml
 }
-SyntaxController "1" o--> "1" Actionlog 
+Ontology "1" o--> "1" Actionlog 
+SyntaxController -- Actionlog : > uses
 SyntaxController --> Parser : > uses
 SyntaxController "1" --> "1" Updater
 SyntaxController "1" o--> "1" AbstractSyntaxTree
