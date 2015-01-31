@@ -76,8 +76,8 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot()
     def expandAll(self):
-        for see in self.hidden:
-            self.hideFrom(see)
+        for see in self.hidden.keys():
+            self.toogleVisibility(see)
 
     @Slot()
     def hideAll(self):
