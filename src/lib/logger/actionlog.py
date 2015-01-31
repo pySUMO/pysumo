@@ -7,6 +7,8 @@ This module contains:
 
 """
 
+from lib.logger import CONFIG_PATH
+
 class ActionLog():
     """ The pySUMO action log. The SyntaxController queues a new log entry before every
     operation that makes changes to an Ontology, if the change is successful it OKs the

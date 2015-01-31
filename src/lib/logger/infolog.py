@@ -11,7 +11,8 @@ This module contains:
 import logging
 import logging.handlers
 
-from os import environ, makedirs
+from lib.logger import CONFIG_PATH
+from os import makedirs
 from os.path import dirname
 
 class InfoLog():
@@ -33,9 +34,8 @@ class InfoLog():
 
     """
 
-    config_path = '/'.join([environ['HOME'], '.pysumo'])
-    default_log_path = '/'.join([config_path, 'log'])
-    default_socket_path = '/'.join([config_path, 'status'])
+    default_log_path = '/'.join([CONFIG_PATH, 'log'])
+    default_socket_path = '/'.join([CONFIG_PATH, 'status'])
 
     def __init__(self, loglevel='WARNING', filename=default_log_path, socket_path=default_socket_path):
         """ Initializes the python logging framework.
@@ -54,7 +54,7 @@ class InfoLog():
             self.f_handler = logging.handlers.RotatingFileHandler(self.filename, maxBytes=102400, backupCount=2)
             s_handler = logging.handlers.SocketHandler(self.socket, None)
         except PermissionError:
-            makedirs(self.config_path, exist_ok=True)
+            makedirs(CONFIG_PATH, exist_ok=True)
             self.filename = self.default_log_path
             self.socket = self.default_socket_path
             self.f_handler = logging.handlers.RotatingFileHandler(self.filename, maxBytes=102400, backupCount=2)
