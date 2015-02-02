@@ -174,6 +174,7 @@ class LogIO():
             cur.flush()
         popen = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout, _ = popen.communicate(new.getbuffer())
+        popen.wait()
         return BytesIO(stdout)
 
     def _patch(self, current, diff, reverse=False):
@@ -186,6 +187,7 @@ class LogIO():
             cur.flush()
         popen = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL)
         popen.communicate(diff.getbuffer())
+        popen.wait()
         with open(self.current, 'r+b') as cur:
             return BytesIO(cur.read())
 
