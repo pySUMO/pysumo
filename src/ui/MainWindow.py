@@ -12,6 +12,7 @@ from ui.Widget.TextEditor import TextEditor
 from ui.Designer.MainWindow import Ui_mainwindow
 import sys
 from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot, QObject, SIGNAL
+from ui.Widget.DocumentationWidget import DocumentationWidget
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -82,6 +83,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.setWindowTitle("pySUMO")
         self.setCentralWidget(None)
         self.actionTextEditorWidget.triggered.connect(self.addTextEditorWidget)
+        self.actionDocumentationWidget.triggered.connect(self.addDocumentationWidget)
         self.createStatusBar()
         self.show()
         
@@ -95,6 +97,14 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Text Editor Widget")
         widget.setWidget(textEditorWidget.getLayoutWidget())
         self.addDockWidget(Qt.TopDockWidgetArea, widget)
+        
+    @Slot()
+    def addDocumentationWidget(self):
+        documentationWidget = DocumentationWidget(self)
+        widget = QtGui.QDockWidget(self)
+        widget.setWindowTitle("Documentation Widget")
+        widget.setWidget(documentationWidget.tabWidget)
+        self.addDockWidget(Qt.LeftDockWidgetArea, widget)
         
     def updateStatusbar(self):
         plainTextEdit = self.texteditor.getWidget()
