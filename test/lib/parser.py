@@ -16,7 +16,7 @@ class wParseTestCase(unittest.TestCase):
         assert position.synset_offset == 2245555
         assert position.lex_filenum == 18
         assert position.ss_type == parser.SSType.noun
-        assert position.synset == {1: ('pusher', None, 1), 2: ('drug_peddler', None, 0), 3: ('peddler', None, 1), 4: ('drug_dealer', None, 0), 5: ('drug_trafficker', None, 0)}
+        assert position.synset == [('pusher', None, 1), ('drug_peddler', None, 0), ('peddler', None, 1), ('drug_dealer', None, 0), ('drug_trafficker', None, 0)]
         assert position.ptr_list == [('@', parser.Pos.noun, 10721470, 0, 0), ('@', parser.Pos.noun, 9977660, 0, 0), ('+', parser.Pos.verb, 2302817, 3, 1), ('+', parser.Pos.verb, 2245555, 1, 1)]
         assert position.frames is None 
         assert position.gloss == 'an unlicensed dealer in illegal drugs'

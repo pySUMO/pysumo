@@ -178,8 +178,8 @@ def _wtokenize(line, pos):
     lex_filenum = int(items.pop(0))
     ss_type = SSType(items.pop(0))
     w_cnt = int(items.pop(0), 16)
-    synset = dict()
-    for i in range(1, w_cnt + 1):
+    synset = list()
+    for i in range(0, w_cnt):
         word = items.pop(0)
         if pos == Pos.adj and word[:-1] == ')':
             listy = word.split('(')
@@ -188,7 +188,7 @@ def _wtokenize(line, pos):
         else:
             syn_marker = None
         lex_id = int(items.pop(0), 16)
-        synset[i] = (word, syn_marker, lex_id)
+        synset.append((word, syn_marker, lex_id))
     assert len(synset) == w_cnt, 'line %s has %d synsets, but should have %d' % (line, w_cnt, len(synset))
     p_cnt = int(items.pop(0))
     ptr_list = list()
