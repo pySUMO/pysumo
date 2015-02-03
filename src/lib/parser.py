@@ -69,6 +69,7 @@ def kifparse(ontology, graph=None, ast=None):
         docstring = False
         root = AbstractSyntaxTree(ontology)
         oldline = None
+        linenumber = -1
         for i, line in enumerate(f):
             line = cleanup(line)
             if line == "":
@@ -84,10 +85,16 @@ def kifparse(ontology, graph=None, ast=None):
             if line[0] != '(':
                 raise Exception("parse error in line",  i+1)
             if line.count('(') != line.count(')'):
+                if linenumber == -1:
+                    linenumber = i
                 oldline = line
                 continue
-            node = AbstractSyntaxTree(ontology)
+            if linenumber == -1:
+                linenumber = i
+            node = AbstractSyntaxTree(ontology, line=linenumber)
             parsed = node.parse(line)
+            linenumber = -1
+
             if len(line) != parsed:
                 print(line)
                 print(len(line))
@@ -269,7 +276,7 @@ class AbstractSyntaxTree():
 
     """
 
-    def __init__(self, ontology, parent=None):
+    def __init__(self, ontology, parent=None, line=-1):
         if parent != None:
             self.parent = parent
         self.children = []
@@ -277,6 +284,7 @@ class AbstractSyntaxTree():
         self.element_type = ''
         self.ontology = ontology
         self.is_indexed = False
+        self.line = line
 
     def __repr__(self):
         if len(self.children) == 0:
@@ -299,14 +307,14 @@ class AbstractSyntaxTree():
                     self.name = tokens[i+1]
                     scip += 1
                 else:
-                    child = AbstractSyntaxTree(self.ontology, parent=self)
+                    child = AbstractSyntaxTree(self.ontology, parent=self, line=self.line)
                     scip += child.parse(tokens[i:])
                     scip -= 1
                     self.add_child(child)
             elif token == ')':
                 return i+1
             else:
-                child = AbstractSyntaxTree(self.ontology, parent=self)
+                child = AbstractSyntaxTree(self.ontology, parent=self, line=self.line)
                 child.name = token
                 self.add_child(child)
 
