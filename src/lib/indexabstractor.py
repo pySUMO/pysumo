@@ -13,6 +13,7 @@ This module contains:
 
 import string
 
+from .wordnet import WordNet
 
 class IndexAbstractor():
     """ The IndexAbstractor provides a high-level index of the
@@ -33,6 +34,11 @@ class IndexAbstractor():
         self.root = None
         self.ontologies = set()
         self.index = dict()
+        self.wordnet = None
+
+    def init_wordnet(self):
+        """ Initializes the SUMO mapping to WordNet. """
+        self.wordnet = WordNet()
 
     def update_index(self, ast):
         """ Updates the index with all new AST nodes in ast. """
@@ -65,6 +71,16 @@ class IndexAbstractor():
             ret[ontology] = [repr(x) for x in index.get(term, [])]
         return ret
 
+    def _find_term(self, term):
+        """ Returns the denormalized version of term. """
+        term = normalize(term)
+        for index in self.index.values():
+            try:
+                return index[term].pop().children[0].name
+            except KeyError:
+                pass
+        raise KeyError('%s not in index.' % term)
+
     def get_graph(self, variant, root, depth):
         """ Returns a hierarchical view of the Ontology.
 
@@ -91,7 +107,18 @@ class IndexAbstractor():
 
         - String
 
+        Raises:
+
+        - KeyError
+
         """
+        term = self._find_term(term)
+        try:
+            results = self.wordnet.locate_term(term)
+        except AttributeError:
+            self.init_wordnet()
+            results = self.wordnet.locate_term(term)
+        return [' '.join([x[0], ''.join(['(', x[1].value, '):']), x[2]]) for x in results]
 
 class DotGraph():
     """ A utility class that handles layouting AbstractGraph objects.  This

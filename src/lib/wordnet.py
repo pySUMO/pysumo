@@ -6,6 +6,8 @@ This module contains:
 
 """
 
+from . import parser
+
 class WordNet():
     """ An interface to locate and search for items in WordNet. Searches
     WordNet for information about terms in the Ontology, to find colloquial
@@ -18,6 +20,10 @@ class WordNet():
 
     """
 
+    def __init__(self):
+        self.mapping = parser.wparse('data')
+
+
     def locate_term(self, term):
         """ Use the mapping from SUMO to WordNet to retrieve information about a term.
 
@@ -27,9 +33,10 @@ class WordNet():
 
         Returns:
 
-        - String
+        - (name : String, type : SSType, gloss : String)[]
 
         """
+        return [(x.synset[0][0], x.ss_type, x.gloss) for x in self.mapping[term]]
 
     def find_synonym(self, word):
         """ Searches WordNet for possible synonyms for word.
