@@ -295,6 +295,14 @@ class AbstractSyntaxTree():
         out = "".join([out, ")"])
         return out
 
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash(repr(self))
 
     def parse(self, tokens):
         scip = 0
@@ -355,3 +363,12 @@ class Ontology():
         self.path = path
         self.url = url
         self.active = False
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash(self.name)
