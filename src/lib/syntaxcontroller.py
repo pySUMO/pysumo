@@ -36,7 +36,6 @@ class SyntaxController():
 
     def __init__(self, index):
         """ Initializes the SyntaxController object. """
-        self.actionlog = actionlog.ActionLog()
         self.index = index
 
     def parse_partial(self, code_block):

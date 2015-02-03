@@ -12,6 +12,7 @@ This module contains:
 
 import re
 
+from .logger import actionlog
 from os.path import basename
 from enum import Enum
 
@@ -327,6 +328,7 @@ class Ontology():
             self.name = basename(path)
         else:
             self.name = name
+        self.action_log = actionlog.ActionLog(self.name)
         self.path = path
         self.url = url
         self.active = False
