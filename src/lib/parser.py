@@ -91,8 +91,8 @@ def kifparse(ontology, graph=None, ast=None):
                 continue
             if linenumber == -1:
                 linenumber = i
-            node = AbstractSyntaxTree(ontology)
-            parsed = node.parse(line, line=linenumber)
+            node = AbstractSyntaxTree(ontology, line=linenumber)
+            parsed = node.parse(line)
             linenumber = -1
 
             if len(line) != parsed:
@@ -310,7 +310,7 @@ class AbstractSyntaxTree():
                     child = AbstractSyntaxTree(self.ontology, parent=self, line=self.line)
                     scip += child.parse(tokens[i:])
                     scip -= 1
-                    self.add_child(child, line=self.line)
+                    self.add_child(child)
             elif token == ')':
                 return i+1
             else:
