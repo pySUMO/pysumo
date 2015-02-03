@@ -6,12 +6,12 @@ This module contains:
 - HelpDialog: The dialog that displays help in pySUMO GUI.
 
 """
-from PySide import QtGui, QtCore
+from PySide import QtGui
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
-import ui.Widget.TextEditor
-from ui.Designer import MainWindow
+from ui.Widget.TextEditor import TextEditor
+from ui.Designer.MainWindow import Ui_mainwindow
 import sys
-from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo
+from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot, QObject, SIGNAL
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -32,8 +32,38 @@ def loadStyleSheet(widget, styleName):
     print(stylesheet.data())
     widget.setStyleSheet(str(stylesheet))
     cssfile.close()
+    
+# class PySUMOWidget(QtGui.QDockWidget):
+#     def __init__(self, parent):
+#         super(PySUMOWidget, self).__init__(parent)
+#         self.setWindowTitle("pySUMO Widget")
+#         self.ownerSplitter = parent
+#         QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
+# 
+#     @Slot(bool)
+#     def setPopedOut(self, isPopedOut):
+#         try:
+#             isPopedOut = self.frame != None; 
+#         except AttributeError:
+#             isPopedOut = False
+#         if not isPopedOut: 
+#             self.setParent(None)
+#             self.hide()
+#             self.frame = QtGui.QDockWidget()
+#             self.frame.setWidget(self)
+#             self.frame.setWindowTitle(self.windowTitle())
+#             self.frame.show()
+#         else: 
+#             assert self.frame != None
+#             self.setParent(self.ownerSplitter)
+#             self.ownerSplitter.addWidget(self)
+#             self.frame.hide()
+#             self.frame = None
+#         
+#     # def closeEvent(self, event):
+#         # event.ignore()
 
-class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
+class MainWindow(Ui_mainwindow, QMainWindow):
     """ This class is the entry point of the application. It creates the main
     window, initiates all the subsystems and then displays the GUI.  It
     consists of: a main frame with a menu bar, toolbar, status bar and numerous
@@ -49,26 +79,22 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
         self.setupUi(self)
-        self.texteditor = ui.Widget.TextEditor.TextEditor(self)
-        self.texteditor.getWidget().updateRequest.connect(self.updateStatusbar)
-        self.documentArea.setViewMode(QtGui.QMdiArea.TabbedView)
-        widget = self.documentArea.addSubWindow(self.texteditor.getLayoutWidget())
-        #widget1 = documentArea.addSubWindow(QWidget(self))
-        widget.showMaximized()
-        self.setCentralWidget(self.documentArea)
-        #documentArea.removeSubWindow(widget1)
-        #widget1 = widget1.widget()
-        #widget1.show()
-        #tabbars = documentArea.findChildren(QtGui.QTabBar)
-        #if tabbars != None and len(tabbars) > 0 :
-        #    tabbar = tabbars[0]
-        #toolWidget = QtGui.QDockWidget(self)
-        #toolWidget.setFeatures(QtGui.QDockWidget.DockWidgetClosable | QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
-        #self.addDockWidget(QtCore.Qt.DockWidgetArea.LeftDockWidgetArea, toolWidget)
-        self.actionExpand.triggered.connect(self.texteditor.expandAll)
-        self.actionCollapse.triggered.connect(self.texteditor.hideAll)
+        self.setWindowTitle("pySUMO")
+        self.setCentralWidget(None)
+        self.actionTextEditorWidget.triggered.connect(self.addTextEditorWidget)
         self.createStatusBar()
         self.show()
+        
+    @Slot()
+    def addTextEditorWidget(self):
+        textEditorWidget = TextEditor(self)
+        #textEditorWidget.getWidget().updateRequest.connect(self.updateStatusbar)
+        self.actionExpand.triggered.connect(textEditorWidget.expandAll)
+        self.actionCollapse.triggered.connect(textEditorWidget.hideAll)
+        widget = QtGui.QDockWidget(self)
+        widget.setWindowTitle("Text Editor Widget")
+        widget.setWidget(textEditorWidget.getLayoutWidget())
+        self.addDockWidget(Qt.TopDockWidgetArea, widget)
         
     def updateStatusbar(self):
         plainTextEdit = self.texteditor.getWidget()
@@ -100,7 +126,7 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         objName = qItem.objectName()
         self.settings.setValue(objName + "/visible", qItem.isVisible())
     
-    def restoreVisibilityState(self, qItem, qAction = None):
+    def restoreVisibilityState(self, qItem, qAction=None):
         objName = qItem.objectName()
         visible = self.settings.value(objName + "/visible", True)
         visible = str(visible).lower()
@@ -108,7 +134,7 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
             visible = False
         else :
             visible = True
-        #if not visible :
+        # if not visible :
         #   qAction.triggered.emit()
         #  qAction.setChecked(False)
         if qAction != None :
@@ -191,12 +217,12 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         
     def createStatusBar(self):
         statusbar = self.statusBar
-        #statusbar.setMaximumHeight(35)
+        # statusbar.setMaximumHeight(35)
         statusbarWrapperWidget = QWidget(statusbar)
         statusBarLayout = QtGui.QHBoxLayout(statusbarWrapperWidget)
-        #statusBarLayout.setContentsMargins(10, 10, 10, 10)
+        # statusBarLayout.setContentsMargins(10, 10, 10, 10)
         statusBarLayout.setSpacing(30)
-        #loadStyleSheet(statusbar, "Statusbar")
+        # loadStyleSheet(statusbar, "Statusbar")
         # encoding of the current editing file.
         
         self.encodingLbl = QLabel(statusbar)
@@ -245,7 +271,7 @@ class MainWindow(MainWindow.Ui_mainwindow, QMainWindow):
         
 def main():
     app = QApplication(sys.argv)
-    MainWindow()
+    mainwindow = MainWindow()
     
     app.exec_()
     sys.exit()

@@ -17,11 +17,7 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QMdiArea" name="documentArea"/>
-    </item>
-   </layout>
+   <layout class="QHBoxLayout" name="horizontalLayout"/>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -116,10 +112,16 @@
      <addaction name="separator"/>
      <addaction name="actionConfigureToollbars"/>
     </widget>
-    <addaction name="actionHierarchyWidget"/>
-    <addaction name="actionDocumentationWidget"/>
-    <addaction name="actionGraphWidget"/>
-    <addaction name="actionTextEditorWidget"/>
+    <widget class="QMenu" name="menuAdd">
+     <property name="title">
+      <string>Add</string>
+     </property>
+     <addaction name="actionTextEditorWidget"/>
+     <addaction name="actionHierarchyWidget"/>
+     <addaction name="actionGraphWidget"/>
+     <addaction name="actionDocumentationWidget"/>
+    </widget>
+    <addaction name="menuAdd"/>
     <addaction name="separator"/>
     <addaction name="actionExpand"/>
     <addaction name="actionCollapse"/>
@@ -240,24 +242,6 @@
    <addaction name="actionPySUMOTutorials"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="hierarchyWidget">
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents"/>
-  </widget>
-  <widget class="QDockWidget" name="documentationWidget">
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2"/>
-  </widget>
-  <widget class="QDockWidget" name="graphWidget">
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3"/>
-  </widget>
   <action name="newOntologyAction">
    <property name="icon">
     <iconset resource="gfx.qrc">
@@ -649,9 +633,12 @@
   </action>
   <action name="actionHierarchyWidget">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -660,10 +647,10 @@
   </action>
   <action name="actionDocumentationWidget">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Documentation Widget</string>
@@ -671,10 +658,10 @@
   </action>
   <action name="actionGraphWidget">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Graph Widget</string>
@@ -685,10 +672,13 @@
     <bool>false</bool>
    </property>
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Text Editor Widget</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionZoomIn">
@@ -953,22 +943,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionClose</sender>
-   <signal>triggered()</signal>
-   <receiver>documentArea</receiver>
-   <slot>closeActiveSubWindow()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>339</x>
-     <y>203</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>339</x>
-     <y>203</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionExit</sender>
    <signal>triggered()</signal>
    <receiver>mainwindow</receiver>
@@ -981,54 +955,6 @@
     <hint type="destinationlabel">
      <x>339</x>
      <y>181</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionHierarchyWidget</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>hierarchyWidget</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>39</x>
-     <y>203</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionDocumentationWidget</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>documentationWidget</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>339</x>
-     <y>321</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionGraphWidget</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>graphWidget</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>640</x>
-     <y>179</y>
     </hint>
    </hints>
   </connection>
