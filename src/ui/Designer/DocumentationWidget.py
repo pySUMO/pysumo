@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DocumentationWidget.ui'
 #
-# Created: Tue Feb  3 16:42:13 2015
+# Created: Tue Feb  3 17:09:18 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -25,13 +25,19 @@ class Ui_Form(object):
         self.WordNet = QtGui.QWidget()
         self.WordNet.setObjectName("WordNet")
         self.WordNetText = QtGui.QPlainTextEdit(self.WordNet)
-        self.WordNetText.setGeometry(QtCore.QRect(0, 5, 521, 201))
+        self.WordNetText.setGeometry(QtCore.QRect(0, 5, 521, 210))
         self.WordNetText.setObjectName("WordNetText")
         self.tabWidget.addTab(self.WordNet, "")
         self.lineEdit = QtGui.QLineEdit(Form)
-        self.lineEdit.setGeometry(QtCore.QRect(20, 10, 321, 23))
+        self.lineEdit.setGeometry(QtCore.QRect(10, 10, 321, 23))
         self.lineEdit.setText("")
         self.lineEdit.setObjectName("lineEdit")
+        self.widget = QtGui.QWidget(Form)
+        self.widget.setGeometry(QtCore.QRect(0, 0, 2, 2))
+        self.widget.setObjectName("widget")
+        self.verticalLayout = QtGui.QVBoxLayout(self.widget)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setObjectName("verticalLayout")
 
         self.retranslateUi(Form)
         self.tabWidget.setCurrentIndex(1)
