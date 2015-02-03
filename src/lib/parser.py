@@ -28,7 +28,7 @@ def tokenize_docstring(chars, f):
     while len(chars) > 1:
         c = tokenize(chars.pop(0))
         ret.extend(c)
-        ret.append(chars.pop(0))
+        ret.append("".join(['"',chars.pop(0),'"']))
     ret.extend(tokenize(chars.pop(0)))
     return (ret, n)
 
@@ -64,7 +64,7 @@ def kifparse(ontology, graph=None, ast=None):
     - AbstractSyntaxTree
 
     """
-    with open(ontology.path, 'r') as f:
+    with open(ontology.path, 'r', errors='ignore') as f:
         docstring = False
         root = AbstractSyntaxTree(ontology)
         oldline = None
@@ -123,7 +123,12 @@ def kifserialize(ast, ontology):
     - OSError
 
     """
-    pass
+    with open(ontology.path, mode='w') as out:
+        for child in ast.children:
+            if child.ontology != ontology:
+                continue
+            line = "".join([str(child), '\n'])
+            out.write(line)
 
 def wparse(path):
     """ Parses the file containing the SUMO-WordNet mapping.
@@ -271,6 +276,16 @@ class AbstractSyntaxTree():
         self.element_type = ''
         self.ontology = ontology
         self.is_indexed = False
+
+    def __repr__(self):
+        if len(self.children) == 0:
+            return self.name
+        out = " ".join(["(", self.name, ""])
+        for child in self.children:
+            out = "".join([out, str(child), " "])
+        out = "".join([out, ")"])
+        return out
+
 
     def parse(self, tokens):
         scip = 0
