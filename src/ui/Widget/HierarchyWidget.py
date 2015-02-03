@@ -1,7 +1,7 @@
 """ HierarchyWidget modul from pySUMO
 """
 
-from PySide.QtCore import Slot, SIGNAL, Qt, QDir
+from PySide.QtCore import Slot, SIGNAL, Qt
 from PySide.QtGui import QApplication, QMainWindow, QFileSystemModel
 import os
 import sys
