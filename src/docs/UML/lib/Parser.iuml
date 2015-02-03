@@ -7,10 +7,8 @@ class Parser << (M,#FF7700) >>{
 
 class AbstractSyntaxTree {
 	- parent_node : AST
-	- children : AST[]
 	- name : String
 	- element_type : Enum
-	- is_indexed : Boolean
 
 	+ __init__(ontology : Ontology, parent=None : AbstractSyntaxTree) : AbstractSyntaxTree
 	+ get_children() : AST[]

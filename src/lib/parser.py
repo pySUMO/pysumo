@@ -270,7 +270,6 @@ class AbstractSyntaxTree():
 
     Methods:
 
-    - get_children: Returns all child nodes.
     - add_child: Adds a child node.
     - remove_child: Removes a child node.
 
@@ -283,7 +282,6 @@ class AbstractSyntaxTree():
         self.name = ''
         self.element_type = ''
         self.ontology = ontology
-        self.is_indexed = False
         self.line = line
 
     def __repr__(self):
@@ -330,10 +328,6 @@ class AbstractSyntaxTree():
         """ Adds entry as a child to self. """
         entry.parent = self
         self.children.append(entry)
-
-    def get_children(self):
-        """ Returns all children of self. """
-        pass
 
     def remove_child(self, entry):
         """ Removes entry from the node's children. """
