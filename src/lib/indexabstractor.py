@@ -11,6 +11,9 @@ This module contains:
 
 """
 
+import string
+
+
 class IndexAbstractor():
     """ The IndexAbstractor provides a high-level index of the
     AbstractSyntaxTree.  Each Ontology is represented by a hashmap, the list of
@@ -27,7 +30,25 @@ class IndexAbstractor():
 
     def __init__(self):
         """ Initializes the IndexAbstractor object. """
-        self.index = [{}]
+        self.root = None
+        self.ontologies = set()
+        self.index = dict()
+
+    def update_index(self, ast):
+        """ Updates the index with all new AST nodes in ast. """
+        self.root = ast
+        self._build_index()
+
+    def _build_index(self):
+        """ Builds an index for ontology. """
+        for child in self.root.children:
+            self.ontologies.add(child.ontology)
+            index = self.index.get(child.ontology, {child.ontology : dict()})
+            key = normalize(child.children[0].name)
+            asts = index.get(key, set())
+            asts.add(child)
+            index[key] = asts
+            self.index[child.ontology] = index
 
     def search(self, term):
         """ Search for term in the in-memory Ontology. Returns all objects that
@@ -35,9 +56,14 @@ class IndexAbstractor():
 
         Returns:
 
-        - AbstractSyntaxTree[]
+        - {Ontology : String[]}
 
         """
+        term = normalize(term)
+        ret = dict()
+        for ontology, index in self.index.items():
+            ret[ontology] = [repr(x) for x in index.get(term, [])]
+        return ret
 
     def get_graph(self, variant, root, depth):
         """ Returns a hierarchical view of the Ontology.
@@ -133,3 +159,10 @@ class AbstractGraphNode():
     def __init__(self, name):
         """ Initializes an AbstractGraphNode and instantiates variables. """
         self.name = name
+
+
+def normalize(term):
+    """ Normalizes term to aid in searching. """
+    for p in string.punctuation:
+        term = term.replace(p, '')
+    return term.lower().strip()
