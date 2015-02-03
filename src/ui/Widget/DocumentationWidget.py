@@ -36,7 +36,7 @@ class DocumentationWidget(RWidget, Ui_Form):
     @Slot()
     def search(self):
         display = self.getIndexAbstractor().search(self.lineEdit.text())
-
+        self.OntologyText.setPlainText(display)
         """ Uses the IndexAbstractor to search for all occurrences of
         string in the Ontology and displays them.  """
         # print(self.lineEdit.text())
