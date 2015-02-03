@@ -287,6 +287,11 @@ class AbstractSyntaxTree():
         out = "".join([out, ")"])
         return out
 
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def parse(self, tokens):
         scip = 0
