@@ -69,15 +69,13 @@ class TextEditor(RWWidget, Ui_Form):
     def expandIfBracketRemoved(self):
         current_line = self.getWidget().document().findBlock(
             self.getWidget().textCursor().position()).blockNumber() + 1
-        print(current_line)
-        print(self.hidden)
         if current_line in self.hidden:
-            self.toogleVisibility(current_line)
+            self.toggleVisibility(current_line)
 
     @Slot()
     def expandAll(self):
         for see in self.hidden.keys():
-            self.toogleVisibility(see)
+            self.toggleVisibility(see)
 
     @Slot()
     def hideAll(self):
@@ -163,13 +161,12 @@ class TextEditor(RWWidget, Ui_Form):
             self.completer.setCompletionPrefix(beginning)
             self.completer.complete()
 
-    def toogleVisibility(self, line):
+    def toggleVisibility(self, line):
         if line in self.hidden:
             self._showLines(self.hidden[line])
             del self.hidden[line]
         else:
             self.hideFrom(line)
-        print(self.hidden)
         # update views
         self.getWidget().hide()
         self.getWidget().show()
@@ -333,7 +330,7 @@ class NumberBar(QWidget):
         for (height, line) in self.link:
             if height >= event.y():
                 break
-        self.edit.toogleVisibility(line - 1)
+        self.edit.toggleVisibility(line - 1)
 
 
 if __name__ == "__main__":
