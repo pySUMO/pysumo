@@ -22,23 +22,18 @@ class DocumentationWidget(RWidget, Ui_Form):
         self.setupUi(self.mw)
         self.lineEdit.editingFinished.connect(self.search)
 
-    def search_wordnet(self, string):
-        """ Search the given string in the WordNet mapping database and
-        displays the results the widgets content view.
-
-        Arguments:
-
-        - string: The given string to search for.
-
-        """
-        pass
-
     @Slot()
     def search(self):
-        display = self.getIndexAbstractor().search(self.lineEdit.text())
-        self.OntologyText.setPlainText(display)
         """ Uses the IndexAbstractor to search for all occurrences of
         string in the Ontology and displays them.  """
+        searchOntology = self.getIndexAbstractor().search(
+            self.lineEdit.text())
+
+        self.OntologyText.setPlainText(k + v for (k, v) in searchOntology)
+        searchWordnet = self.getIndexAbstractor().wordnet_locate(
+            self.lineEdit.text())
+        self.WordNetText.setPlainText(k + v for (k, v) in searchWordnet)
+
         # print(self.lineEdit.text())
 
 if __name__ == "__main__":
