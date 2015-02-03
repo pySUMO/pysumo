@@ -1,7 +1,10 @@
 """ The PyUnit test framework for the parser. """
 
 import unittest
+import subprocess
 
+from tempfile import mkdtemp
+from shutil import rmtree
 from lib import parser
 
 class wParseTestCase(unittest.TestCase):
@@ -25,6 +28,26 @@ class wParseTestCase(unittest.TestCase):
 
 wParseSuit = unittest.makeSuite(wParseTestCase, 'test')
 
+class kifParseSerilizeTest(unittest.TestCase):
+    def test0ParseSerilize(self):
+        tempd = mkdtemp()
+        out1 = "/".join([tempd, "out1"])
+        out2 = "/".join([tempd, "out2"])
+        f = "data/Merge.kif"
+        o = parser.Ontology(f)
+        a = parser.kifparse(o)
+        o.path = out1
+        parser.kifserialize(a, o)
+        a = parser.kifparse(o)
+        o.path = out2
+        parser.kifserialize(a, o)
+        ret = subprocess.call(["diff", out1, out2])
+        rmtree(tempd)
+        assert ret == 0
+
+kifParseSuit = unittest.makeSuite(kifParseSerilizeTest, 'test')
+
 if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     runner.run(wParseSuit)
+    runner.run(kifParseSuit)
