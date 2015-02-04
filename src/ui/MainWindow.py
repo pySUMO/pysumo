@@ -7,22 +7,27 @@ This module contains:
 
 """
 from PySide import QtGui
-from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
-from ui.Widget.TextEditor import TextEditor
-from ui.Designer.MainWindow import Ui_mainwindow
-import sys
 from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot, QObject, SIGNAL
+from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
+import sys
+
+from ui.Designer.MainWindow import Ui_mainwindow
 from ui.Widget.DocumentationWidget import DocumentationWidget
 from ui.Widget.HierarchyWidget import HierarchyWidget
+from ui.Widget.TextEditor import TextEditor
+
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
 
+
 class ZoomWidget(QWidget):
+
     def __init__(self, parent):
         super(ZoomWidget, self).__init__(parent)
         self.setupUi(self)
+
 
 def loadStyleSheet(widget, styleName):
     print(styleName)
@@ -34,38 +39,40 @@ def loadStyleSheet(widget, styleName):
     print(stylesheet.data())
     widget.setStyleSheet(str(stylesheet))
     cssfile.close()
-    
+
 # class PySUMOWidget(QtGui.QDockWidget):
 #     def __init__(self, parent):
 #         super(PySUMOWidget, self).__init__(parent)
 #         self.setWindowTitle("pySUMO Widget")
 #         self.ownerSplitter = parent
 #         QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
-# 
+#
 #     @Slot(bool)
 #     def setPopedOut(self, isPopedOut):
 #         try:
-#             isPopedOut = self.frame != None; 
+#             isPopedOut = self.frame != None;
 #         except AttributeError:
 #             isPopedOut = False
-#         if not isPopedOut: 
+#         if not isPopedOut:
 #             self.setParent(None)
 #             self.hide()
 #             self.frame = QtGui.QDockWidget()
 #             self.frame.setWidget(self)
 #             self.frame.setWindowTitle(self.windowTitle())
 #             self.frame.show()
-#         else: 
+#         else:
 #             assert self.frame != None
 #             self.setParent(self.ownerSplitter)
 #             self.ownerSplitter.addWidget(self)
 #             self.frame.hide()
 #             self.frame = None
-#         
-#     # def closeEvent(self, event):
-#         # event.ignore()
+#
+# def closeEvent(self, event):
+# event.ignore()
+
 
 class MainWindow(Ui_mainwindow, QMainWindow):
+
     """ This class is the entry point of the application. It creates the main
     window, initiates all the subsystems and then displays the GUI.  It
     consists of: a main frame with a menu bar, toolbar, status bar and numerous
@@ -84,30 +91,31 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.setWindowTitle("pySUMO")
         self.setCentralWidget(None)
         self.actionTextEditorWidget.triggered.connect(self.addTextEditorWidget)
-        self.actionDocumentationWidget.triggered.connect(self.addDocumentationWidget)
+        self.actionDocumentationWidget.triggered.connect(
+            self.addDocumentationWidget)
         self.actionHierarchyWidget.triggered.connect(self.addHierarchyWidget)
         self.createStatusBar()
         self.show()
-        
+
     @Slot()
     def addTextEditorWidget(self):
         textEditorWidget = TextEditor(self)
-        #textEditorWidget.getWidget().updateRequest.connect(self.updateStatusbar)
+        # textEditorWidget.getWidget().updateRequest.connect(self.updateStatusbar)
         self.actionExpand.triggered.connect(textEditorWidget.expandAll)
         self.actionCollapse.triggered.connect(textEditorWidget.hideAll)
         widget = QtGui.QDockWidget(self)
         widget.setWindowTitle("Text Editor Widget")
         widget.setWidget(textEditorWidget.getLayoutWidget())
         self.addDockWidget(Qt.TopDockWidgetArea, widget)
-        
+
     @Slot()
     def addDocumentationWidget(self):
         documentationWidget = DocumentationWidget(self)
         widget = QtGui.QDockWidget(self)
         widget.setWindowTitle("Documentation Widget")
         widget.setWidget(documentationWidget.tabWidget)
-        self.addDockWidget(Qt.LeftDockWidgetArea, widget)
-        
+        self.addDockWidget(Qt.RightDockWidgetArea, widget)
+
     @Slot()
     def addHierarchyWidget(self):
         hierarchyWidget = HierarchyWidget(self)
@@ -115,7 +123,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Hierarchy Widget")
         widget.setWidget(hierarchyWidget.widget)
         self.addDockWidget(Qt.LeftDockWidgetArea, widget)
-        
+
     def updateStatusbar(self):
         plainTextEdit = self.texteditor.getWidget()
         if (plainTextEdit == None):
@@ -125,15 +133,15 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         lineNbr = document.findBlock(textCursor.position()).blockNumber()
         cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
         self.ligneColNumber.setText(cursorPos)
-        try :
+        try:
             import chardet
             data = str.encode(document.toPlainText())
             encoding = chardet.detect(data)['encoding']
             encoding = str(encoding).upper()
             self.encodingLbl.setText(encoding)
-        except ImportError :
+        except ImportError:
             print("please install chardet to detect the encodage.")
-        
+
     def closeEvent(self, event):
         self.settings = QSettings("conf", QSettings.IniFormat)
         self.settings.setValue("mainWindow/geometry", self.saveGeometry())
@@ -141,26 +149,26 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.saveStatusBarState()
         self.saveToolbarsState()
         super(MainWindow, self).closeEvent(event)
-        
+
     def saveVisibilityState(self, qItem):
         objName = qItem.objectName()
         self.settings.setValue(objName + "/visible", qItem.isVisible())
-    
+
     def restoreVisibilityState(self, qItem, qAction=None):
         objName = qItem.objectName()
         visible = self.settings.value(objName + "/visible", True)
         visible = str(visible).lower()
-        if visible == "false" :
+        if visible == "false":
             visible = False
-        else :
+        else:
             visible = True
         # if not visible :
         #   qAction.triggered.emit()
         #  qAction.setChecked(False)
-        if qAction != None :
+        if qAction != None:
             qAction.setChecked(visible)
         qItem.setVisible(visible)
-    
+
     def savePositionState(self, qItem):
         objName = qItem.objectName()
         pos = qItem.pos()
@@ -168,17 +176,17 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         yPos = pos.y()
         self.settings.setValue(objName + "/x", xPos)
         self.settings.setValue(objName + "/y", yPos)
-    
+
     def restorePositionState(self, qItem):
         objName = qItem.objectName()
         xPos = self.settings.value(objName + "/x")
         yPos = self.settings.value(objName + "/y")
-        if xPos == None or yPos == None :
+        if xPos == None or yPos == None:
             return
         xPos = int(xPos)
         yPos = int(yPos)
         qItem.move(xPos, yPos)
-    
+
     def saveSizeState(self, qItem):
         objName = qItem.objectName()
         size = qItem.size()
@@ -186,33 +194,33 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         height = size.height()
         self.settings.setValue(objName + "/width", width)
         self.settings.setValue(objName + "/height", height)
-        
+
     def restoreSizeState(self, qItem):
         objName = qItem.objectName()
         width = self.settings.value(objName + "/width")
         height = self.settings.value(objName + "/height")
-        if width == None or height == None :
+        if width == None or height == None:
             return
         width = int(width)
         height = int(height)
         qItem.resize(width, height)
-        
+
     def saveStatusBarState(self):
         self.saveVisibilityState(self.statusBar)
-        
+
     def restoreStatusBarState(self):
         self.restoreVisibilityState(self.statusBar, self.actionStatusbar)
-        
+
     def saveToolBarState(self, qToolbar, qAction=None):
         self.saveSizeState(qToolbar)
         self.savePositionState(qToolbar)
         self.saveVisibilityState(qToolbar)
-        
+
     def restoreToolBarState(self, qToolbar, qAction=None):
         self.restoreSizeState(qToolbar)
         self.restorePositionState(qToolbar)
         self.restoreVisibilityState(qToolbar, qAction)
-        
+
     def saveToolbarsState(self):
         self.saveToolBarState(self.toolBarFile)
         self.saveToolBarState(self.toolBarEdit)
@@ -226,7 +234,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.restoreToolBarState(self.toolBarOntology, self.actionOntology)
         self.restoreToolBarState(self.toolBarTools, self.actionTools)
         self.restoreToolBarState(self.toolBarHelp, self.actionHelp)
-        
+
     def showEvent(self, event):
         self.settings = QSettings("conf", QSettings.IniFormat)
         self.restoreGeometry(self.settings.value("mainWindow/geometry"))
@@ -234,7 +242,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.restoreStatusBarState()
         self.restoreToolbarsState()
         super(MainWindow, self).showEvent(event)
-        
+
     def createStatusBar(self):
         statusbar = self.statusBar
         # statusbar.setMaximumHeight(35)
@@ -244,38 +252,39 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         statusBarLayout.setSpacing(30)
         # loadStyleSheet(statusbar, "Statusbar")
         # encoding of the current editing file.
-        
+
         self.encodingLbl = QLabel(statusbar)
         self.encodingLbl.setMaximumHeight(24)
         self.encodingLbl.setText("UTF-8")
         statusBarLayout.addWidget(self.encodingLbl)
-        
+
         # writing state of the current editing file.
         writableLbl = QLabel(statusbar)
         writableLbl.setText("Writable")
         statusBarLayout.addWidget(writableLbl)
-        
+
         # keyword writing mode.
         self.editModeLbl = QLabel(statusbar)
         self.editModeLbl.setText("Insert")
         statusBarLayout.addWidget(self.editModeLbl)
-        
+
         # ligne and column number
         self.ligneColNumber = QLabel(statusbar)
         self.ligneColNumber.setText("")
         statusBarLayout.addWidget(self.ligneColNumber)
-        
+
         # zoom widget
         # zoomWidget = ZoomWidget(statusbar)
         # statusbar.addPermanentWidget(zoomWidget)
-        
+
         # internet state icon
         internetState = QLabel(statusbar)
-        internetState.setPixmap(QPixmap(":/status/gfx/status/network-connect.png").scaled(24, 24))
+        internetState.setPixmap(
+            QPixmap(":/status/gfx/status/network-connect.png").scaled(24, 24))
         statusBarLayout.addWidget(internetState)
 #         self.setStatusBar(statusbar)
         statusbar.addPermanentWidget(statusbarWrapperWidget)
-        
+
     def loadOptions(self):
         """ Loads the options of the main window and all its widgets. """
 
@@ -288,18 +297,21 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def deleteWidget(self, widget):
         """ Deletes widget from the main window. """
-        
+
+
 def main():
     app = QApplication(sys.argv)
     mainwindow = MainWindow()
-    
+
     app.exec_()
     sys.exit()
-    
+
 if __name__ == '__main__':
     main()
 
+
 class Toolbar():
+
     """ The toolbar displayed in the main window of pySUMO. The Toolbar
     contains useful menu options. Each menu has an associated toolbar, these
     Toolbars are floatable and can be moved around in the main window or out of
@@ -358,7 +370,9 @@ class Toolbar():
         """ Initializes the 'Help' toolbar, which includes the action to open
         the 'Help' dialag. """
 
+
 class StatusBar():
+
     """ The StatusBar displays information about the status of pySUMO.  It
     displays both permanent status information as well as status messages from
     the informational log.  It initializes a QLabel to display the encoding of
@@ -437,7 +451,9 @@ class StatusBar():
 
         """
 
+
 class Menubar():
+
     """ The builder for pySUMO's MenuBar. Receives references to a QMenuBar in
     a QMainWindow and initializes it's components.
 
@@ -489,7 +505,9 @@ class Menubar():
         """ Initializes the 'Help' menu. """
         pass
 
+
 class HelpDialog(QtGui.QDialog):
+
     """ The help dialog for the pySUMO main window. It contains information
     about Ontologies, SUMO and pySUMO such as the pySUMO API reference and the
     homepage for SUMO.  It can display both locally stored documentation as
