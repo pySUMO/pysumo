@@ -9,10 +9,12 @@ This module contains:
 """
 
 #import model.parser
-from .logger import actionlog
 from . import indexabstractor
+from .logger import actionlog
+
 
 class SyntaxController():
+
     """ The high-level class containing the interface to all parsing/serialization operations.
     All operations that can modify the Ontology or kif-file are passed through the SyntaxController.
     The SyntaxController acts as a moderator between user-side widgets and the low-level API
@@ -36,7 +38,7 @@ class SyntaxController():
 
     def __init__(self, index):
         """ Initializes the SyntaxController object. """
-        self.actionlog = actionlog.ActionLog()
+        self.actionlog = actionlog.ActionLog("foo")
         self.index = index
 
     def parse_partial(self, code_block):
