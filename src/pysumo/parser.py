@@ -333,7 +333,7 @@ class AbstractSyntaxTree():
 
     def remove_child(self, entry):
         """ Removes entry from the node's children. """
-        pass
+        self.children.remove(entry)
 
 class Ontology():
     """ Contains basic information about a KIF file.  This class is used to

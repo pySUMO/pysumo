@@ -11,6 +11,7 @@ This module contains:
 #import model.parser
 from .logger import actionlog
 from . import indexabstractor
+import parser
 
 class SyntaxController():
     """ The high-level class containing the interface to all parsing/serialization operations.
@@ -90,6 +91,9 @@ class SyntaxController():
         - ParseError
 
         """
+        newast = parser.kifparse(ontology, ast=self.index.root)
+        newast = parser.astmerge((self.index.root, newast))
+        self.index.root = newast
 
     def remove_ontology(self, ontology):
         """ Removes ontology from the current in-memory Ontology.
@@ -103,6 +107,10 @@ class SyntaxController():
         - NoSuchOntologyError
 
         """
+        for c in self.index.root.children:
+            if c.ontology == ontology:
+                self.index.remove_child(c)
+
 
     def serialize(self, ontology, path=None):
         """ Serializes ontology to path. """
