@@ -69,6 +69,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
         self.setupUi(self)
+        self.menuTextEditorWidgets.setEnabled(False)
+        self.menuDocumentationWidgets.setEnabled(False)
+        self.menuHierarchyWidgets.setEnabled(False)
         self.setWindowTitle("pySUMO")
         self.setCentralWidget(None)
         self.actionTextEditorWidget.triggered.connect(self.addTextEditorWidget)
@@ -89,6 +92,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Text Editor Widget")
         widget.setWidget(textEditorWidget.getLayoutWidget())
         self.addDockWidget(Qt.TopDockWidgetArea, widget)
+        if not self.menuTextEditorWidgets.isEnabled() :
+            self.menuTextEditorWidgets.setEnabled(True)
         self.menuTextEditorWidgets.addAction(widget.toggleViewAction())
 
     @Slot()
@@ -98,6 +103,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Documentation Widget")
         widget.setWidget(documentationWidget.tabWidget)
         self.addDockWidget(Qt.RightDockWidgetArea, widget)
+        if not self.menuDocumentationWidgets.isEnabled() :
+            self.menuDocumentationWidgets.setEnabled(True)
         self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
 
     @Slot()
@@ -107,6 +114,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Hierarchy Widget")
         widget.setWidget(hierarchyWidget.widget)
         self.addDockWidget(Qt.LeftDockWidgetArea, widget)
+        if not self.menuHierarchyWidgets.isEnabled() :
+            self.menuHierarchyWidgets.setEnabled(True)
         self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
 
     def updateStatusbar(self):
