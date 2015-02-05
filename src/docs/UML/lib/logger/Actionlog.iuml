@@ -4,7 +4,7 @@ class Actionlog {
   - queue : (Int, File)
   - current : File
   + __init__(path=None : String) : ActionLog
-  + queue_log(data) : int
+  + queue_log(data : File) : int
   + ok_log_item(log_queue_ok_num : int)
   + undo()
   + redo()
@@ -24,8 +24,9 @@ class LogIO {
   + read() : (File, File[], File[])
   + flush_write_queue(_=None, __=None)
   + clear(queue : String)
+  + pop(queue : String)
   + undo(current : File, entry : File) : File
-  + current(current : File, entry : File, clean=False) : File
+  + redo(current : File, entry : File, clean=False) : File
 }
 
 Actionlog *- LogIO

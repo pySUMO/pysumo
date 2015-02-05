@@ -1,5 +1,6 @@
 class InfoLog {
-  - file_name : String
+  - filename : String
+  - socket : String
   - root_logger : logger
   - f_handler : RotatingFileHandler
   - s_handler : SocketHandler
