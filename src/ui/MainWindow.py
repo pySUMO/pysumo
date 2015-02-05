@@ -218,6 +218,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def restoreOrientionState(self, qItem):
         objName = qItem.objectName()
         orientation = self.settings.value(objName + "/orientation")
+        if orientation == "1":
+            orientation = Qt.Horizontal
+        elif orientation == "2":
+            orientation = Qt.Vertical
+        else :
+            orientation = None
+            
         if orientation != None:
             qItem.setOrientation(orientation)
             
