@@ -30,7 +30,7 @@ class indexTestCase(unittest.TestCase):
         self.assertNotEqual(self.indexabstractor.search('ValidDeductiveArgument'),
                             self.indexabstractor.search('InvalidDeductiveArgument'))
         result = self.indexabstractor.search(' ContentbearingObJect')
-        assert self.sumo in result
+        self.assertIn(self.sumo, result)
         definition = result[self.sumo]
         self.assertEqual(sorted(definition),
                 sorted(['( relatedInternalConcept ContentBearingObject containsInformation )',
@@ -42,6 +42,19 @@ class indexTestCase(unittest.TestCase):
         self.assertEqual(self.indexabstractor.wordnet, None)
         self.assertEqual(len(self.indexabstractor.wordnet_locate('   enTiTy     ')), 31)
         self.assertNotEqual(self.indexabstractor.wordnet, None)
+
+    def test4AbstractGraph(self):
+        graph = self.indexabstractor.get_graph('Ontology')
+        self.assertIn(AbstractGraphNode(self.sumo), graph.nodes)
+        graph = self.indexabstractor.get_graph('subrelation', 'subclass')
+        self.assertEqual(graph.nodes, ['immediateSubclass', 'subset', 'subclass'])
+        self.assertEqual(graph.relations, {'subclass': {'subset', 'immediateSubclass'}})
+        graph = self.indexabstractor.get_graph('subclass', 'entity')
+        self.assertEqual(len(graph.nodes), 660)
+        self.assertEqual(len(graph.relations), 266)
+        graph = self.indexabstractor.get_graph('subclass', 'entity', 3)
+        self.assertEqual(len(graph.nodes), 186)
+        self.assertEqual(len(graph.relations), 122)
 
 indexTestSuit = unittest.makeSuite(indexTestCase, 'test')
 
