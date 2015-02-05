@@ -7,7 +7,4 @@ Entwurf/src/docs/_build/*
 .project
 .pydevproject
 .settings
-<<<<<<< HEAD
-src/conf
-=======
->>>>>>> feature-TextEditor
+src/user-layout.ini
