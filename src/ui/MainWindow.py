@@ -7,7 +7,7 @@ This module contains:
 
 """
 from PySide import QtGui
-from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot
+from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot, QObject, SIGNAL
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import sys
 
@@ -30,47 +30,28 @@ class ZoomWidget(QWidget):
 
 
 def loadStyleSheet(widget, styleName):
-    print(styleName)
     cssfile = QFile("./ui/Designer/css/" + styleName + ".css")
     cssfile.open(QFile.ReadOnly)
-    print(cssfile.exists())
-    print(QFileInfo(cssfile).absoluteFilePath())
     stylesheet = cssfile.readAll()
-    print(stylesheet.data())
     widget.setStyleSheet(str(stylesheet))
     cssfile.close()
 
-# class PySUMOWidget(QtGui.QDockWidget):
-#     def __init__(self, parent):
-#         super(PySUMOWidget, self).__init__(parent)
-#         self.setWindowTitle("pySUMO Widget")
-#         self.ownerSplitter = parent
-#         QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
-#
-#     @Slot(bool)
-#     def setPopedOut(self, isPopedOut):
-#         try:
-#             isPopedOut = self.frame != None;
-#         except AttributeError:
-#             isPopedOut = False
-#         if not isPopedOut:
-#             self.setParent(None)
-#             self.hide()
-#             self.frame = QtGui.QDockWidget()
-#             self.frame.setWidget(self)
-#             self.frame.setWindowTitle(self.windowTitle())
-#             self.frame.show()
-#         else:
-#             assert self.frame != None
-#             self.setParent(self.ownerSplitter)
-#             self.ownerSplitter.addWidget(self)
-#             self.frame.hide()
-#             self.frame = None
-#
-# def closeEvent(self, event):
-# event.ignore()
-
-
+class PySUMOWidget(QtGui.QDockWidget):
+    def __init__(self, parent):
+        super(PySUMOWidget, self).__init__(parent)
+        self.owner = parent
+        self.isPopedOut = False
+        QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
+        
+    @Slot()
+    def setPopedOut(self):
+        if not self.isPopedOut :
+            self.setWindowFlags(Qt.Window)
+            self.show()
+            self.isPopedOut = True
+        else :
+            self.isPopedOut = False
+        
 class MainWindow(Ui_mainwindow, QMainWindow):
 
     """ This class is the entry point of the application. It creates the main
@@ -103,7 +84,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         # textEditorWidget.getWidget().updateRequest.connect(self.updateStatusbar)
         self.actionExpand.triggered.connect(textEditorWidget.expandAll)
         self.actionCollapse.triggered.connect(textEditorWidget.hideAll)
-        widget = QtGui.QDockWidget(self)
+        # widget = QtGui.QDockWidget(self)
+        widget = PySUMOWidget(self)
         widget.setWindowTitle("Text Editor Widget")
         widget.setWidget(textEditorWidget.getLayoutWidget())
         self.addDockWidget(Qt.TopDockWidgetArea, widget)
