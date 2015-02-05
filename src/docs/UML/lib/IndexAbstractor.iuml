@@ -1,9 +1,13 @@
 class IndexAbstractor {
+  - root : AST
+  - ontologies : Ontology[]
   - index : HashMap<key : Ontology, HashMap<name : String, elements : AST[]>
+  - wordnet : WordNet
+  + init_wordnet()
+  + update_index(ast : AST)
   + search(term : String) : HashMap<ontology : Ontology, elements : String[]>
-  + update_index(ast : AST, ontologies : Ontology[])
   + get_graph(variant, node, depth=None) : AbstractGraph
-  + wordnet_locate(term: String) : String
+  + wordnet_locate(term: String) : String[]
 }
 
 class AbstractGraph {

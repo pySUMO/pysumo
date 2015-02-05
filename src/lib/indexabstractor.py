@@ -21,11 +21,20 @@ class IndexAbstractor():
     these hashmaps is the index.  Average access time is in O(n) where n is the
     number of loaded Ontologies.
 
+    Variables:
+
+    - root: The root AbstractSyntaxTree node.
+    - ontologies: The list of currently active Ontologies.
+    - index: The index of all terms in the currently active Ontology.
+    - wordnet: A reference to the Object containing the SUMO-WordNet mapping.
+
     Methods:
 
-    - search: searches for a term in the Ontology
-    - get_graph: creates an abstract graph containing a view of the Ontology
-    - wordnet_locate: returns information about a term from WordNet
+    - init_wordnet: Initializes the WordNet mapping.
+    - update_index: Updates the index.
+    - search: Searches for a term in the Ontology.
+    - get_graph: Creates an abstract graph containing a view of the Ontology.
+    - wordnet_locate: Returns information about a term from WordNet.
 
     """
 
@@ -105,7 +114,7 @@ class IndexAbstractor():
 
         Returns:
 
-        - String
+        - String[]
 
         Raises:
 

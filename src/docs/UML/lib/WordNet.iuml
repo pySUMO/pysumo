@@ -1,6 +1,6 @@
 class WordNet {
   
-  + locate_term(term) : String
+  + locate_term(term) : (String, SSType, String)[]
   + find_synonyms(term) : String[]
 }
  
