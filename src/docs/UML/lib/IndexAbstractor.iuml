@@ -1,7 +1,7 @@
 class IndexAbstractor {
   - root : AST
   - ontologies : Ontology[]
-  - index : HashMap<key : Ontology, HashMap<name : String, elements : AST[]>
+  - index : HashMap<name : String, elements : AST[]>
   - wordnet : WordNet
   + init_wordnet()
   + update_index(ast : AST)

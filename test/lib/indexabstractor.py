@@ -20,7 +20,6 @@ class indexTestCase(unittest.TestCase):
     def test1BuildIndex(self):
         self.assertEqual(self.indexabstractor.ontologies, {self.sumo})
         self.assertEqual(self.indexabstractor.root, self.kif)
-        assert self.sumo in self.indexabstractor.index
 
     def test2Search(self):
         self.maxDiff = None

@@ -58,12 +58,10 @@ class IndexAbstractor():
         """ Builds an index for ontology. """
         for child in self.root.children:
             self.ontologies.add(child.ontology)
-            index = self.index.get(child.ontology, {child.ontology : dict()})
             key = normalize(child.children[0].name)
-            asts = index.get(key, set())
-            asts.add(child)
-            index[key] = asts
-            self.index[child.ontology] = index
+            asts = self.index.get(key, list())
+            asts.append(child)
+            self.index[key] = asts
 
     def search(self, term):
         """ Search for term in the in-memory Ontology. Returns all objects that
@@ -75,19 +73,18 @@ class IndexAbstractor():
 
         """
         term = normalize(term)
-        ret = dict()
-        for ontology, index in self.index.items():
-            ret[ontology] = [repr(x) for x in index.get(term, [])]
+        ret = {x : list() for x in self.ontologies}
+        for ast in self.index.get(term, []):
+            ret[ast.ontology].append(repr(ast))
         return ret
 
     def _find_term(self, term):
         """ Returns the denormalized version of term. """
         term = normalize(term)
-        for index in self.index.values():
-            try:
-                return index[term].pop().children[0].name
-            except KeyError:
-                pass
+        try:
+            return self.index[term][0].children[0].name
+        except KeyError:
+            pass
         raise KeyError('%s not in index.' % term)
 
     def get_graph(self, variant, root, depth):
