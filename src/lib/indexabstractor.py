@@ -87,20 +87,33 @@ class IndexAbstractor():
             pass
         raise KeyError('%s not in index.' % term)
 
-    def get_graph(self, variant, root, depth):
+    def get_graph(self, variant, root=None, depth=None):
         """ Returns a hierarchical view of the Ontology.
 
         Arguments:
 
-        - variant: the hierarchical variant to return
-        - root: the root node from which the graph will be created
-        - depth: the maximum depth of the graph
+        - variant: The hierarchical variant to return.
+        - root: The root node to which all other nodes are related.
+        - depth: The maximum depth of the graph.
 
         Returns:
 
         - AbstractGraph
 
+        Raises:
+
+        - KeyError
+
         """
+        var = normalize(variant)
+        try:
+            root = self._find_term(root)
+        except AttributeError:
+            pass
+        if var in self.index:
+            return AbstractGraph(var, root, depth, self.index)
+        else:
+            return AbstractGraph(None, root, depth, self.ontologies)
 
     def wordnet_locate(self, term):
         """ Use the mapping from SUMO to WordNet to retrieve information about a term.
@@ -173,11 +186,54 @@ class AbstractGraph():
 
     """
 
-    def __init__(self, variant, root, depth):
+    def __init__(self, variant, root, depth, info):
         """ Initializes the AbstractGraph and instantiates variables. """
         self.nodes = []
-        self.relations = [[]]
-        self._settings = (variant, root, depth)
+        self.relations = dict()
+        self._settings = (root, variant, depth)
+        if variant is None:
+            self._ontology_graph(info)
+        else:
+            self._relation_graph(info)
+            if root is not None:
+                self.nodes = sorted(self._filter_root(root, 0))
+                self.nodes.append(root)
+                self.relations = {x : y for x, y in self.relations.items() if x in self.nodes}
+
+    def _ontology_graph(self, ontologies):
+        """ Produces an AbstractGraph of all the currently active ontologies. """
+        self.nodes = [AbstractGraphNode(x) for x in ontologies]
+
+    def _relation_graph(self, index):
+        """ Produces an AbstractGraph containing all relations of type variant. """
+        node_set = set()
+        for ast in index.values():
+            for node in ast:
+                if node.name == self._settings[1]:
+                    minor = node.children[0].name
+                    major = node.children[1].name
+                    node_set.add(AbstractGraphNode(minor))
+                    node_set.add(AbstractGraphNode(major))
+                    relation = self.relations.get(major, set())
+                    relation.add(minor)
+                    self.relations[major] = relation
+        self.nodes = sorted(node_set)
+
+    def _filter_root(self, root, depth):
+        """ Filters the AbstractGraph so only children of root are kept up to a maximum depth. """
+        try:
+            if depth > self._settings[2]:
+                return set()
+        except TypeError:
+            pass
+        rel = set(self.relations[root])
+        for minor in self.relations[root]:
+            try:
+                rel = rel.union(self._filter_root(minor, depth + 1))
+            except KeyError:
+                rel.add(minor)
+        return rel
+
 
 class AbstractGraphNode():
     """ A node in an AbstractGraph. Contains information necessary to recreate
@@ -193,6 +249,20 @@ class AbstractGraphNode():
         """ Initializes an AbstractGraphNode and instantiates variables. """
         self.name = name
 
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __repr__(self):
+        return str(self.name)
+
+    def __hash__(self):
+        return hash(self.name)
 
 def normalize(term):
     """ Normalizes term to aid in searching. """

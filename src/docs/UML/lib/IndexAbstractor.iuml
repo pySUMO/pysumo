@@ -6,14 +6,14 @@ class IndexAbstractor {
   + init_wordnet()
   + update_index(ast : AST)
   + search(term : String) : HashMap<ontology : Ontology, elements : String[]>
-  + get_graph(variant, node, depth=None) : AbstractGraph
-  + wordnet_locate(term: String) : String[]
+  + get_graph(variant : String, root : String, depth=None) : AbstractGraph
+  + wordnet_locate(term : String) : String[]
 }
 
 class AbstractGraph {
   - nodes : AbstractGraphNode[]
   - relations : Enum[][]
-  + __init__(variant : Enum, root : AbstractGraphNode, depth : int) : AbstractGraph
+  + __init__(variant : String, root : String, depth : int) : AbstractGraph
 }
 
 class AbstractGraphNode {
