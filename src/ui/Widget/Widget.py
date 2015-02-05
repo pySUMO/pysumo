@@ -13,7 +13,7 @@ from lib.syntaxcontroller import SyntaxController as SyntaxController
 
 
 class Widget(QObject):
-    IndexAbstractor = None
+
     """ The main class representing a widget in the pySUMO GUI.
 
     Methods:
@@ -26,11 +26,7 @@ class Widget(QObject):
         super(Widget, self).__init__()
         self.mw = mainwindow
         """ Initializes the Widget object. """
-
-    def getIndexAbstractor(self):
-        if Widget.IndexAbstractor == None:
-            Widget.IndexAbstractor = IndexAbstractor()
-        return Widget.IndexAbstractor
+        self.IndexAbstractor = IndexAbstractor()
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """
@@ -64,7 +60,7 @@ class RWWidget(Widget):
     def __init__(self, mainwindow):
         """ Initializes the read/write widget """
         super(RWWidget, self).__init__(mainwindow)
-        self.SyntaxController = SyntaxController(self.getIndexAbstractor())
+        self.SyntaxController = SyntaxController(self.IndexAbstractor)
 
     def commit(self):
         """ Commits modifications to the ontology to the SyntaxController, and

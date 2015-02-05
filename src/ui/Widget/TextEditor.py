@@ -66,37 +66,21 @@ class TextEditor(RWWidget, Ui_Form):
         self.hidden = []
 
     @Slot()
-    def increaseSize(self):
-        begin = self.getWidget().document().begin()
-        last = self.getWidget().document().end()
-
-        while (begin != last):
-            begin.charFormat().setFontPointSize(
-                begin.charFormat().fontPointSize() + 1)
-            begin = begin.next()
-
-    @Slot()
-    def decreaseSize(self):
-        begin = self.getWidget().document().begin()
-        last = self.getWidget().document().end()
-
-        while (begin != last):
-            begin.charFormat().setFontPointSize(
-                begin.charFormat().fontPointSize() - 1)
-            begin = begin.next()
-
-    @Slot()
     def expandAll(self):
         for see in self.hidden:
             self.hideFrom(see)
 
     @Slot()
     def hideAll(self):
-        for i in range(self.getWidget().document().blockCount()):
+        for i in range(self.getWidget().maximumBlockCount()):
             self.hideFrom(i)
 
     def getLayoutWidget(self):
         return self.layoutWidget
+
+    def LineAndColumn(self):
+        a = self.getWidget().textCursor()
+        return (a.blockNumber() + 1, a.positionInBlock())
 
     def numberbarPaint(self, number_bar, event):
         """Paints the line numbers of the code file"""
@@ -123,7 +107,7 @@ class TextEditor(RWWidget, Ui_Form):
             # area.
             if block_top >= event.rect().bottom():
                 break
-
+            # do not print line numbers for invisible blocks but do count them
             if not block.isVisible():
                 block = block.next()
                 while not block.isVisible():
