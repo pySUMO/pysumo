@@ -107,25 +107,26 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     @Slot()
     def addDocumentationWidget(self):
         widget = self.createDocumentationWidget()
-        self.addDockWidget(Qt.RightDockWidgetArea, widget)
+        self.addDockWidget(Qt.BottomDockWidgetArea, widget)
         if not self.menuDocumentationWidgets.isEnabled() :
             self.menuDocumentationWidgets.setEnabled(True)
         self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
 
     def createDocumentationWidget(self):
         widget = PySUMOWidget(self)
-        documentationWidget = DocumentationWidget(widget)
+        wWidget = QWidget(self)
+        documentationWidget = DocumentationWidget(wWidget)
         objName = "DocumentationWidget"
         objName += str(len(self.menuDocumentationWidgets.actions()))
         widget.setObjectName(objName)
         widget.setWindowTitle("Documentation Widget")
-        widget.setWidget(documentationWidget.widget)
+        widget.setWidget(wWidget)
         return widget
 
     @Slot()
     def addHierarchyWidget(self):
         widget = self.createHierarchyWidget()
-        self.addDockWidget(Qt.LeftDockWidgetArea, widget)
+        self.addDockWidget(Qt.BottomDockWidgetArea, widget)
         if not self.menuHierarchyWidgets.isEnabled() :
             self.menuHierarchyWidgets.setEnabled(True)
         self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
