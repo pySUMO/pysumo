@@ -26,13 +26,19 @@ class Widget(QObject):
         super(Widget, self).__init__()
         self.mw = mainwindow
         """ Initializes the Widget object. """
-        self.IndexAbstractor = IndexAbstractor()
+
+    def getIndexAbstractor(self):
+        if Widget.IndexAbstractor == None:
+            Widget.IndexAbstractor = IndexAbstractor()
+        return Widget.IndexAbstractor
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """
-    
+
     def getWidget(self):
         pass
+
+
 class RWidget(Widget):
 
     """ Class for Widgets which only has read-access to the Ontologies. This
