@@ -83,18 +83,26 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     @Slot()
     def addTextEditorWidget(self):
-        textEditorWidget = TextEditor(self)
         # textEditorWidget.getWidget().updateRequest.connect(self.updateStatusbar)
-        self.actionExpand.triggered.connect(textEditorWidget.expandAll)
-        self.actionCollapse.triggered.connect(textEditorWidget.hideAll)
+        #self.actionExpand.triggered.connect(textEditorWidget.expandAll)
+        #self.actionCollapse.triggered.connect(textEditorWidget.hideAll)
         # widget = QtGui.QDockWidget(self)
-        widget = PySUMOWidget(self)
-        widget.setWindowTitle("Text Editor Widget")
-        widget.setWidget(textEditorWidget.getLayoutWidget())
+        widget = self.createTextEditorWidget()
         self.addDockWidget(Qt.TopDockWidgetArea, widget)
         if not self.menuTextEditorWidgets.isEnabled() :
             self.menuTextEditorWidgets.setEnabled(True)
         self.menuTextEditorWidgets.addAction(widget.toggleViewAction())
+        return widget
+    
+    def createTextEditorWidget(self):
+        widget = PySUMOWidget(self)
+        textEditorWidget = TextEditor(widget)
+        objName = "TextEditorWidget"
+        objName += str(len(self.menuTextEditorWidgets.actions()))
+        widget.setObjectName(objName)
+        widget.setWindowTitle("Text Editor Widget")
+        widget.setWidget(textEditorWidget.getLayoutWidget())
+        return widget
 
     @Slot()
     def addDocumentationWidget(self):
@@ -142,6 +150,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.saveSizeState(self)
         self.settings.setValue("mainWindow/state", self.saveState())
         self.saveStatusBarState()
+        actions = self.menuTextEditorWidgets.actions()
+        count = len(actions)
+        self.settings.setValue("TextEditorWidgets/count", count)
+        #for action in actions : 
+        #   self.saveVisibilityState(action.parent())
+        #  self.savePositionState(action.parent())
+        # self.saveSizeState(action.parent())
         super(MainWindow, self).closeEvent(event)
         
         
@@ -151,6 +166,24 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.restoreSizeState(self)
         self.restorePositionState(self)
         self.restoreStatusBarState()
+        textEditorWidgetsCount = self.settings.value("TextEditorWidgets/count")
+        if textEditorWidgetsCount == None :
+            textEditorWidgetsCount = 0
+        textEditorWidgetsCount = int(textEditorWidgetsCount)
+        count = 0
+        while count < textEditorWidgetsCount :
+            widget = self.createTextEditorWidget()
+            restored = self.restoreDockWidget(widget)
+            if not restored :
+                print("could not restore the widget " + widget.objectName() )
+                continue
+            count = count + 1
+            if not self.menuTextEditorWidgets.isEnabled() :
+                self.menuTextEditorWidgets.setEnabled(True)
+            self.menuTextEditorWidgets.addAction(widget.toggleViewAction())
+            #self.restoreVisibilityState(widget, widget.toggleViewAction())
+            #self.restoreSizeState(widget)
+            #self.restorePositionState(widget)
         super(MainWindow, self).showEvent(event)
 
     def saveVisibilityState(self, qItem):
@@ -159,18 +192,21 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def restoreVisibilityState(self, qItem, qAction=None):
         objName = qItem.objectName()
-        visible = self.settings.value(objName + "/visible", True)
+        visible = self.settings.value(objName + "/visible")
         visible = str(visible).lower()
-        if visible == "false":
+        if visible == "false" :
             visible = False
-        else:
+        elif visible == "true" :
             visible = True
+        else :
+            visible = None
         # if not visible :
         #   qAction.triggered.emit()
         #  qAction.setChecked(False)
-        if qAction != None:
-            qAction.setChecked(visible)
-        qItem.setVisible(visible)
+        if visible != None :
+            if qAction != None:
+                qAction.setChecked(visible)
+            qItem.setVisible(visible)
 
     def savePositionState(self, qItem):
         objName = qItem.objectName()
@@ -273,7 +309,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 def main():
     app = QApplication(sys.argv)
     mainwindow = MainWindow()
-
+    app.setActiveWindow(mainwindow)
     app.exec_()
     sys.exit()
 
