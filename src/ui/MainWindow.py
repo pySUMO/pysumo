@@ -119,19 +119,26 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         objName += str(len(self.menuDocumentationWidgets.actions()))
         widget.setObjectName(objName)
         widget.setWindowTitle("Documentation Widget")
-        widget.setWidget(documentationWidget.tabWidget)
+        widget.setWidget(documentationWidget.widget)
         return widget
 
     @Slot()
     def addHierarchyWidget(self):
-        hierarchyWidget = HierarchyWidget(self)
-        widget = QtGui.QDockWidget(self)
-        widget.setWindowTitle("Hierarchy Widget")
-        widget.setWidget(hierarchyWidget.widget)
+        widget = self.createHierarchyWidget()
         self.addDockWidget(Qt.LeftDockWidgetArea, widget)
         if not self.menuHierarchyWidgets.isEnabled() :
             self.menuHierarchyWidgets.setEnabled(True)
         self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
+        
+    def createHierarchyWidget(self):
+        widget = QtGui.QDockWidget(self)
+        hierarchyWidget = HierarchyWidget(widget)
+        objName = "HierarchyWidget"
+        objName += str(len(self.menuHierarchyWidgets.actions()))
+        widget.setObjectName(objName)
+        widget.setWindowTitle("Hierarchy Widget")
+        widget.setWidget(hierarchyWidget.widget)
+        return widget
 
     def updateStatusbar(self):
         plainTextEdit = self.texteditor.getWidget()
@@ -163,6 +170,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         actions = self.menuDocumentationWidgets.actions()
         count = len(actions)
         self.settings.setValue("DocumentationWidgets/count", count)
+        actions = self.menuHierarchyWidgets.actions()
+        count = len(actions)
+        self.settings.setValue("HierarchyWidgets/count", count)
         super(MainWindow, self).closeEvent(event)
         
         
@@ -201,7 +211,25 @@ class MainWindow(Ui_mainwindow, QMainWindow):
                 print("could not restore the widget " + widget.objectName())
                 continue
             if not self.menuDocumentationWidgets.isEnabled() :
-                self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
+                self.menuDocumentationWidgets.setEnabled(True)
+            self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
+        
+        hierarchyWidgetsCount = self.settings.value("HierarchyWidgets/count")
+        if hierarchyWidgetsCount == None :
+            hierarchyWidgetsCount = 0
+        hierarchyWidgetsCount = int(hierarchyWidgetsCount)
+        count = 0 
+        while count < hierarchyWidgetsCount :
+            widget = self.createHierarchyWidget()
+            restored = self.restoreDockWidget(widget)
+            count = count + 1
+            if not restored :
+                print("could not restore the widget " + widget.objectName())
+                continue
+            if not self.menuHierarchyWidgets.isEnabled() :
+                self.menuHierarchyWidgets.setEnabled(True)
+            self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
+        
         super(MainWindow, self).showEvent(event)
 
     def saveVisibilityState(self, qItem):
