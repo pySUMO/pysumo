@@ -106,14 +106,21 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     @Slot()
     def addDocumentationWidget(self):
-        documentationWidget = DocumentationWidget(self)
-        widget = QtGui.QDockWidget(self)
-        widget.setWindowTitle("Documentation Widget")
-        widget.setWidget(documentationWidget.tabWidget)
+        widget = self.createDocumentationWidget()
         self.addDockWidget(Qt.RightDockWidgetArea, widget)
         if not self.menuDocumentationWidgets.isEnabled() :
             self.menuDocumentationWidgets.setEnabled(True)
         self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
+
+    def createDocumentationWidget(self):
+        widget = PySUMOWidget(self)
+        documentationWidget = DocumentationWidget(widget)
+        objName = "DocumentationWidget"
+        objName += str(len(self.menuDocumentationWidgets.actions()))
+        widget.setObjectName(objName)
+        widget.setWindowTitle("Documentation Widget")
+        widget.setWidget(documentationWidget.tabWidget)
+        return widget
 
     @Slot()
     def addHierarchyWidget(self):
@@ -153,10 +160,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         actions = self.menuTextEditorWidgets.actions()
         count = len(actions)
         self.settings.setValue("TextEditorWidgets/count", count)
-        #for action in actions : 
-        #   self.saveVisibilityState(action.parent())
-        #  self.savePositionState(action.parent())
-        # self.saveSizeState(action.parent())
+        actions = self.menuDocumentationWidgets.actions()
+        count = len(actions)
+        self.settings.setValue("DocumentationWidgets/count", count)
         super(MainWindow, self).closeEvent(event)
         
         
@@ -174,16 +180,28 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         while count < textEditorWidgetsCount :
             widget = self.createTextEditorWidget()
             restored = self.restoreDockWidget(widget)
+            count = count + 1
             if not restored :
                 print("could not restore the widget " + widget.objectName() )
                 continue
-            count = count + 1
             if not self.menuTextEditorWidgets.isEnabled() :
                 self.menuTextEditorWidgets.setEnabled(True)
             self.menuTextEditorWidgets.addAction(widget.toggleViewAction())
-            #self.restoreVisibilityState(widget, widget.toggleViewAction())
-            #self.restoreSizeState(widget)
-            #self.restorePositionState(widget)
+
+        documentationWidgetsCount = self.settings.value("DocumentationWidgets/count")
+        if documentationWidgetsCount == None :
+            documentationWidgetsCount = 0
+        documentationWidgetsCount = int(documentationWidgetsCount)
+        count = 0 
+        while count < documentationWidgetsCount :
+            widget = self.createDocumentationWidget()
+            restored = self.restoreDockWidget(widget)
+            count = count + 1
+            if not restored :
+                print("could not restore the widget " + widget.objectName())
+                continue
+            if not self.menuDocumentationWidgets.isEnabled() :
+                self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
         super(MainWindow, self).showEvent(event)
 
     def saveVisibilityState(self, qItem):
