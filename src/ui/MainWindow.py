@@ -143,7 +143,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             print("please install chardet to detect the encodage.")
 
     def closeEvent(self, event):
-        self.settings = QSettings("conf", QSettings.IniFormat)
+        self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
         self.settings.setValue("mainWindow/geometry", self.saveGeometry())
         self.settings.setValue("mainWindow/state", self.saveState())
         self.saveStatusBarState()
@@ -236,7 +236,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.restoreToolBarState(self.toolBarHelp, self.actionHelp)
 
     def showEvent(self, event):
-        self.settings = QSettings("conf", QSettings.IniFormat)
+        self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
         self.restoreGeometry(self.settings.value("mainWindow/geometry"))
         self.restoreState(self.settings.value("mainWindow/state"))
         self.restoreStatusBarState()
