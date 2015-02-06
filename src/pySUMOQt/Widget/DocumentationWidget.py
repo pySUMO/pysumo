@@ -7,8 +7,8 @@ from PySide.QtCore import Slot
 from PySide.QtGui import QApplication, QMainWindow
 import sys
 
-from ui.Designer.DocumentationWidget import Ui_Form
-from ui.Widget.Widget import RWidget as RWidget
+from pySUMOQt.Designer.DocumentationWidget import Ui_Form
+from .Widget import RWidget
 
 
 class DocumentationWidget(RWidget, Ui_Form):

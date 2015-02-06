@@ -5,7 +5,7 @@ import subprocess
 
 from tempfile import mkdtemp
 from shutil import rmtree
-from lib import parser
+from pysumo import parser
 
 class wParseTestCase(unittest.TestCase):
     def test0Tokenize(self):

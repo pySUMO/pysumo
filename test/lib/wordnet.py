@@ -2,8 +2,8 @@
 
 import unittest
 
-from lib.parser import SSType
-from lib.wordnet import WordNet
+from pysumo.parser import SSType
+from pysumo.wordnet import WordNet
 
 class WordNetTestCase(unittest.TestCase):
     def setUp(self):

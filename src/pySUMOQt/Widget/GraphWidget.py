@@ -7,9 +7,7 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 
 """
 
-from ui.Widget.Widget import RWWidget as RWWidget
-
-#from pysumo.ui.qt.widget.rwwidget import RWWidget as RWWidget
+from .Widget import RWWidget
 
 class GraphWidget(RWWidget):
     """ Displays a graph of the Ontology and passes all modifications to the

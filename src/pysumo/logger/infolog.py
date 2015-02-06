@@ -11,7 +11,7 @@ This module contains:
 import logging
 import logging.handlers
 
-from lib.logger import CONFIG_PATH
+from . import CONFIG_PATH
 from os import makedirs
 from os.path import dirname
 

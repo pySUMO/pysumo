@@ -2,8 +2,8 @@
 
 import unittest
 
-from lib import parser
-from lib.indexabstractor import *
+from pysumo import parser
+from pysumo.indexabstractor import *
 
 class indexTestCase(unittest.TestCase):
     def setUp(self):

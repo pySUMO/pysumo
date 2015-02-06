@@ -511,5 +511,5 @@ class Ui_mainwindow(object):
         self.actionExpand.setText(QtGui.QApplication.translate("mainwindow", "Expand", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCollapse.setText(QtGui.QApplication.translate("mainwindow", "Collapse", None, QtGui.QApplication.UnicodeUTF8))
 
-import ui.Designer.css_rc
-import ui.Designer.gfx_rc
+import pySUMOQt.Designer.css_rc
+import pySUMOQt.Designer.gfx_rc

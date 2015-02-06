@@ -6,7 +6,7 @@ import subprocess
 import unittest
 
 from io import BytesIO
-from lib.logger import actionlog
+from pysumo.logger import actionlog
 from os.path import isfile
 from random import SystemRandom
 from shutil import rmtree

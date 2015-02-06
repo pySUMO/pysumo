@@ -11,10 +11,10 @@ from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slo
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import sys
 
-from ui.Designer.MainWindow import Ui_mainwindow
-from ui.Widget.DocumentationWidget import DocumentationWidget
-from ui.Widget.HierarchyWidget import HierarchyWidget
-from ui.Widget.TextEditor import TextEditor
+from pySUMOQt.Designer.MainWindow import Ui_mainwindow
+from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
+from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
+from pySUMOQt.Widget.TextEditor import TextEditor
 
 
 QCoreApplication.setApplicationName("pySUMO")

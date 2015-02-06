@@ -8,8 +8,8 @@ This module contains:
 
 """
 from PySide.QtCore import QObject
-from lib.indexabstractor import IndexAbstractor as IndexAbstractor
-from lib.syntaxcontroller import SyntaxController as SyntaxController
+from pysumo.indexabstractor import IndexAbstractor
+from pysumo.syntaxcontroller import SyntaxController
 
 
 class Widget(QObject):

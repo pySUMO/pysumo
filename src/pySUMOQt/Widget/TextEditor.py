@@ -11,8 +11,8 @@ from collections import OrderedDict
 import re
 import sys
 
-from ui.Designer.TextEditor import Ui_Form as Ui_Form
-from ui.Widget.Widget import RWWidget as RWWidget
+from pySUMOQt.Designer.TextEditor import Ui_Form
+from .Widget import RWWidget
 
 
 class TextEditor(RWWidget, Ui_Form):

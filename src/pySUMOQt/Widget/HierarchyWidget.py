@@ -6,8 +6,8 @@ from PySide.QtGui import QApplication, QMainWindow, QFileSystemModel
 import os
 import sys
 
-from ui.Designer.HierarchyWidget import Ui_Form
-from ui.Widget.Widget import RWWidget as RWWidget
+from pySUMOQt.Designer.HierarchyWidget import Ui_Form
+from .Widget import RWWidget
 
 
 class CheckableDirModel(QFileSystemModel):
