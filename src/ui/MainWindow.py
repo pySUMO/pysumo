@@ -140,7 +140,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
         self.savePositionState(self)
         self.saveSizeState(self)
-        # self.settings.setValue("mainWindow/state", self.saveState())
+        self.settings.setValue("mainWindow/state", self.saveState())
         self.saveStatusBarState()
         self.saveToolbarsState()
         super(MainWindow, self).closeEvent(event)
@@ -253,6 +253,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def showEvent(self, event):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
+        self.restoreState(self.settings.value("mainWindow/state"))
         self.restoreSizeState(self)
         self.restorePositionState(self)
         self.restoreStatusBarState()
