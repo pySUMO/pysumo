@@ -7,7 +7,7 @@ This module contains:
 
 """
 from PySide import QtGui
-from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot, QObject, SIGNAL
+from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import sys
 
@@ -107,6 +107,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Text Editor Widget")
         widget.setWidget(textEditorWidget.getLayoutWidget())
         self.addDockWidget(Qt.TopDockWidgetArea, widget)
+        self.menuTextEditorWidgets.addAction(widget.toggleViewAction())
 
     @Slot()
     def addDocumentationWidget(self):
@@ -115,6 +116,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Documentation Widget")
         widget.setWidget(documentationWidget.tabWidget)
         self.addDockWidget(Qt.RightDockWidgetArea, widget)
+        self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
 
     @Slot()
     def addHierarchyWidget(self):
@@ -123,6 +125,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Hierarchy Widget")
         widget.setWidget(hierarchyWidget.widget)
         self.addDockWidget(Qt.LeftDockWidgetArea, widget)
+        self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
 
     def updateStatusbar(self):
         plainTextEdit = self.texteditor.getWidget()
@@ -144,8 +147,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def closeEvent(self, event):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
-        self.settings.setValue("mainWindow/geometry", self.saveGeometry())
-        self.settings.setValue("mainWindow/state", self.saveState())
+        self.savePositionState(self)
+        self.saveSizeState(self)
+        # self.settings.setValue("mainWindow/state", self.saveState())
         self.saveStatusBarState()
         self.saveToolbarsState()
         super(MainWindow, self).closeEvent(event)
@@ -204,7 +208,19 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         width = int(width)
         height = int(height)
         qItem.resize(width, height)
-
+        
+    def saveOrientationState(self, qItem):
+        objName = qItem.objectName()
+        orientation = qItem.orientation()
+        if orientation != None:
+            self.settings.setValue(objName + "/orientation", orientation)
+            
+    def restoreOrientionState(self, qItem):
+        objName = qItem.objectName()
+        orientation = self.settings.value(objName + "/orientation")
+        if orientation != None:
+            qItem.setOrientation(orientation)
+            
     def saveStatusBarState(self):
         self.saveVisibilityState(self.statusBar)
 
@@ -215,11 +231,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.saveSizeState(qToolbar)
         self.savePositionState(qToolbar)
         self.saveVisibilityState(qToolbar)
+        self.saveOrientationState(qToolbar)
 
     def restoreToolBarState(self, qToolbar, qAction=None):
         self.restoreSizeState(qToolbar)
         self.restorePositionState(qToolbar)
         self.restoreVisibilityState(qToolbar, qAction)
+        self.restoreOrientionState(qToolbar)
 
     def saveToolbarsState(self):
         self.saveToolBarState(self.toolBarFile)
@@ -237,8 +255,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def showEvent(self, event):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
-        self.restoreGeometry(self.settings.value("mainWindow/geometry"))
-        self.restoreState(self.settings.value("mainWindow/state"))
+        self.restoreSizeState(self)
+        self.restorePositionState(self)
         self.restoreStatusBarState()
         self.restoreToolbarsState()
         super(MainWindow, self).showEvent(event)

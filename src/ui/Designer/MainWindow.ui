@@ -121,7 +121,25 @@
      <addaction name="actionGraphWidget"/>
      <addaction name="actionDocumentationWidget"/>
     </widget>
+    <widget class="QMenu" name="menuTextEditorWidgets">
+     <property name="title">
+      <string>Text Editor Widgets</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuDocumentationWidgets">
+     <property name="title">
+      <string>Documentation Widgets</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuHierarchyWidgets">
+     <property name="title">
+      <string>Hierarchy Widgets</string>
+     </property>
+    </widget>
     <addaction name="menuAdd"/>
+    <addaction name="menuTextEditorWidgets"/>
+    <addaction name="menuDocumentationWidgets"/>
+    <addaction name="menuHierarchyWidgets"/>
     <addaction name="separator"/>
     <addaction name="actionExpand"/>
     <addaction name="actionCollapse"/>
