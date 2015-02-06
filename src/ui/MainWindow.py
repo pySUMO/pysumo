@@ -142,8 +142,16 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.saveSizeState(self)
         self.settings.setValue("mainWindow/state", self.saveState())
         self.saveStatusBarState()
-        self.saveToolbarsState()
         super(MainWindow, self).closeEvent(event)
+        
+        
+    def showEvent(self, event):
+        self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
+        self.restoreState(self.settings.value("mainWindow/state"))
+        self.restoreSizeState(self)
+        self.restorePositionState(self)
+        self.restoreStatusBarState()
+        super(MainWindow, self).showEvent(event)
 
     def saveVisibilityState(self, qItem):
         objName = qItem.objectName()
@@ -199,66 +207,12 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         width = int(width)
         height = int(height)
         qItem.resize(width, height)
-        
-    def saveOrientationState(self, qItem):
-        objName = qItem.objectName()
-        orientation = qItem.orientation()
-        if orientation != None:
-            self.settings.setValue(objName + "/orientation", orientation)
-            
-    def restoreOrientionState(self, qItem):
-        objName = qItem.objectName()
-        orientation = self.settings.value(objName + "/orientation")
-        if orientation == "1":
-            orientation = Qt.Horizontal
-        elif orientation == "2":
-            orientation = Qt.Vertical
-        else :
-            orientation = None
-            
-        if orientation != None:
-            qItem.setOrientation(orientation)
             
     def saveStatusBarState(self):
         self.saveVisibilityState(self.statusBar)
 
     def restoreStatusBarState(self):
         self.restoreVisibilityState(self.statusBar, self.actionStatusbar)
-
-    def saveToolBarState(self, qToolbar, qAction=None):
-        self.saveSizeState(qToolbar)
-        self.savePositionState(qToolbar)
-        self.saveVisibilityState(qToolbar)
-        self.saveOrientationState(qToolbar)
-
-    def restoreToolBarState(self, qToolbar, qAction=None):
-        self.restoreSizeState(qToolbar)
-        self.restorePositionState(qToolbar)
-        self.restoreVisibilityState(qToolbar, qAction)
-        self.restoreOrientionState(qToolbar)
-
-    def saveToolbarsState(self):
-        self.saveToolBarState(self.toolBarFile)
-        self.saveToolBarState(self.toolBarEdit)
-        self.saveToolBarState(self.toolBarOntology)
-        self.saveToolBarState(self.toolBarTools)
-        self.saveToolBarState(self.toolBarHelp)
-
-    def restoreToolbarsState(self):
-        self.restoreToolBarState(self.toolBarFile, self.actionFile)
-        self.restoreToolBarState(self.toolBarEdit, self.actionEdit)
-        self.restoreToolBarState(self.toolBarOntology, self.actionOntology)
-        self.restoreToolBarState(self.toolBarTools, self.actionTools)
-        self.restoreToolBarState(self.toolBarHelp, self.actionHelp)
-
-    def showEvent(self, event):
-        self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
-        self.restoreState(self.settings.value("mainWindow/state"))
-        self.restoreSizeState(self)
-        self.restorePositionState(self)
-        self.restoreStatusBarState()
-        self.restoreToolbarsState()
-        super(MainWindow, self).showEvent(event)
 
     def createStatusBar(self):
         statusbar = self.statusBar
