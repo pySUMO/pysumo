@@ -23,13 +23,13 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
-   <widget class="QWidget" name="WordNet">
+   <widget class="QWidget" name="Ontology">
     <attribute name="title">
      <string>Ontology</string>
     </attribute>
-    <widget class="QPlainTextEdit" name="plainTextEdit">
+    <widget class="QPlainTextEdit" name="OntologyText">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -40,11 +40,11 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="Ontology">
+   <widget class="QWidget" name="WordNet">
     <attribute name="title">
      <string>WordNet</string>
     </attribute>
-    <widget class="QPlainTextEdit" name="plainTextEdit_2">
+    <widget class="QPlainTextEdit" name="WordNetText">
      <property name="geometry">
       <rect>
        <x>0</x>
