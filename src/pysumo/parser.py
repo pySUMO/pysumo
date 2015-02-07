@@ -83,7 +83,7 @@ def kifparse(ontology, graph=None, ast=None):
                 line = oldline + line
                 oldline = None
             if line[0] != '(':
-                raise Exception("parse error in line",  i+1)
+                raise ParseError(" ".join(line),  i+1)
             if line.count('(') != line.count(')'):
                 if linenumber == -1:
                     linenumber = i
@@ -99,8 +99,10 @@ def kifparse(ontology, graph=None, ast=None):
                 print(line)
                 print(len(line))
                 print(parsed)
-                raise Exception("parse error in line", i+1)
+                raise ParseError(" ".join(line), i+1)
             root.add_child(node)
+        if oldline != None:
+            raise ParseError(" ".join(oldline), linenumber)
         return root
 
 def astmerge(trees):
@@ -372,3 +374,12 @@ class Ontology():
 
     def __repr__(self):
         return self.name
+
+
+class ParseError(Exception):
+    def __init__(self, line, linenumber):
+        self.line = line
+        self.linnumber = linenumber
+
+    def __str__(self):
+        return "".join(["Parse error in line", str(self.linnumber), "\n", line])
