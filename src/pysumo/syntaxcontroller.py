@@ -51,8 +51,10 @@ class SyntaxController():
         - ParseError
 
         """
+        f = io.StringIO(code_block)
+        parser.kifparse(f, None)
 
-    def parse_add(self, code_block):
+    def parse_add(self, code_block, ontology):
         """ Tells self.parser to check code_block for syntactical correctness and add it to the
         Ontology if it is correct.
 
@@ -65,6 +67,10 @@ class SyntaxController():
         - ParseError
 
         """
+        f = io.StringIO(code_block)
+        parsed = parser.kifparse(f, ontology)
+        newast = parser.astmerge((self.index.root, parsed))
+        self.index.root = newast
 
     def parse_graph(self, graph):
         """ Tells self.parser to modify the current Ontology according to graph.
@@ -78,6 +84,7 @@ class SyntaxController():
         - ParseError
 
         """
+        pass
 
     def add_ontology(self, ontology):
         """ Adds ontology to the current in-memory Ontology.
