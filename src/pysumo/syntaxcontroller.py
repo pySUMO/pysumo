@@ -91,7 +91,8 @@ class SyntaxController():
         - ParseError
 
         """
-        newast = parser.kifparse(ontology, ast=self.index.root)
+        with open(ontology.path) as f:
+            newast = parser.kifparse(f, ontology, ast=self.index.root)
         newast = parser.astmerge((self.index.root, newast))
         self.index.root = newast
 

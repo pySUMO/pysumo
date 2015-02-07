@@ -35,12 +35,14 @@ class kifParseSerilizeTest(unittest.TestCase):
         out2 = "/".join([tempd, "out2"])
         f = "data/Merge.kif"
         o = parser.Ontology(f)
-        a = parser.kifparse(o)
-        o.path = out1
-        parser.kifserialize(a, o)
-        a = parser.kifparse(o)
-        o.path = out2
-        parser.kifserialize(a, o)
+        with open(o.path) as f:
+            a = parser.kifparse(f, o)
+        with open(out1) as f:
+            parser.kifserialize(a, o, f)
+        with open(o.path) as f:
+            a = parser.kifparse(f, o)
+        with open(out1) as f:
+            parser.kifserialize(a, o, f)
         ret = subprocess.call(["diff", out1, out2])
         rmtree(tempd)
         assert ret == 0

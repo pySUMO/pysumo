@@ -53,7 +53,7 @@ def atom(token):
         except ValueError:
             return Symbol(token)
 
-def kifparse(ontology, graph=None, ast=None):
+def kifparse(infile, ontology, graph=None, ast=None):
     """ Parse an ontology and return an AbstractSyntaxTree.
 
     Args:
@@ -61,49 +61,47 @@ def kifparse(ontology, graph=None, ast=None):
     - ontology: the ontology to parse
     - graph: a modified graph of this ontology
     - ast: the AST of ontologies which are needed from this ontology
+    -infile: the file object with be parresed
 
     Returns:
 
     - AbstractSyntaxTree
 
     """
-    with open(ontology.path, 'r', errors='ignore') as f:
-        docstring = False
-        root = AbstractSyntaxTree(ontology)
-        oldline = None
-        linenumber = -1
-        for i, line in enumerate(f):
-            line = cleanup(line)
-            if line == "":
-                continue
-            if '"' in line:
-                line, n = tokenize_docstring(line, f)
-                i += n
-            else:
-                line = tokenize(line)
-            if oldline != None:
-                line = oldline + line
-                oldline = None
-            if line[0] != '(':
-                raise Exception("parse error in line",  i+1)
-            if line.count('(') != line.count(')'):
-                if linenumber == -1:
-                    linenumber = i
-                oldline = line
-                continue
+    root = AbstractSyntaxTree(ontology)
+    oldline = None
+    linenumber = -1
+    for i, line in enumerate(infile):
+        line = cleanup(line)
+        if line == "":
+            continue
+        if '"' in line:
+            line, n = tokenize_docstring(line, infile)
+            i += n
+        else:
+            line = tokenize(line)
+        if oldline != None:
+            line = oldline + line
+            oldline = None
+        if line[0] != '(':
+            raise Exception("parse error in line",  i+1)
+        if line.count('(') != line.count(')'):
             if linenumber == -1:
                 linenumber = i
-            node = AbstractSyntaxTree(ontology, line=linenumber)
-            parsed = node.parse(line)
-            linenumber = -1
-
-            if len(line) != parsed:
-                print(line)
-                print(len(line))
-                print(parsed)
-                raise Exception("parse error in line", i+1)
-            root.add_child(node)
-        return root
+            oldline = line
+            continue
+        if linenumber == -1:
+            linenumber = i
+        node = AbstractSyntaxTree(ontology, line=linenumber)
+        parsed = node.parse(line)
+        linenumber = -1
+        if len(line) != parsed:
+            print(line)
+            print(len(line))
+            print(parsed)
+            raise Exception("parse error in line", i+1)
+        root.add_child(node)
+    return root
 
 def astmerge(trees):
     """ Merge two Abstract Syntax Trees
@@ -117,9 +115,12 @@ def astmerge(trees):
     - AbstractSyntaxTree
 
     """
-    pass
+    out = AbstractSyntaxTree(none)
+    out.children.extend(trees[0].children)
+    out.children.extend(trees[1].children)
+    return out
 
-def kifserialize(ast, ontology):
+def kifserialize(ast, ontology, out):
     """ Writes ontology to disk as kif. Parses ast and writes out all nodes
     that belong to ontology.
 
@@ -127,18 +128,18 @@ def kifserialize(ast, ontology):
 
     - ast: the Abstract Syntax Tree
     - ontology: The specific ontology with is written to disk
+    - f: The file object witch written in
 
     Raises:
 
     - OSError
 
     """
-    with open(ontology.path, mode='w') as out:
-        for child in ast.children:
-            if child.ontology != ontology:
-                continue
-            line = "".join([str(child), '\n'])
-            out.write(line)
+    for child in ast.children:
+        if child.ontology != ontology:
+            continue
+        line = "".join([str(child), '\n'])
+        out.write(line)
 
 def wparse(path):
     """ Parses the file containing the SUMO-WordNet mapping.
