@@ -37,11 +37,11 @@ class kifParseSerilizeTest(unittest.TestCase):
         o = parser.Ontology(f)
         with open(o.path) as f:
             a = parser.kifparse(f, o)
-        with open(out1) as f:
+        with open(out1, 'w') as f:
             parser.kifserialize(a, o, f)
         with open(o.path) as f:
             a = parser.kifparse(f, o)
-        with open(out1) as f:
+        with open(out2, 'w') as f:
             parser.kifserialize(a, o, f)
         ret = subprocess.call(["diff", out1, out2])
         rmtree(tempd)

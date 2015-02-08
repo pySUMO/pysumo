@@ -9,7 +9,8 @@ from pysumo.indexabstractor import *
 class indexTestCase(unittest.TestCase):
     def setUp(self):
         self.sumo = parser.Ontology('data/Merge.kif', name='SUMO')
-        self.kif = parser.kifparse(self.sumo)
+        with open(self.sumo.path) as f:
+            self.kif = parser.kifparse(f, self.sumo)
         self.indexabstractor = IndexAbstractor()
         self.indexabstractor.update_index(self.kif)
 

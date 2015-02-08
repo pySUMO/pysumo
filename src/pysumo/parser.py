@@ -115,7 +115,7 @@ def astmerge(trees):
     - AbstractSyntaxTree
 
     """
-    out = AbstractSyntaxTree(none)
+    out = AbstractSyntaxTree(None)
     out.children.extend(trees[0].children)
     out.children.extend(trees[1].children)
     return out
