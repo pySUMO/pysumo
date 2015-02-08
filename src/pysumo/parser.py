@@ -23,7 +23,7 @@ def tokenize_docstring(chars, f):
     while  chars.count('"')%2 != 0 :
         n += 1
         line = f.readline()
-        line = cleanup(line)
+        line = line.strip()
         chars = "".join([chars, line])
     chars = chars.split('"')
     while len(chars) > 1:
@@ -38,6 +38,8 @@ def tokenize(chars):
     return chars.replace('(', ' ( ').replace(')', ' ) ').split()
 
 def cleanup(chars):
+    if '"' in chars and ';' in chars and chars.find(";") > chars.find('"'):
+        return chars
     chars = chars.split(";")
     chars = chars[0]
     chars = chars.strip()
