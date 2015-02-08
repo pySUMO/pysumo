@@ -122,7 +122,7 @@ class SyntaxController():
         #TODO: This will never work. This isn't supposed to work. Create a new AST without ontology and just pass it to self.index.update_index(newast) like in add_ontology.
         for c in self.index.root.children:
             if c.ontology == ontology:
-                self.index.remove_child(c)
+                self.index.root.remove_child(c)
 
 
     def serialize(self, ontology, path=None):
