@@ -140,6 +140,8 @@ def kifserialize(ast, ontology, out):
         line = "".join([str(child), '\n'])
         out.write(line)
 
+WORDNET_REGEX = re.compile(r'^(\d{8}) (\d{2}) ([nvasr]) ([0-9a-zA-Z]{2})(?: (\S+ ([0-9a-zA-Z])))+ (\d{3})(?: ((\S{1,2}) \d{8} [nvasr] [0-9a-zA-Z]{4}))*(?: \d{2} (\+ \d{2} [0-9a-zA-Z]{2} )+)? ?\| .+ &%.+[\][@+:=]$')
+
 def wparse(path):
     """ Parses the file containing the SUMO-WordNet mapping.
 
@@ -159,7 +161,7 @@ def wparse(path):
             for line in data:
                 total += 1
                 #Syntactical validation
-                if re.match(r'^(\d{8}) (\d{2}) ([nvasr]) ([0-9a-zA-Z]{2})(?: (\S+ ([0-9a-zA-Z])))+ (\d{3})(?: ((\S{1,2}) \d{8} [nvasr] [0-9a-zA-Z]{4}))*(?: \d{2} (\+ \d{2} [0-9a-zA-Z]{2} )+)? ?\| .+ &%.+[\][@+:=]$', line):
+                if WORDNET_REGEX.match(line):
                     items = _wtokenize(line.rstrip('\n'), pos)
                     processed += 1
                     for item in items:
