@@ -8,10 +8,9 @@ This module contains:
 
 """
 
-#import model.parser
+from io import StringIO
 from .logger import actionlog
-from . import indexabstractor
-import parser
+from . import parser
 
 class SyntaxController():
     """ The high-level class containing the interface to all parsing/serialization operations.
@@ -51,8 +50,9 @@ class SyntaxController():
         - ParseError
 
         """
-        f = io.StringIO(code_block)
+        f = StringIO(code_block)
         parser.kifparse(f, None)
+        f.close()
 
     def parse_add(self, code_block, ontology):
         """ Tells self.parser to check code_block for syntactical correctness and add it to the
@@ -67,10 +67,11 @@ class SyntaxController():
         - ParseError
 
         """
-        f = io.StringIO(code_block)
+        f = StringIO(code_block)
         parsed = parser.kifparse(f, ontology)
         newast = parser.astmerge((self.index.root, parsed))
-        self.index.root = newast
+        self.index.update_index(newast)
+        f.close()
 
     def parse_graph(self, graph):
         """ Tells self.parser to modify the current Ontology according to graph.
@@ -100,8 +101,11 @@ class SyntaxController():
         """
         with open(ontology.path) as f:
             newast = parser.kifparse(f, ontology, ast=self.index.root)
-        newast = parser.astmerge((self.index.root, newast))
-        self.index.root = newast
+        try:
+            newast = parser.astmerge((self.index.root, newast))
+        except AttributeError:
+            pass
+        self.index.update_index(newast)
 
     def remove_ontology(self, ontology):
         """ Removes ontology from the current in-memory Ontology.
@@ -115,6 +119,7 @@ class SyntaxController():
         - NoSuchOntologyError
 
         """
+        #TODO: This will never work. This isn't supposed to work. Create a new AST without ontology and just pass it to self.index.update_index(newast) like in add_ontology.
         for c in self.index.root.children:
             if c.ontology == ontology:
                 self.index.remove_child(c)
