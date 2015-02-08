@@ -102,6 +102,7 @@ class SyntaxController():
         with open(ontology.path) as f:
             newast = parser.kifparse(f, ontology, ast=self.index.root)
         try:
+            self.remove_ontology(ontology)
             newast = parser.astmerge((self.index.root, newast))
         except AttributeError:
             pass
@@ -119,10 +120,10 @@ class SyntaxController():
         - NoSuchOntologyError
 
         """
-        #TODO: This will never work. This isn't supposed to work. Create a new AST without ontology and just pass it to self.index.update_index(newast) like in add_ontology.
         for c in self.index.root.children:
             if c.ontology == ontology:
-                self.index.remove_child(c)
+                self.index.root.remove_child(c)
+        self.index.update_index(self.index.root)
 
 
     def serialize(self, ontology, path=None):
