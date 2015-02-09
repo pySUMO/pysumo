@@ -12,7 +12,7 @@ import re
 import sys
 
 from pySUMOQt.Designer.TextEditor import Ui_Form
-from .Widget import RWWidget
+from pySUMOQt.Widget.Widget import RWWidget
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -219,6 +219,13 @@ class TextEditor(RWWidget, Ui_Form):
             closeB += block.text().count(")")
 
         self.hidden[startline] = hidden
+        # set current line in viewable area
+        current_line = self.getWidget().document().findBlock(
+            self.getWidget().textCursor().position()).blockNumber() + 1
+        if (startline < current_line and current_line <= line):
+            block = block.next()
+            cursor = QTextCursor(block)
+            self.getWidget().setTextCursor(cursor)
 
     @Slot(str)
     def insertCompletion(self, completion):
