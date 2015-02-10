@@ -110,10 +110,23 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot()
     def hideAll(self):
-        for i in range(self.getWidget().document().blockCount()):
-            if self.getWidget().document().findBlockByLineNumber(i - 1).isVisible():
-                if self.getWidget().document().findBlockByLineNumber(i - 1).text().count("(") > self.getWidget().document().findBlockByLineNumber(i - 1).text().count(")"):
-                    self.toggleVisibility(i)
+        block = self.getWidget().document().firstBlock()
+        while block.isValid():
+            if block.isVisible():
+                if block.text().count("(") > block.text().count(")"):
+                    self.toggleVisibility(block.lineNumber() + 1)
+
+    def _hideLines(self, lines):
+        for line in lines():
+            block = self.getWidget().document().findBlockByLineNumber(line - 1)
+            assert block.isVisible()
+            block.setVisible(False)
+
+    def _showLines(self, lines):
+        for line in lines():
+            block = self.getWidget().document().findBlockByLineNumber(line - 1)
+            assert not block.isVisible()
+            block.setVisible(True)
 
     def getLayoutWidget(self):
         return self.widget
@@ -213,11 +226,6 @@ class TextEditor(RWWidget, Ui_Form):
         self.getWidget().show()
         self.number_bar.update()
 
-    def _showLines(self, lines):
-        for line in lines:
-            self.getWidget().document().findBlockByLineNumber(
-                line - 1).setVisible(True)
-
     def hideFrom(self, line):
         block = self.getWidget().document().findBlockByLineNumber(
             line - 1)
@@ -233,13 +241,13 @@ class TextEditor(RWWidget, Ui_Form):
             block = block.next()
             line = line + 1
             if block.isVisible() == True:
-                block.setVisible(False)
                 hidden.append(line)
             openB += block.text().count("(")
             closeB += block.text().count(")")
 
         if hidden == []:
             return
+        self._hideLines(hidden)
         self.hidden[startline] = hidden
 
         # set current line in viewable area
