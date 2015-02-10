@@ -14,6 +14,7 @@ import re
 
 from .logger import actionlog
 from enum import Enum
+from pickle import dumps
 
 def tokenize_docstring(chars, f):
     n = 0
@@ -298,13 +299,13 @@ class AbstractSyntaxTree():
         return out
 
     def __eq__(self, other):
-        return str(self) == str(other)
+        return dumps(self) == dumps(other)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return hash(repr(self))
+        return hash(dumps(self))
 
     def parse(self, tokens):
         scip = 0
