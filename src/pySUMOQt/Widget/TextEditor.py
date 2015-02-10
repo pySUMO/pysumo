@@ -14,6 +14,8 @@ import sys
 
 from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
+import pysumo.parser as parser
+from pysumo.syntaxcontroller import Ontology
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -56,6 +58,10 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
+
+        self.ontologySelector.currentIndexChanged.connect(
+            self.showOtherOntology)
+
         self.hidden = {}
 
     def _initNumberBar(self):
@@ -69,7 +75,18 @@ class TextEditor(RWWidget, Ui_Form):
             self.number_bar.updateContents)
 
     def _updateOntologySelector(self):
-        self.ontologySelector.addItems(self.getIndexAbstractor().ontologies)
+        self.ontologySelector.addItems(
+            [i.name for i in self.getIndexAbstractor().ontologies])
+
+    @Slot(str)
+    def showOtherOntology(self, ontologyname):
+        ontologyname = self.ontologySelector.currentText()
+        for i in self.getIndexAbstractor().ontologies:
+            if i.name == ontologyname:
+                self.getWidget().setPlainText(
+                    self.getIndexAbstractor().get_ontology_file(i).getvalue())
+                return
+        assert False
 
     @Slot()
     def expandIfBracketRemoved(self):
@@ -399,6 +416,15 @@ if __name__ == "__main__":
     application = QApplication(sys.argv)
     mainwindow = QMainWindow()
     x = TextEditor(mainwindow)
+    sumo = Ontology('../data/Merge.kif', name='SUMO')
+    milo = Ontology('../data/MILO.kif', name='MILO')
+    with open(sumo.path) as f:
+        kif = parser.kifparse(f, sumo)
+    with open(milo.path) as f:
+        mkif = parser.kifparse(f, milo)
+    x.getIndexAbstractor().update_index(kif)
+    x.getIndexAbstractor().update_index(mkif)
+    x._updateOntologySelector()
     mainwindow.show()
 
     sys.exit(application.exec_())

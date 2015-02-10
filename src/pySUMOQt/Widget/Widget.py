@@ -13,7 +13,7 @@ from pysumo.syntaxcontroller import SyntaxController
 
 
 class Widget(QObject):
-    IndexAbstractor = None
+    IA = None
     """ The main class representing a widget in the pySUMO GUI.
 
     Methods:
@@ -28,9 +28,9 @@ class Widget(QObject):
         """ Initializes the Widget object. """
 
     def getIndexAbstractor(self):
-        if Widget.IndexAbstractor == None:
-            Widget.IndexAbstractor = IndexAbstractor()
-        return Widget.IndexAbstractor
+        if self.IA == None:
+            self.IA = IndexAbstractor()
+        return self.IA
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """

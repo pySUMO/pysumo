@@ -11,9 +11,9 @@ This module contains:
 
 """
 
+from io import StringIO
 import string
 
-from io import StringIO
 from .wordnet import WordNet
 
 class IndexAbstractor:
@@ -89,7 +89,7 @@ class IndexAbstractor:
 
         """
         term = normalize(term)
-        ret = {x : list() for x in self.ontologies}
+        ret = {x: list() for x in self.ontologies}
         for ast in self.index.get(term, []):
             ret[ast.ontology].append(repr(ast))
         return ret
@@ -214,7 +214,8 @@ class AbstractGraph:
             if root is not None:
                 self.nodes = sorted(self._filter_root(root, 0))
                 self.nodes.append(root)
-                self.relations = {x : y for x, y in self.relations.items() if x in self.nodes}
+                self.relations = {
+                    x: y for x, y in self.relations.items() if x in self.nodes}
 
     def _ontology_graph(self, ontologies):
         """ Produces an AbstractGraph of all the currently active ontologies. """
@@ -279,6 +280,7 @@ class AbstractGraphNode:
 
     def __hash__(self):
         return hash(self.name)
+
 
 def normalize(term):
     """ Normalizes term to aid in searching. """
