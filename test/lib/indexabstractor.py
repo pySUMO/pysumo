@@ -2,6 +2,7 @@
 
 import unittest
 
+from io import StringIO
 from pysumo import parser
 from pysumo.indexabstractor import *
 
@@ -55,6 +56,14 @@ class indexTestCase(unittest.TestCase):
         graph = self.indexabstractor.get_graph('subclass', 'entity', 3)
         self.assertEqual(len(graph.nodes), 186)
         self.assertEqual(len(graph.relations), 122)
+
+    def test5GetOntology(self):
+        #TODO: Compare kifparsed once syntax-controller is merged
+        of = self.indexabstractor.get_ontology_file(self.sumo)
+        sf = StringIO()
+        with open(self.sumo.path) as sumo:
+            sf.write(sumo.read())
+        self.assertEqual(of.getvalue(), sf.getvalue())
 
 indexTestSuit = unittest.makeSuite(indexTestCase, 'test')
 

@@ -13,6 +13,7 @@ This module contains:
 
 import string
 
+from io import StringIO
 from .wordnet import WordNet
 
 class IndexAbstractor():
@@ -33,6 +34,7 @@ class IndexAbstractor():
     - init_wordnet: Initializes the WordNet mapping.
     - update_index: Updates the index.
     - search: Searches for a term in the Ontology.
+    - get_ontology_file: Return an in-memory file object for an Ontology.
     - get_graph: Creates an abstract graph containing a view of the Ontology.
     - wordnet_locate: Returns information about a term from WordNet.
 
@@ -62,6 +64,14 @@ class IndexAbstractor():
             asts = self.index.get(key, list())
             asts.append(child)
             self.index[key] = asts
+
+    def get_ontology_file(self, ontology):
+        """ Returns an in-memory file object for the Kif representation of ontology. """
+        if ontology in self.ontologies:
+            ret = StringIO()
+            with open(ontology.path) as o:
+                ret.write(o.read())
+            return ret
 
     def search(self, term):
         """ Search for term in the in-memory Ontology. Returns all objects that

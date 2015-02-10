@@ -6,6 +6,7 @@ class IndexAbstractor {
   + init_wordnet()
   + update_index(ast : AST)
   + search(term : String) : HashMap<ontology : Ontology, elements : String[]>
+  + get_ontology_file(ontology : Ontology) : StringIO
   + get_graph(variant : String, root : String, depth=None) : AbstractGraph
   + wordnet_locate(term : String) : String[]
 }
