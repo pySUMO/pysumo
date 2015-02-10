@@ -6,7 +6,7 @@ This module contains:
 - HelpDialog: The dialog that displays help in pySUMO GUI.
 
 """
-from PySide import QtGui
+from PySide import QtGui, QtCore
 from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot, QObject, SIGNAL
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import sys
@@ -15,6 +15,7 @@ from pySUMOQt.Designer.MainWindow import Ui_mainwindow
 from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
 from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
+from functools import partial
 
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -39,9 +40,11 @@ def loadStyleSheet(widget, styleName):
 class PySUMOWidget(QtGui.QDockWidget):
     def __init__(self, parent):
         super(PySUMOWidget, self).__init__(parent)
-        self.owner = parent
+        self.mainWindow = parent
         self.isPopedOut = False
         QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
+        self.wrappedWidget = None
+        self.callback = None
         
     @Slot()
     def setPopedOut(self):
@@ -51,6 +54,15 @@ class PySUMOWidget(QtGui.QDockWidget):
             self.isPopedOut = True
         else :
             self.isPopedOut = False
+            
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.FocusIn :
+            if type(self.wrappedWidget) == TextEditor :
+                self.callback = self.mainWindow.connectTextEditor(self.wrappedWidget)
+        elif event.type() == QtCore.QEvent.FocusOut :
+            if type(self.wrappedWidget) == TextEditor :
+                self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback) 
+        return super(PySUMOWidget, self).eventFilter(source, event)
         
 class MainWindow(Ui_mainwindow, QMainWindow):
 
@@ -83,9 +95,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     @Slot()
     def addTextEditorWidget(self):
-        # textEditorWidget.getWidget().updateRequest.connect(self.updateStatusbar)
-        #self.actionExpand.triggered.connect(textEditorWidget.expandAll)
-        #self.actionCollapse.triggered.connect(textEditorWidget.hideAll)
+       
         # widget = QtGui.QDockWidget(self)
         widget = self.createTextEditorWidget()
         self.addDockWidget(Qt.TopDockWidgetArea, widget)
@@ -102,6 +112,10 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setObjectName(objName)
         widget.setWindowTitle("Text Editor Widget")
         widget.setWidget(textEditorWidget.getLayoutWidget())
+        # gives the reference of the wrapped widget.
+        widget.wrappedWidget = textEditorWidget 
+        # install event filter.
+        textEditorWidget.plainTextEdit.installEventFilter(widget)
         return widget
 
     @Slot()
@@ -158,9 +172,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             menu.setEnabled(True)
         menu.addAction(widget.toggleViewAction())
         self.addDeleteWidgetAction(widget)
-        
-    def updateStatusbar(self):
-        plainTextEdit = self.texteditor.getWidget()
+    
+    def updateStatusbar(self, plainTextEdit, arg1, arg2):
         if (plainTextEdit == None):
             return
         textCursor = plainTextEdit.textCursor()
@@ -346,8 +359,23 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def deleteWidget(self, widget):
         """ Deletes widget from the main window. """
-
-
+    
+    def connectTextEditor(self, widget):
+        callback = partial(self.updateStatusbar, widget.plainTextEdit)
+        widget.getWidget().updateRequest.connect(callback)
+        self.actionExpand.triggered.connect(widget.expandAll)
+        self.actionCollapse.triggered.connect(widget.hideAll)
+        self.actionZoomIn.triggered.connect(widget.increaseSize)
+        self.actionZoomOut.triggered.connect(widget.decreaseSize)
+        return callback
+        
+    def disconnectTextEditor(self, widget, callback):
+        widget.getWidget().updateRequest.disconnect(callback)
+        self.actionExpand.triggered.disconnect(widget.expandAll)
+        self.actionCollapse.triggered.disconnect(widget.hideAll)
+        self.actionZoomIn.triggered.disconnect(widget.increaseSize)
+        self.actionZoomOut.triggered.disconnect(widget.decreaseSize)
+        
 def main():
     app = QApplication(sys.argv)
     mainwindow = MainWindow()
