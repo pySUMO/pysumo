@@ -1,6 +1,6 @@
 import unittest
 
-from pysumo.syntaxcontroller import SyntaxController, Ontology
+from pysumo.syntaxcontroller import *
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.parser import kifparse, AbstractSyntaxTree
 
@@ -41,6 +41,10 @@ class syntaxTestCase(unittest.TestCase):
         mterm = self.syntaxcontroller.index.search('organISMRemains')
         self.assertNotEqual(mterm, None)
 
+    def test4GetOntologies(self):
+        ontologies = get_ontologies(user='data')
+        self.assertIn(Ontology('data/Merge.kif'), ontologies)
+        self.assertIn(Ontology('data/MILO.kif'), ontologies)
 
 
 syntaxTestSuit = unittest.makeSuite(syntaxTestCase, 'test')
