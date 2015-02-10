@@ -220,7 +220,7 @@ class AbstractGraph():
         node_set = set()
         for ast in index.values():
             for node in ast:
-                if node.name == self._settings[1]:
+                if node.name == self._settings[0]:
                     minor = node.children[0].name
                     major = node.children[1].name
                     node_set.add(AbstractGraphNode(minor))
