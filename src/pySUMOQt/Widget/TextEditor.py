@@ -122,10 +122,11 @@ class TextEditor(RWWidget, Ui_Form):
     def _showLines(self, lines):
         for line in lines:
             block = self.getWidget().document().findBlockByLineNumber(line - 1)
-            assert not block.isVisible(), "%r" % self.hidden
+            assert not block.isVisible(), "%r %r %r %r %r" % (
+                line, lines, block.text(), block.isValid(), self.hidden)
             block.setVisible(True)
-            assert block.isVisible(), "there was an error hide/unhide line %r" % line - \
-                1
+            assert block.isVisible(
+            ), "there was an error hide/unhide line %r %r" % (line, block.text())
 
     def getLayoutWidget(self):
         return self.widget
@@ -219,6 +220,7 @@ class TextEditor(RWWidget, Ui_Form):
             del self.hidden[line]
         else:
             self.hideFrom(line)
+
         # update views
         self.getWidget().hide()
         self.getWidget().show()
@@ -231,14 +233,15 @@ class TextEditor(RWWidget, Ui_Form):
         openB = block.text().count("(")
         closeB = block.text().count(")")
         startline = line
-        block = self.getWidget().firstVisibleBlock()
         # go to line >= line: block starts counting by 0
         block = self.getWidget().document().findBlockByLineNumber(line - 1)
         hidden = []
+        assert block.isValid()
         while openB > closeB and block.isValid():
+            assert block.isValid()
             block = block.next()
             line = line + 1
-            if block.isVisible() == True:
+            if block.isVisible():
                 hidden.append(line)
             openB += block.text().count("(")
             closeB += block.text().count(")")
@@ -382,12 +385,14 @@ class NumberBar(QWidget):
             self.update()
 
     def mouseDoubleClickEvent(self, event):
-        print(self.link)
         """Hides the lines from the line clicked on. """
         for (height, line) in self.link:
             if height >= event.y():
                 break
             last = line
+        print(last, self.link)
+        assert self.edit.getWidget().document().findBlockByLineNumber(
+            last - 1).isVisible()
         self.edit.toggleVisibility(last)
 
 
@@ -399,6 +404,10 @@ if __name__ == "__main__":
         x.hideAll()
         x.expandAll()
         assert x.hidden == {}
+    x.toggleVisibility(22)
+    x.toggleVisibility(55)
+    x.toggleVisibility(22)
+    x.toggleVisibility(55)
     mainwindow.show()
 
     sys.exit(application.exec_())
