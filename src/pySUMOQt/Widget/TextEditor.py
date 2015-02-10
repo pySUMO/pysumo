@@ -100,13 +100,20 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot()
     def expandAll(self):
-        for see in self.hidden.keys():
+        print(self.hidden)
+        print(list(self.hidden.keys()))
+        for see in list(self.hidden.keys()):
             self.toggleVisibility(see)
+
+        print(self.hidden)
+        print(list(self.hidden.keys()))
 
     @Slot()
     def hideAll(self):
         for i in range(self.getWidget().document().blockCount()):
-            self.hideFrom(i)
+            if self.getWidget().document().findBlockByLineNumber(i - 1).isVisible():
+                if self.getWidget().document().findBlockByLineNumber(i - 1).text().count("(") > self.getWidget().document().findBlockByLineNumber(i - 1).text().count(")"):
+                    self.toggleVisibility(i)
 
     def getLayoutWidget(self):
         return self.widget
@@ -220,8 +227,7 @@ class TextEditor(RWWidget, Ui_Form):
         startline = line
         block = self.getWidget().firstVisibleBlock()
         # go to line >= line: block starts counting by 0
-        while block.blockNumber() < line - 1:
-            block = block.next()
+        block = self.getWidget().document().findBlockByLineNumber(line - 1)
         hidden = []
         while openB > closeB and block.isValid():
             block = block.next()
@@ -232,7 +238,10 @@ class TextEditor(RWWidget, Ui_Form):
             openB += block.text().count("(")
             closeB += block.text().count(")")
 
+        if hidden == []:
+            return
         self.hidden[startline] = hidden
+
         # set current line in viewable area
         current_line = self.getWidget().document().findBlock(
             self.getWidget().textCursor().position()).blockNumber() + 1
@@ -372,6 +381,7 @@ class NumberBar(QWidget):
             if height >= event.y():
                 break
         self.edit.toggleVisibility(line - 1)
+        print(line - 1)
 
 
 if __name__ == "__main__":
