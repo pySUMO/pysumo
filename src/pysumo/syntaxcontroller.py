@@ -122,7 +122,7 @@ class SyntaxController():
         - NoSuchOntologyError
 
         """
-        for c in self.index.root.children:
+        for c in list(self.index.root.children):
             if c.ontology == ontology:
                 self.index.root.remove_child(c)
         self.index.update_index(self.index.root)
