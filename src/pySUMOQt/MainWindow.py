@@ -6,8 +6,8 @@ This module contains:
 - HelpDialog: The dialog that displays help in pySUMO GUI.
 
 """
-from PySide import QtGui
-from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot, QObject, SIGNAL
+from PySide import QtGui, QtCore
+from PySide.QtCore import QFile, QSettings, QCoreApplication, Qt, Slot, QObject, SIGNAL
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import sys
 
@@ -15,7 +15,14 @@ from pySUMOQt.Designer.MainWindow import Ui_mainwindow
 from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
 from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
+from functools import partial
 
+chardetInstalled = False
+try:
+    import chardet
+    chardetInstalled = True
+except ImportError:
+    print("please install chardet to detect the encodage.")
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -39,9 +46,11 @@ def loadStyleSheet(widget, styleName):
 class PySUMOWidget(QtGui.QDockWidget):
     def __init__(self, parent):
         super(PySUMOWidget, self).__init__(parent)
-        self.owner = parent
+        self.mainWindow = parent
         self.isPopedOut = False
         QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
+        self.wrappedWidget = None
+        self.callback = None
         
     @Slot()
     def setPopedOut(self):
@@ -51,6 +60,15 @@ class PySUMOWidget(QtGui.QDockWidget):
             self.isPopedOut = True
         else :
             self.isPopedOut = False
+            
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.FocusIn :
+            if type(self.wrappedWidget) == TextEditor :
+                self.callback = self.mainWindow.connectTextEditor(self.wrappedWidget)
+        elif event.type() == QtCore.QEvent.FocusOut :
+            if type(self.wrappedWidget) == TextEditor :
+                self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback) 
+        return super(PySUMOWidget, self).eventFilter(source, event)
         
 class MainWindow(Ui_mainwindow, QMainWindow):
 
@@ -78,21 +96,16 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionDocumentationWidget.triggered.connect(
             self.addDocumentationWidget)
         self.actionHierarchyWidget.triggered.connect(self.addHierarchyWidget)
+        self.newOntologyAction.triggered.connect(self.createNewOntology)
+        self.openLocalOntologyAction.triggered.connect(self.openLocalOntology)
+        self.openRemoteOntologyAction.triggered.connect(self.openRemoteOntology)
         self.createStatusBar()
         self.show()
 
     @Slot()
     def addTextEditorWidget(self):
-        # textEditorWidget.getWidget().updateRequest.connect(self.updateStatusbar)
-        #self.actionExpand.triggered.connect(textEditorWidget.expandAll)
-        #self.actionCollapse.triggered.connect(textEditorWidget.hideAll)
-        # widget = QtGui.QDockWidget(self)
         widget = self.createTextEditorWidget()
-        self.addDockWidget(Qt.TopDockWidgetArea, widget)
-        if not self.menuTextEditorWidgets.isEnabled() :
-            self.menuTextEditorWidgets.setEnabled(True)
-        self.menuTextEditorWidgets.addAction(widget.toggleViewAction())
-        return widget
+        self.addOrRestoreWidget(widget, self.menuTextEditorWidgets)
     
     def createTextEditorWidget(self):
         widget = PySUMOWidget(self)
@@ -102,16 +115,17 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setObjectName(objName)
         widget.setWindowTitle("Text Editor Widget")
         widget.setWidget(textEditorWidget.getLayoutWidget())
+        # gives the reference of the wrapped widget.
+        widget.wrappedWidget = textEditorWidget 
+        # install event filter.
+        textEditorWidget.plainTextEdit.installEventFilter(widget)
         return widget
 
     @Slot()
     def addDocumentationWidget(self):
         widget = self.createDocumentationWidget()
-        self.addDockWidget(Qt.BottomDockWidgetArea, widget)
-        if not self.menuDocumentationWidgets.isEnabled() :
-            self.menuDocumentationWidgets.setEnabled(True)
-        self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
-
+        self.addOrRestoreWidget(widget, self.menuDocumentationWidgets)
+        
     def createDocumentationWidget(self):
         widget = PySUMOWidget(self)
         wWidget = QWidget(self)
@@ -126,13 +140,10 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     @Slot()
     def addHierarchyWidget(self):
         widget = self.createHierarchyWidget()
-        self.addDockWidget(Qt.BottomDockWidgetArea, widget)
-        if not self.menuHierarchyWidgets.isEnabled() :
-            self.menuHierarchyWidgets.setEnabled(True)
-        self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
+        self.addOrRestoreWidget(widget, self.menuHierarchyWidgets)
         
     def createHierarchyWidget(self):
-        widget = QtGui.QDockWidget(self)
+        widget = PySUMOWidget(self)
         hierarchyWidget = HierarchyWidget(widget)
         objName = "HierarchyWidget"
         objName += str(len(self.menuHierarchyWidgets.actions()))
@@ -140,9 +151,26 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Hierarchy Widget")
         widget.setWidget(hierarchyWidget.widget)
         return widget
-
-    def updateStatusbar(self):
-        plainTextEdit = self.texteditor.getWidget()
+    
+    def addDeleteWidgetAction(self, widget):
+        action = QtGui.QAction(widget)
+        action.setText(widget.windowTitle())
+        action.triggered.connect(widget.deleteLater);
+        if not self.menuDelete.isEnabled() :
+            self.menuDelete.setEnabled(True)
+        self.menuDelete.addAction(action)
+        
+    def addOrRestoreWidget(self, widget, menu):
+        restored = self.restoreDockWidget(widget)
+        if not restored :
+            print("could not restore the widget " + widget.objectName())
+            self.addDockWidget(Qt.BottomDockWidgetArea, widget)
+        if not menu.isEnabled() :
+            menu.setEnabled(True)
+        menu.addAction(widget.toggleViewAction())
+        self.addDeleteWidgetAction(widget)
+    
+    def updateStatusbar(self, plainTextEdit, arg1, arg2):
         if (plainTextEdit == None):
             return
         textCursor = plainTextEdit.textCursor()
@@ -150,14 +178,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         lineNbr = document.findBlock(textCursor.position()).blockNumber()
         cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
         self.ligneColNumber.setText(cursorPos)
-        try:
-            import chardet
+        if chardetInstalled :
             data = str.encode(document.toPlainText())
             encoding = chardet.detect(data)['encoding']
             encoding = str(encoding).upper()
             self.encodingLbl.setText(encoding)
-        except ImportError:
-            print("please install chardet to detect the encodage.")
 
     def closeEvent(self, event):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
@@ -183,6 +208,15 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.restoreSizeState(self)
         self.restorePositionState(self)
         self.restoreStatusBarState()
+        # restore Text Editor Widgets
+        self.restoreTextEditorWidgets()
+        # restore Documentation Widgets
+        self.restoreDocumentationWidgets()
+        # restore Hierarchy Widgets
+        self.restoreHierarchyWidgets()
+        super(MainWindow, self).showEvent(event)
+        
+    def restoreTextEditorWidgets(self):
         textEditorWidgetsCount = self.settings.value("TextEditorWidgets/count")
         if textEditorWidgetsCount == None :
             textEditorWidgetsCount = 0
@@ -190,15 +224,10 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         count = 0
         while count < textEditorWidgetsCount :
             widget = self.createTextEditorWidget()
-            restored = self.restoreDockWidget(widget)
+            self.addOrRestoreWidget(widget, self.menuTextEditorWidgets)
             count = count + 1
-            if not restored :
-                print("could not restore the widget " + widget.objectName() )
-                continue
-            if not self.menuTextEditorWidgets.isEnabled() :
-                self.menuTextEditorWidgets.setEnabled(True)
-            self.menuTextEditorWidgets.addAction(widget.toggleViewAction())
-
+            
+    def restoreDocumentationWidgets(self):
         documentationWidgetsCount = self.settings.value("DocumentationWidgets/count")
         if documentationWidgetsCount == None :
             documentationWidgetsCount = 0
@@ -206,15 +235,10 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         count = 0 
         while count < documentationWidgetsCount :
             widget = self.createDocumentationWidget()
-            restored = self.restoreDockWidget(widget)
+            self.addOrRestoreWidget(widget, self.menuDocumentationWidgets)
             count = count + 1
-            if not restored :
-                print("could not restore the widget " + widget.objectName())
-                continue
-            if not self.menuDocumentationWidgets.isEnabled() :
-                self.menuDocumentationWidgets.setEnabled(True)
-            self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
-        
+
+    def restoreHierarchyWidgets(self):
         hierarchyWidgetsCount = self.settings.value("HierarchyWidgets/count")
         if hierarchyWidgetsCount == None :
             hierarchyWidgetsCount = 0
@@ -222,16 +246,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         count = 0 
         while count < hierarchyWidgetsCount :
             widget = self.createHierarchyWidget()
-            restored = self.restoreDockWidget(widget)
+            self.addOrRestoreWidget(widget, self.menuHierarchyWidgets)
             count = count + 1
-            if not restored :
-                print("could not restore the widget " + widget.objectName())
-                continue
-            if not self.menuHierarchyWidgets.isEnabled() :
-                self.menuHierarchyWidgets.setEnabled(True)
-            self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
-        
-        super(MainWindow, self).showEvent(event)
 
     def saveVisibilityState(self, qItem):
         objName = qItem.objectName()
@@ -351,8 +367,35 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def deleteWidget(self, widget):
         """ Deletes widget from the main window. """
-
-
+    
+    def connectTextEditor(self, widget):
+        callback = partial(self.updateStatusbar, widget.plainTextEdit)
+        widget.getWidget().updateRequest.connect(callback)
+        self.actionExpand.triggered.connect(widget.expandAll)
+        self.actionCollapse.triggered.connect(widget.hideAll)
+        self.actionZoomIn.triggered.connect(widget.increaseSize)
+        self.actionZoomOut.triggered.connect(widget.decreaseSize)
+        return callback
+        
+    def disconnectTextEditor(self, widget, callback):
+        widget.getWidget().updateRequest.disconnect(callback)
+        self.actionExpand.triggered.disconnect(widget.expandAll)
+        self.actionCollapse.triggered.disconnect(widget.hideAll)
+        self.actionZoomIn.triggered.disconnect(widget.increaseSize)
+        self.actionZoomOut.triggered.disconnect(widget.decreaseSize)
+        
+    @Slot()
+    def createNewOntology(self):
+        print("creating a new ontology")
+        
+    @Slot()        
+    def openLocalOntology(self):
+        print("opening a local ontology")
+        
+    @Slot()
+    def openRemoteOntology(self):
+        print("opening a remote ontology")
+        
 def main():
     app = QApplication(sys.argv)
     mainwindow = MainWindow()

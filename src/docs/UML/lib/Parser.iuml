@@ -15,16 +15,6 @@ class AbstractSyntaxTree {
 	+ add_child(AST)
 	+ remove_child(AST)
 }
-class Ontology {
-	- name : String
-	- revision : Float
-	- path : String
-	- url : String
-	- active : Boolean
-
-	+ __init__(path : String, name=None : String, url=None : String) : Ontology
-}
 
 Parser -- AbstractSyntaxTree : > uses
 AbstractSyntaxTree "0..n" o-- "1" AbstractSyntaxTree
-AbstractSyntaxTree -- Ontology

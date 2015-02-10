@@ -2,13 +2,16 @@
 
 import unittest
 
+from io import StringIO
 from pysumo import parser
 from pysumo.indexabstractor import *
+from pysumo.syntaxcontroller import Ontology
 
 class indexTestCase(unittest.TestCase):
     def setUp(self):
-        self.sumo = parser.Ontology('data/Merge.kif', name='SUMO')
-        self.kif = parser.kifparse(self.sumo)
+        self.sumo = Ontology('data/Merge.kif', name='SUMO')
+        with open(self.sumo.path) as f:
+            self.kif = parser.kifparse(f, self.sumo)
         self.indexabstractor = IndexAbstractor()
         self.indexabstractor.update_index(self.kif)
 
@@ -55,6 +58,14 @@ class indexTestCase(unittest.TestCase):
         graph = self.indexabstractor.get_graph('subclass', 'entity', 3)
         self.assertEqual(len(graph.nodes), 186)
         self.assertEqual(len(graph.relations), 122)
+
+    def test5GetOntology(self):
+        #TODO: Compare kifparsed once syntax-controller is merged
+        of = self.indexabstractor.get_ontology_file(self.sumo)
+        sf = StringIO()
+        with open(self.sumo.path) as sumo:
+            sf.write(sumo.read())
+        self.assertEqual(of.getvalue(), sf.getvalue())
 
 indexTestSuit = unittest.makeSuite(indexTestCase, 'test')
 
