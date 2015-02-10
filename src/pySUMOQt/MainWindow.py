@@ -91,6 +91,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             self.addDocumentationWidget)
         self.actionHierarchyWidget.triggered.connect(self.addHierarchyWidget)
         self.newOntologyAction.triggered.connect(self.createNewOntology)
+        self.openLocalOntologyAction.triggered.connect(self.openLocalOntology)
+        self.openRemoteOntologyAction.triggered.connect(self.openRemoteOntology)
         self.createStatusBar()
         self.show()
 
