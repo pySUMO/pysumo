@@ -3,7 +3,7 @@ widget. It contains the textual representation of the currently loaded
 Ontologies allowing conventional kif editing with features such as syntax
 highlighting and autocompletion.
 """
-from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint
+from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint, QSize
 from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QPainter
 from PySide.QtGui import QFont, QSyntaxHighlighter as QSyntaxHighlighter
 from PySide.QtGui import QTextCharFormat
@@ -50,20 +50,25 @@ class TextEditor(RWWidget, Ui_Form):
         QObject.connect(
             self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
 
-        self.number_bar = NumberBar(self)
+        self._initNumberBar()
 
-        self.horizontalLayout.setSpacing(0)
-        self.horizontalLayout.addWidget(self.number_bar)
-        self.horizontalLayout.addWidget(self.plainTextEdit)
-
-        self.plainTextEdit.blockCountChanged.connect(
-            self.number_bar.adjustWidth)
-        self.plainTextEdit.updateRequest.connect(
-            self.number_bar.updateContents)
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
         self.hidden = {}
+
+    def _initNumberBar(self):
+        self.number_bar = NumberBar(self)
+        self.number_bar.setMinimumSize(QSize(30, 0))
+        self.number_bar.setObjectName("number_bar")
+        self.gridLayout.addWidget(self.number_bar, 1, 0, 1, 1)
+        self.plainTextEdit.blockCountChanged.connect(
+            self.number_bar.adjustWidth)
+        self.plainTextEdit.updateRequest.connect(
+            self.number_bar.updateContents)
+
+    def _updateOntologySelector(self):
+        self.ontologySelector.addItems(self.getIndexAbstractor().ontologies)
 
     @Slot()
     def expandIfBracketRemoved(self):
@@ -103,7 +108,7 @@ class TextEditor(RWWidget, Ui_Form):
             self.hideFrom(i)
 
     def getLayoutWidget(self):
-        return self.layoutWidget
+        return self.widget
 
     def numberbarPaint(self, number_bar, event):
         """Paints the line numbers of the code file"""
@@ -114,9 +119,10 @@ class TextEditor(RWWidget, Ui_Form):
 
         block = self.getWidget().firstVisibleBlock()
         line_count = block.blockNumber()
-        painter = QPainter(number_bar)
+        painter = QPainter(self.number_bar)
         # TODO: second argument is color -> to settings
-        painter.fillRect(event.rect(), self.getWidget().palette().base())
+        painter.fillRect(
+            self.number_bar.rect(), self.getWidget().palette().base())
 
         # Iterate over all visible text blocks in the document.
         while block.isValid():
@@ -158,7 +164,7 @@ class TextEditor(RWWidget, Ui_Form):
             # Draw the line number right justified at the position of the
             # line.
             paint_rect = QRect(
-                0, block_top, number_bar.width(), font_metrics.height())
+                0, block_top, self.number_bar.width(), font_metrics.height())
             painter.drawText(paint_rect, Qt.AlignLeft, text)
             block = block.next()
 
