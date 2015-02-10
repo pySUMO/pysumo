@@ -5,10 +5,11 @@ import unittest
 from io import StringIO
 from pysumo import parser
 from pysumo.indexabstractor import *
+from pysumo.syntaxcontroller import Ontology
 
 class indexTestCase(unittest.TestCase):
     def setUp(self):
-        self.sumo = parser.Ontology('data/Merge.kif', name='SUMO')
+        self.sumo = Ontology('data/Merge.kif', name='SUMO')
         with open(self.sumo.path) as f:
             self.kif = parser.kifparse(f, self.sumo)
         self.indexabstractor = IndexAbstractor()

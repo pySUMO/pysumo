@@ -1,8 +1,8 @@
 import unittest
 
-from pysumo.syntaxcontroller import SyntaxController
+from pysumo.syntaxcontroller import SyntaxController, Ontology
 from pysumo.indexabstractor import IndexAbstractor
-from pysumo.parser import Ontology, kifparse
+from pysumo.parser import kifparse
 
 class syntaxTestCase(unittest.TestCase):
     def setUp(self):

@@ -9,3 +9,13 @@ class SyntaxController {
 	+ remove_ontology(ontology)
 	+ serialize(ontology, path=None)
 }
+
+class Ontology {
+	- name : String
+	- revision : Float
+	- path : String
+	- url : String
+	- active : Boolean
+
+	+ __init__(path : String, name=None : String, url=None : String) : Ontology
+}

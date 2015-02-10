@@ -9,6 +9,7 @@ This module contains:
 """
 
 from io import StringIO
+from os.path import basename
 from .logger import actionlog
 from . import parser
 
@@ -128,3 +129,44 @@ class SyntaxController():
 
     def serialize(self, ontology, path=None):
         """ Serializes ontology to path. """
+        pass
+
+class Ontology():
+    """ Contains basic information about a KIF file.  This class is used to
+    maintain separation between different Ontology-files so the user can choose
+    which are active and where each Ontology should be saved.
+
+    Variables:
+
+    - name: The name of the Ontology.
+    - path: The location of the Ontology in the filesystem.
+    - url: The URL from which the Ontology can be updated.
+    - active: Whether or not the Ontology is currently loaded.
+
+    """
+
+    def __init__(self, path, name=None, url=None):
+        """ Initializes an Ontology and instantiates variables. """
+        if name is None:
+            self.name = basename(path)
+        else:
+            self.name = name
+        self.action_log = actionlog.ActionLog(self.name)
+        self.path = path
+        self.url = url
+        self.active = False
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __repr__(self):
+        return self.name
