@@ -93,26 +93,6 @@ class TextEditor(RWWidget, Ui_Form):
             begin = begin.next()
 
     @Slot()
-    def increaseSize(self):
-        begin = self.getWidget().document().begin()
-        last = self.getWidget().document().end()
-
-        while (begin != last):
-            begin.charFormat().setFontPointSize(
-                begin.charFormat().fontPointSize() + 1)
-            begin = begin.next()
-
-    @Slot()
-    def decreaseSize(self):
-        begin = self.getWidget().document().begin()
-        last = self.getWidget().document().end()
-
-        while (begin != last):
-            begin.charFormat().setFontPointSize(
-                begin.charFormat().fontPointSize() - 1)
-            begin = begin.next()
-
-    @Slot()
     def expandAll(self):
         for see in self.hidden.keys():
             self.toggleVisibility(see)
