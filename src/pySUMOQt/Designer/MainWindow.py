@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Tue Feb 10 11:06:33 2015
+# Created: Tue Feb 10 18:51:53 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -327,11 +327,12 @@ class Ui_mainwindow(object):
         self.actionExpand.setObjectName("actionExpand")
         self.actionCollapse = QtGui.QAction(mainwindow)
         self.actionCollapse.setObjectName("actionCollapse")
+        self.actionActive_Ontologies = QtGui.QAction(mainwindow)
+        self.actionActive_Ontologies.setEnabled(False)
+        self.actionActive_Ontologies.setObjectName("actionActive_Ontologies")
         self.openOntology.addAction(self.openLocalOntologyAction)
         self.openOntology.addSeparator()
         self.openOntology.addAction(self.openRemoteOntologyAction)
-        self.menuRecent_Ontologies.addAction(self.action1_Table_kif)
-        self.menuRecent_Ontologies.addAction(self.action2_Distance_kif)
         self.menuRecent_Ontologies.addSeparator()
         self.menuRecent_Ontologies.addAction(self.clearHistoryAction)
         self.menuFile.addAction(self.newOntologyAction)
@@ -398,6 +399,8 @@ class Ui_mainwindow(object):
         self.menuOntology.addAction(self.actionRemoveTerms)
         self.menuOntology.addSeparator()
         self.menuOntology.addAction(self.actionUpdate)
+        self.menuOntology.addSeparator()
+        self.menuOntology.addAction(self.actionActive_Ontologies)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuOntology.menuAction())
@@ -515,6 +518,7 @@ class Ui_mainwindow(object):
         self.actionStatusbar.setText(QtGui.QApplication.translate("mainwindow", "Statusbar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExpand.setText(QtGui.QApplication.translate("mainwindow", "Expand", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCollapse.setText(QtGui.QApplication.translate("mainwindow", "Collapse", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionActive_Ontologies.setText(QtGui.QApplication.translate("mainwindow", "Active Ontologies", None, QtGui.QApplication.UnicodeUTF8))
 
 import pySUMOQt.Designer.css_rc
 import pySUMOQt.Designer.gfx_rc
