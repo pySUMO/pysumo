@@ -132,7 +132,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
         
     def createHierarchyWidget(self):
-        widget = QtGui.QDockWidget(self)
+        widget = PySUMOWidget(self)
         hierarchyWidget = HierarchyWidget(widget)
         objName = "HierarchyWidget"
         objName += str(len(self.menuHierarchyWidgets.actions()))
