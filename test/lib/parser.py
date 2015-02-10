@@ -50,7 +50,8 @@ class kifParseSerilizeTest(unittest.TestCase):
 
 kifParseSuit = unittest.makeSuite(kifParseSerilizeTest, 'test')
 
+parseSuit = unittest.TestSuite((wParseSuit, kifParseSuit))
+
 if __name__ == "__main__":
     runner = unittest.TextTestRunner()
-    runner.run(wParseSuit)
-    runner.run(kifParseSuit)
+    runner.run(parseSuit)
