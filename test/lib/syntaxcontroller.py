@@ -16,6 +16,7 @@ class syntaxTestCase(unittest.TestCase):
         self.assertNotEqual(self.syntaxcontroller.index.root, None)
         with open(self.sumo.path) as f:
             kif = kifparse(f, self.sumo)
+            kif.ontology = None
         self.assertEqual(self.syntaxcontroller.index.root, kif)
 
     def test1RedundantAdd(self):
