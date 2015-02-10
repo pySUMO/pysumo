@@ -100,13 +100,8 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot()
     def expandAll(self):
-        print(self.hidden)
-        print(list(self.hidden.keys()))
         for see in list(self.hidden.keys()):
             self.toggleVisibility(see)
-
-        print(self.hidden)
-        print(list(self.hidden.keys()))
 
     @Slot()
     def hideAll(self):
@@ -114,19 +109,23 @@ class TextEditor(RWWidget, Ui_Form):
         while block.isValid():
             if block.isVisible():
                 if block.text().count("(") > block.text().count(")"):
-                    self.toggleVisibility(block.lineNumber() + 1)
+                    self.toggleVisibility(block.blockNumber() + 1)
+            block = block.next()
 
     def _hideLines(self, lines):
-        for line in lines():
+        for line in lines:
             block = self.getWidget().document().findBlockByLineNumber(line - 1)
             assert block.isVisible()
             block.setVisible(False)
+            assert not block.isVisible()
 
     def _showLines(self, lines):
-        for line in lines():
+        for line in lines:
             block = self.getWidget().document().findBlockByLineNumber(line - 1)
-            assert not block.isVisible()
+            assert not block.isVisible(), "%r" % self.hidden
             block.setVisible(True)
+            assert block.isVisible(), "there was an error hide/unhide line %r" % line - \
+                1
 
     def getLayoutWidget(self):
         return self.widget
@@ -151,19 +150,18 @@ class TextEditor(RWWidget, Ui_Form):
             text = str(line_count)
             block_top = self.getWidget().blockBoundingGeometry(
                 block).translated(self.getWidget().contentOffset()).top()
-
-            self.number_bar.link.append((block_top, line_count))
-            # Check if the position of the block is out side of the visible
-            # area.
-            if block_top >= event.rect().bottom():
-                break
-
             if not block.isVisible():
                 block = block.next()
                 while not block.isVisible():
                     line_count += 1
                     block = block.next()
                 continue
+            self.number_bar.link.append((block_top, line_count))
+            # Check if the position of the block is out side of the visible
+            # area.
+            if block_top >= event.rect().bottom():
+                break
+
             # We want the line number for the selected line to be bold.
             if line_count == current_line:
                 font = painter.font()
@@ -384,17 +382,23 @@ class NumberBar(QWidget):
             self.update()
 
     def mouseDoubleClickEvent(self, event):
+        print(self.link)
         """Hides the lines from the line clicked on. """
         for (height, line) in self.link:
             if height >= event.y():
                 break
-        self.edit.toggleVisibility(line - 1)
-        print(line - 1)
+            last = line
+        self.edit.toggleVisibility(last)
 
 
 if __name__ == "__main__":
     application = QApplication(sys.argv)
     mainwindow = QMainWindow()
     x = TextEditor(mainwindow)
+    for i in range(10):
+        x.hideAll()
+        x.expandAll()
+        assert x.hidden == {}
     mainwindow.show()
+
     sys.exit(application.exec_())
