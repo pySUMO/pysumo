@@ -16,26 +16,53 @@ from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
 from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
 from functools import partial
+from pysumo.indexabstractor import IndexAbstractor
+from pysumo.syntaxcontroller import SyntaxController, Ontology
+from pySUMOQt.Designer.NewOntologyDialog import Ui_NewOntologyDialog
+import os
 
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
 
-
-class ZoomWidget(QWidget):
-
-    def __init__(self, parent):
-        super(ZoomWidget, self).__init__(parent)
+class NewOntologyDialog(QtGui.QDialog, Ui_NewOntologyDialog):
+    
+    def __init__(self, parent, SyntaxController):
+        super(NewOntologyDialog, self).__init__(parent)
         self.setupUi(self)
-
-
-def loadStyleSheet(widget, styleName):
-    cssfile = QFile("./ui/Designer/css/" + styleName + ".css")
-    cssfile.open(QFile.ReadOnly)
-    stylesheet = cssfile.readAll()
-    widget.setStyleSheet(str(stylesheet))
-    cssfile.close()
+        self.syntaxController = SyntaxController
+        self.defPath = os.environ['HOME']
+        self.defPath += "/.pysumo"
+        self.ontologyPath.setText(self.defPath)
+        self.browseFolderBtn.clicked.connect(self.chooseOntologyPath)
+        restoreDefsBtn = self.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
+        restoreDefsBtn.clicked.connect(self.restoreDefaults)
+        
+    def chooseOntologyPath(self):
+        path = self.ontologyPath.text()
+        path = QtGui.QFileDialog.getExistingDirectory(self, 'Choose Directory', path)
+        self.ontologyPath.setText(path)
+        
+    def restoreDefaults(self):
+        self.ontologyPath.setText(self.defPath)
+        
+    def accept(self):
+        path = self.ontologyPath.text()
+        if not os.path.exists(path) :
+            os.makedirs(path)
+        path += "/"
+        path += self.ontologyName.text()
+        path += ".kif"
+        path = os.path.normpath(path)
+        
+        # create the ontology file.
+        file = open(path, 'wb+')
+        file.close()
+        
+        ontology = Ontology(path, self.ontologyName.text())
+        self.parent().addOntology(ontology)
+        super(NewOntologyDialog, self).accept()
 
 class PySUMOWidget(QtGui.QDockWidget):
     def __init__(self, parent):
@@ -76,6 +103,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     - widgets: A list of the main window's currently active widgets.
 
     """
+    ontologyAdded = QtCore.Signal(Ontology)
 
     def __init__(self):
         """ Constructs the main window.  """
@@ -94,6 +122,14 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.openLocalOntologyAction.triggered.connect(self.openLocalOntology)
         self.openRemoteOntologyAction.triggered.connect(self.openRemoteOntology)
         self.createStatusBar()
+        self.fileChooser = QtGui.QFileDialog(self) # unique instance.
+        
+        self.indexAbstractor = IndexAbstractor()
+        self.syntaxController = SyntaxController(self.indexAbstractor)
+        
+        self.ontologyAdded.connect(self.notifyOntologyAdded)
+        
+        # restore and show the view.
         self.show()
 
     @Slot()
@@ -369,8 +405,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         
     @Slot()
     def createNewOntology(self):
-        print("creating a new ontology")
-        
+        dialog = NewOntologyDialog(self, self.syntaxController)
+        dialog.show()
+     
     @Slot()        
     def openLocalOntology(self):
         print("opening a local ontology")
@@ -378,6 +415,29 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     @Slot()
     def openRemoteOntology(self):
         print("opening a remote ontology")
+        
+    def addOntology(self, Ontology):
+        self.syntaxController.add_ontology(Ontology)
+        self.ontologyAdded.emit(Ontology)
+        
+    @Slot(Ontology)
+    def notifyOntologyAdded(self, Ontology):
+        count = len(self.menuRecent_Ontologies.actions())
+        count = count - 2 # remove the separator action and the clear history action.
+        name = str(count + 1)
+        name += ". "
+        name += Ontology.name
+        name += ".kif"
+        befAction = self.menuRecent_Ontologies.actions()[count]
+        action = QtGui.QAction(self)
+        action.setText(name)
+        self.menuRecent_Ontologies.insertAction(befAction, action)
+        ontologyMenu = QtGui.QMenu(self)
+        ontologyMenu.setTitle(Ontology.name)
+        ontologyMenu.addAction("Close")
+        ontologyMenu.addAction("Delete")
+        ontologyMenu.addAction("Update")
+        self.menuOntology.addMenu(ontologyMenu)
         
 def main():
     app = QApplication(sys.argv)
