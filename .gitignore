@@ -7,4 +7,4 @@ Entwurf/src/docs/_build/*
 .project
 .pydevproject
 .settings
-src/user-layout.ini
+*user-layout.ini
