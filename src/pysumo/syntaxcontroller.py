@@ -107,6 +107,7 @@ class SyntaxController():
             newast = parser.astmerge((self.index.root, newast))
         except AttributeError:
             pass
+        newast.ontology = None
         self.index.update_index(newast)
 
     def remove_ontology(self, ontology):
