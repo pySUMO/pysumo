@@ -516,5 +516,5 @@ class Ui_mainwindow(object):
         self.actionExpand.setText(QtGui.QApplication.translate("mainwindow", "Expand", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCollapse.setText(QtGui.QApplication.translate("mainwindow", "Collapse", None, QtGui.QApplication.UnicodeUTF8))
 
-import css_rc
-import gfx_rc
+import ui.Designer.css_rc
+import ui.Designer.gfx_rc
