@@ -9,9 +9,23 @@ This module contains:
 """
 
 from io import StringIO
-from os.path import basename
+from os import environ, listdir
+from os.path import basename, isdir, join
 from .logger import actionlog
 from . import parser
+
+def get_ontologies(packaged='/usr/local/share/pysumo', user='/'.join([environ['HOME'], '.pysumo'])):
+    """ Returns a set of all ontologies provided by pysumo as well as local ontologies. """
+    ret = set()
+    if isdir(packaged):
+        for f in listdir(packaged):
+            if f.endswith(".kif"):
+                ret.add(Ontology(join(packaged, f)))
+    if isdir(user):
+        for f in listdir(user):
+            if f.endswith(".kif"):
+                ret.add(Ontology(join(user, f)))
+    return ret
 
 class SyntaxController():
     """ The high-level class containing the interface to all parsing/serialization operations.
