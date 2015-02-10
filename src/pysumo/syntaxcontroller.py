@@ -9,9 +9,24 @@ This module contains:
 """
 
 from io import StringIO
-from os.path import basename
+from os.path import basename, isdir, join
 from .logger import actionlog
 from . import parser
+
+LOCALDATA = "/usr/local/share/pysumo"
+USERDATA = "/".join([environ['HOME'], ".pysumo"])
+
+def get_ontologies():
+    ret = set()
+    if isdir(USERDATA):
+        for f in listdir(USERDATA):
+            if f.endswith(".kif"):
+                ret.add(Ontology(join(USERDATA, f)))
+    if isdir(LOCALDATA):
+        for f in listdir(LOCALDATA):
+            if f.endswith(".kif"):
+                ret.add(Ontology(join(LOCALDATA, f)))
+    return ret
 
 class SyntaxController():
     """ The high-level class containing the interface to all parsing/serialization operations.
