@@ -2,7 +2,7 @@ import unittest
 
 from pysumo.syntaxcontroller import SyntaxController, Ontology
 from pysumo.indexabstractor import IndexAbstractor
-from pysumo.parser import kifparse
+from pysumo.parser import kifparse, AbstractSyntaxTree
 
 class syntaxTestCase(unittest.TestCase):
     def setUp(self):
@@ -29,7 +29,7 @@ class syntaxTestCase(unittest.TestCase):
         self.syntaxcontroller.add_ontology(self.sumo)
         self.assertNotEqual(self.syntaxcontroller.index.root, None)
         self.syntaxcontroller.remove_ontology(self.sumo)
-        self.assertEqual(self.syntaxcontroller.index.root, None)
+        self.assertEqual(self.syntaxcontroller.index.root, AbstractSyntaxTree(None))
 
     def test3AnotherAdd(self):
         self.syntaxcontroller.add_ontology(self.sumo)
@@ -40,3 +40,11 @@ class syntaxTestCase(unittest.TestCase):
         self.assertDictEqual(sterm, {self.sumo: ['( instance rangeSubclass BinaryPredicate )', '( instance rangeSubclass AsymmetricRelation )', '( domain rangeSubclass 1 Function )', '( domainSubclass rangeSubclass 2 SetOrClass )', '( documentation rangeSubclass EnglishLanguage "(&%rangeSubclass ?FUNCTION ?CLASS) means thatall of the values assigned by ?FUNCTION are &%subclasses of ?CLASS." )']})
         mterm = self.syntaxcontroller.index.search('organISMRemains')
         self.assertNotEqual(mterm, None)
+
+
+
+syntaxTestSuit = unittest.makeSuite(syntaxTestCase, 'test')
+
+if __name__ == "__main__":
+    runner = unittest.TextTestRunner()
+    runner.run(syntaxTestSuit)
