@@ -410,7 +410,12 @@ class MainWindow(Ui_mainwindow, QMainWindow):
      
     @Slot()        
     def openLocalOntology(self):
-        print("opening a local ontology")
+        filepath = QtGui.QFileDialog.getOpenFileName(self, "Open Ontology File",
+                                                     os.environ['HOME'] + "/.pysumo", "SUO KIF Files (*.kif)")
+        filepath = filepath[0]
+        filename = os.path.splitext(filepath)[0]
+        ontology = Ontology(filepath, filename)
+        self.addOntology(ontology)
         
     @Slot()
     def openRemoteOntology(self):
