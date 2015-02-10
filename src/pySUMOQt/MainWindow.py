@@ -17,6 +17,12 @@ from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
 from functools import partial
 
+chardetInstalled = False
+try:
+    import chardet
+    chardetInstalled = True
+except ImportError:
+    print("please install chardet to detect the encodage.")
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -169,14 +175,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         lineNbr = document.findBlock(textCursor.position()).blockNumber()
         cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
         self.ligneColNumber.setText(cursorPos)
-        try:
-            import chardet
+        if chardetInstalled :
             data = str.encode(document.toPlainText())
             encoding = chardet.detect(data)['encoding']
             encoding = str(encoding).upper()
             self.encodingLbl.setText(encoding)
-        except ImportError:
-            print("please install chardet to detect the encodage.")
 
     def closeEvent(self, event):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
