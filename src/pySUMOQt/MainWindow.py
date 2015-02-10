@@ -7,7 +7,7 @@ This module contains:
 
 """
 from PySide import QtGui, QtCore
-from PySide.QtCore import QFile, QSettings, QCoreApplication, QFileInfo, Qt, Slot, QObject, SIGNAL
+from PySide.QtCore import QFile, QSettings, QCoreApplication, Qt, Slot, QObject, SIGNAL
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import sys
 
@@ -95,14 +95,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     @Slot()
     def addTextEditorWidget(self):
-       
-        # widget = QtGui.QDockWidget(self)
         widget = self.createTextEditorWidget()
-        self.addDockWidget(Qt.TopDockWidgetArea, widget)
-        if not self.menuTextEditorWidgets.isEnabled() :
-            self.menuTextEditorWidgets.setEnabled(True)
-        self.menuTextEditorWidgets.addAction(widget.toggleViewAction())
-        return widget
+        self.addOrRestoreWidget(widget, self.menuTextEditorWidgets)
     
     def createTextEditorWidget(self):
         widget = PySUMOWidget(self)
@@ -121,11 +115,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     @Slot()
     def addDocumentationWidget(self):
         widget = self.createDocumentationWidget()
-        self.addDockWidget(Qt.BottomDockWidgetArea, widget)
-        if not self.menuDocumentationWidgets.isEnabled() :
-            self.menuDocumentationWidgets.setEnabled(True)
-        self.menuDocumentationWidgets.addAction(widget.toggleViewAction())
-
+        self.addOrRestoreWidget(widget, self.menuDocumentationWidgets)
+        
     def createDocumentationWidget(self):
         widget = PySUMOWidget(self)
         wWidget = QWidget(self)
@@ -140,10 +131,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     @Slot()
     def addHierarchyWidget(self):
         widget = self.createHierarchyWidget()
-        self.addDockWidget(Qt.BottomDockWidgetArea, widget)
-        if not self.menuHierarchyWidgets.isEnabled() :
-            self.menuHierarchyWidgets.setEnabled(True)
-        self.menuHierarchyWidgets.addAction(widget.toggleViewAction())
+        self.addOrRestoreWidget(widget, self.menuHierarchyWidgets)
         
     def createHierarchyWidget(self):
         widget = PySUMOWidget(self)
