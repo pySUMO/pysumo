@@ -201,7 +201,7 @@ class AbstractGraph():
         """ Initializes the AbstractGraph and instantiates variables. """
         self.nodes = []
         self.relations = dict()
-        self._settings = (root, variant, depth)
+        self._settings = (variant, root, depth)
         if variant is None:
             self._ontology_graph(info)
         else:

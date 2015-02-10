@@ -14,6 +14,7 @@ import re
 
 from .logger import actionlog
 from enum import Enum
+from .indexabstractor import .IndexAbstractor
 
 def tokenize_docstring(chars, f):
     n = 0
@@ -100,6 +101,13 @@ def kifparse(infile, ontology, graph=None, ast=None):
             print(parsed)
             raise Exception("parse error in line", i+1)
         root.add_child(node)
+    if graph == None:
+        return root
+    index = IndexAbstractor()
+    index.update_index(root)
+    newgraph = index.get_graph(graph._settings[0], graph._settings[1], graph._settings[2])
+    if newgraph == graph:
+        return root
     return root
 
 def astmerge(trees):
