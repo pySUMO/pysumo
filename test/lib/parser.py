@@ -6,6 +6,7 @@ import subprocess
 from tempfile import mkdtemp
 from shutil import rmtree
 from pysumo import parser
+from pysumo.syntaxcontroller import Ontology
 
 class wParseTestCase(unittest.TestCase):
     def test0Tokenize(self):
@@ -34,13 +35,15 @@ class kifParseSerilizeTest(unittest.TestCase):
         out1 = "/".join([tempd, "out1"])
         out2 = "/".join([tempd, "out2"])
         f = "data/Merge.kif"
-        o = parser.Ontology(f)
-        a = parser.kifparse(o)
-        o.path = out1
-        parser.kifserialize(a, o)
-        a = parser.kifparse(o)
-        o.path = out2
-        parser.kifserialize(a, o)
+        o = Ontology(f)
+        with open(o.path) as f:
+            a = parser.kifparse(f, o)
+        with open(out1, 'w') as f:
+            parser.kifserialize(a, o, f)
+        with open(o.path) as f:
+            a = parser.kifparse(f, o)
+        with open(out2, 'w') as f:
+            parser.kifserialize(a, o, f)
         ret = subprocess.call(["diff", out1, out2])
         rmtree(tempd)
         assert ret == 0

@@ -8,9 +8,10 @@ This module contains:
 
 """
 
-#import model.parser
+from io import StringIO
+from os.path import basename
 from .logger import actionlog
-from . import indexabstractor
+from . import parser
 
 class SyntaxController():
     """ The high-level class containing the interface to all parsing/serialization operations.
@@ -50,8 +51,11 @@ class SyntaxController():
         - ParseError
 
         """
+        f = StringIO(code_block)
+        parser.kifparse(f, None)
+        f.close()
 
-    def parse_add(self, code_block):
+    def parse_add(self, code_block, ontology):
         """ Tells self.parser to check code_block for syntactical correctness and add it to the
         Ontology if it is correct.
 
@@ -64,6 +68,11 @@ class SyntaxController():
         - ParseError
 
         """
+        f = StringIO(code_block)
+        parsed = parser.kifparse(f, ontology)
+        newast = parser.astmerge((self.index.root, parsed))
+        self.index.update_index(newast)
+        f.close()
 
     def parse_graph(self, graph):
         """ Tells self.parser to modify the current Ontology according to graph.
@@ -77,6 +86,7 @@ class SyntaxController():
         - ParseError
 
         """
+        pass
 
     def add_ontology(self, ontology):
         """ Adds ontology to the current in-memory Ontology.
@@ -90,6 +100,14 @@ class SyntaxController():
         - ParseError
 
         """
+        with open(ontology.path) as f:
+            newast = parser.kifparse(f, ontology, ast=self.index.root)
+        try:
+            self.remove_ontology(ontology)
+            newast = parser.astmerge((self.index.root, newast))
+        except AttributeError:
+            pass
+        self.index.update_index(newast)
 
     def remove_ontology(self, ontology):
         """ Removes ontology from the current in-memory Ontology.
@@ -103,6 +121,52 @@ class SyntaxController():
         - NoSuchOntologyError
 
         """
+        for c in self.index.root.children:
+            if c.ontology == ontology:
+                self.index.root.remove_child(c)
+        self.index.update_index(self.index.root)
+
 
     def serialize(self, ontology, path=None):
         """ Serializes ontology to path. """
+        pass
+
+class Ontology():
+    """ Contains basic information about a KIF file.  This class is used to
+    maintain separation between different Ontology-files so the user can choose
+    which are active and where each Ontology should be saved.
+
+    Variables:
+
+    - name: The name of the Ontology.
+    - path: The location of the Ontology in the filesystem.
+    - url: The URL from which the Ontology can be updated.
+    - active: Whether or not the Ontology is currently loaded.
+
+    """
+
+    def __init__(self, path, name=None, url=None):
+        """ Initializes an Ontology and instantiates variables. """
+        if name is None:
+            self.name = basename(path)
+        else:
+            self.name = name
+        self.action_log = actionlog.ActionLog(self.name)
+        self.path = path
+        self.url = url
+        self.active = False
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __repr__(self):
+        return self.name
