@@ -47,6 +47,15 @@ class ActionLog():
         self.queue = (None, None)
         self._rand = SystemRandom()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_rand']
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._rand = SystemRandom()
+
     def _rand_lognum(self):
         """ Returns a log entry number that is not already in the queue. """
         lognum = self._rand.getrandbits(32)
