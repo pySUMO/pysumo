@@ -71,6 +71,7 @@ class IndexAbstractor():
             ret = StringIO()
             with open(ontology.path) as o:
                 ret.write(o.read())
+                ret.seek(0)
             return ret
 
     def search(self, term):
