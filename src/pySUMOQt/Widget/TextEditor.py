@@ -114,14 +114,14 @@ class TextEditor(RWWidget, Ui_Form):
 
     def _hideLines(self, lines):
         for line in lines:
-            block = self.getWidget().document().findBlockByLineNumber(line - 1)
+            block = self.getWidget().document().findBlockByNumber(line - 1)
             assert block.isVisible()
             block.setVisible(False)
             assert not block.isVisible()
 
     def _showLines(self, lines):
         for line in lines:
-            block = self.getWidget().document().findBlockByLineNumber(line - 1)
+            block = self.getWidget().document().findBlockByNumber(line - 1)
             assert not block.isVisible(), "%r %r %r %r %r" % (
                 line, lines, block.text(), block.isValid(), self.hidden)
             block.setVisible(True)
@@ -227,20 +227,20 @@ class TextEditor(RWWidget, Ui_Form):
         self.number_bar.update()
 
     def hideFrom(self, line):
-        block = self.getWidget().document().findBlockByLineNumber(
+        block = self.getWidget().document().findBlockByNumber(
             line - 1)
 
         openB = block.text().count("(")
         closeB = block.text().count(")")
         startline = line
         # go to line >= line: block starts counting by 0
-        block = self.getWidget().document().findBlockByLineNumber(line - 1)
+        block = self.getWidget().document().findBlockByNumber(line - 1)
         hidden = []
         assert block.isValid()
         while openB > closeB and block.isValid():
             assert block.isValid()
             block = block.next()
-            line = line + 1
+            line = block.blockNumber() + 1
             if block.isVisible():
                 hidden.append(line)
             openB += block.text().count("(")
@@ -390,8 +390,7 @@ class NumberBar(QWidget):
             if height >= event.y():
                 break
             last = line
-        print(last, self.link)
-        assert self.edit.getWidget().document().findBlockByLineNumber(
+        assert self.edit.getWidget().document().findBlockByNumber(
             last - 1).isVisible()
         self.edit.toggleVisibility(last)
 
@@ -400,14 +399,6 @@ if __name__ == "__main__":
     application = QApplication(sys.argv)
     mainwindow = QMainWindow()
     x = TextEditor(mainwindow)
-    for i in range(10):
-        x.hideAll()
-        x.expandAll()
-        assert x.hidden == {}
-    x.toggleVisibility(22)
-    x.toggleVisibility(55)
-    x.toggleVisibility(22)
-    x.toggleVisibility(55)
     mainwindow.show()
 
     sys.exit(application.exec_())
