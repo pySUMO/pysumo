@@ -5,10 +5,11 @@ highlighting and autocompletion.
 """
 from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint, QSize
 from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QPainter
-from PySide.QtGui import QFont, QSyntaxHighlighter as QSyntaxHighlighter
+from PySide.QtGui import QFont, QSyntaxHighlighter, QShortcut, QKeySequence
 from PySide.QtGui import QTextCharFormat
 from collections import OrderedDict
 import re
+import string
 import sys
 
 from pySUMOQt.Designer.TextEditor import Ui_Form
@@ -181,11 +182,18 @@ class TextEditor(RWWidget, Ui_Form):
     def searchCompletion(self):
         """Searches for possible completion from QCompleter to the current text position"""
         tc = self.getWidget().textCursor()
+        tc.movePosition(QTextCursor.PreviousCharacter, QTextCursor.KeepAnchor)
+        if tc.selectedText() in string.whitespace:
+            self.completer.popup().hide()
+            return
         tc.movePosition(QTextCursor.StartOfWord, QTextCursor.KeepAnchor)
+
         beginning = tc.selectedText()
         if len(beginning) >= 3:
             self.completer.setCompletionPrefix(beginning)
             self.completer.complete()
+        shortcut = QShortcut(
+            QKeySequence("Ctrl+Enter"), self.getWidget(), self.insertCompletion)
 
     def toggleVisibility(self, line):
         if line in self.hidden:
