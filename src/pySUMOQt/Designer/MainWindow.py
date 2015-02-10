@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Thu Feb  5 16:43:05 2015
+# Created: Tue Feb 10 11:06:33 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -48,6 +48,9 @@ class Ui_mainwindow(object):
         self.menuDocumentationWidgets.setObjectName("menuDocumentationWidgets")
         self.menuHierarchyWidgets = QtGui.QMenu(self.menuView)
         self.menuHierarchyWidgets.setObjectName("menuHierarchyWidgets")
+        self.menuDelete = QtGui.QMenu(self.menuView)
+        self.menuDelete.setEnabled(False)
+        self.menuDelete.setObjectName("menuDelete")
         self.menuTools = QtGui.QMenu(self.menubar)
         self.menuTools.setObjectName("menuTools")
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -372,6 +375,7 @@ class Ui_mainwindow(object):
         self.menuView.addAction(self.menuTextEditorWidgets.menuAction())
         self.menuView.addAction(self.menuDocumentationWidgets.menuAction())
         self.menuView.addAction(self.menuHierarchyWidgets.menuAction())
+        self.menuView.addAction(self.menuDelete.menuAction())
         self.menuView.addSeparator()
         self.menuView.addAction(self.actionExpand)
         self.menuView.addAction(self.actionCollapse)
@@ -441,6 +445,7 @@ class Ui_mainwindow(object):
         self.menuTextEditorWidgets.setTitle(QtGui.QApplication.translate("mainwindow", "Text Editor Widgets", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDocumentationWidgets.setTitle(QtGui.QApplication.translate("mainwindow", "Documentation Widgets", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHierarchyWidgets.setTitle(QtGui.QApplication.translate("mainwindow", "Hierarchy Widgets", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuDelete.setTitle(QtGui.QApplication.translate("mainwindow", "Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("mainwindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("mainwindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuOntology.setTitle(QtGui.QApplication.translate("mainwindow", "Ontology", None, QtGui.QApplication.UnicodeUTF8))

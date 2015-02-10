@@ -136,10 +136,19 @@
       <string>Hierarchy Widgets</string>
      </property>
     </widget>
+    <widget class="QMenu" name="menuDelete">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Delete</string>
+     </property>
+    </widget>
     <addaction name="menuAdd"/>
     <addaction name="menuTextEditorWidgets"/>
     <addaction name="menuDocumentationWidgets"/>
     <addaction name="menuHierarchyWidgets"/>
+    <addaction name="menuDelete"/>
     <addaction name="separator"/>
     <addaction name="actionExpand"/>
     <addaction name="actionCollapse"/>
