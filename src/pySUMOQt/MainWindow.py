@@ -90,6 +90,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionDocumentationWidget.triggered.connect(
             self.addDocumentationWidget)
         self.actionHierarchyWidget.triggered.connect(self.addHierarchyWidget)
+        self.newOntologyAction.triggered.connect(self.createNewOntology)
         self.createStatusBar()
         self.show()
 
@@ -363,6 +364,18 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionCollapse.triggered.disconnect(widget.hideAll)
         self.actionZoomIn.triggered.disconnect(widget.increaseSize)
         self.actionZoomOut.triggered.disconnect(widget.decreaseSize)
+        
+    @Slot()
+    def createNewOntology(self):
+        print("creating a new ontology")
+        
+    @Slot()        
+    def openLocalOntology(self):
+        print("opening a local ontology")
+        
+    @Slot()
+    def openRemoteOntology(self):
+        print("opening a remote ontology")
         
 def main():
     app = QApplication(sys.argv)
