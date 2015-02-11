@@ -21,6 +21,7 @@ from pysumo.syntaxcontroller import SyntaxController, Ontology
 from pySUMOQt.Designer.NewOntologyDialog import Ui_NewOntologyDialog
 import os
 from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDialog
+import urllib
 
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -89,16 +90,17 @@ class OpenRemoteOntologyDialog(QtGui.QDialog, Ui_OpenRemoteOntologyDialog):
         if not os.path.exists(path) :
             os.makedirs(path)
         path += "/"
-        path += self.ontologyName.text()
+        path += self.name.text()
         path += ".kif"
         path = os.path.normpath(path)
         
         # create the ontology file.
         file = open(path, 'wb+')
         # download the ontology and fill the file,
+        urllib.request.urlretrieve(self.url.text(), path)
         file.close()
         
-        ontology = Ontology(path, self.ontologyName.text())
+        ontology = Ontology(path, self.name.text())
         self.parent().addOntology(ontology)
         super(OpenRemoteOntologyDialog, self).accept()
 
