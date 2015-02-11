@@ -20,6 +20,7 @@ from pysumo.indexabstractor import IndexAbstractor
 from pysumo.syntaxcontroller import SyntaxController, Ontology
 from pySUMOQt.Designer.NewOntologyDialog import Ui_NewOntologyDialog
 import os
+from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDialog
 
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -28,10 +29,9 @@ QCoreApplication.setOrganizationName("PSE Team")
 
 class NewOntologyDialog(QtGui.QDialog, Ui_NewOntologyDialog):
     
-    def __init__(self, parent, SyntaxController):
+    def __init__(self, parent):
         super(NewOntologyDialog, self).__init__(parent)
         self.setupUi(self)
-        self.syntaxController = SyntaxController
         self.defPath = os.environ['HOME']
         self.defPath += "/.pysumo"
         self.ontologyPath.setText(self.defPath)
@@ -63,6 +63,44 @@ class NewOntologyDialog(QtGui.QDialog, Ui_NewOntologyDialog):
         ontology = Ontology(path, self.ontologyName.text())
         self.parent().addOntology(ontology)
         super(NewOntologyDialog, self).accept()
+        
+class OpenRemoteOntologyDialog(QtGui.QDialog, Ui_OpenRemoteOntologyDialog):
+    
+    def __init__(self, parent):
+        super(OpenRemoteOntologyDialog, self).__init__(parent)
+        self.setupUi(self)
+        self.defPath = os.environ['HOME']
+        self.defPath += "/.pysumo"
+        self.path.setText(self.defPath)
+        self.browseBtn.clicked.connect(self.chooseOntologyPath)
+        restoreDefsBtn = self.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
+        restoreDefsBtn.clicked.connect(self.restoreDefaults)
+        
+    def chooseOntologyPath(self):
+        path = self.path.text()
+        path = QtGui.QFileDialog.getExistingDirectory(self, 'Choose Directory', path)
+        self.path.setText(path)
+        
+    def restoreDefaults(self):
+        self.path.setText(self.defPath)
+        
+    def accept(self):
+        path = self.path.text()
+        if not os.path.exists(path) :
+            os.makedirs(path)
+        path += "/"
+        path += self.ontologyName.text()
+        path += ".kif"
+        path = os.path.normpath(path)
+        
+        # create the ontology file.
+        file = open(path, 'wb+')
+        # download the ontology and fill the file,
+        file.close()
+        
+        ontology = Ontology(path, self.ontologyName.text())
+        self.parent().addOntology(ontology)
+        super(OpenRemoteOntologyDialog, self).accept()
 
 class PySUMOWidget(QtGui.QDockWidget):
     def __init__(self, parent):
@@ -405,7 +443,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         
     @Slot()
     def createNewOntology(self):
-        dialog = NewOntologyDialog(self, self.syntaxController)
+        dialog = NewOntologyDialog(self)
         dialog.show()
      
     @Slot()        
@@ -419,8 +457,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         
     @Slot()
     def openRemoteOntology(self):
-        print("opening a remote ontology")
-        
+        dialog = OpenRemoteOntologyDialog(self)
+        dialog.show()
+                
     def addOntology(self, Ontology):
         self.syntaxController.add_ontology(Ontology)
         self.ontologyAdded.emit(Ontology)
