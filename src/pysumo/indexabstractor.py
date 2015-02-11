@@ -11,12 +11,14 @@ This module contains:
 
 """
 
+from io import StringIO
 import string
 
-from io import StringIO
 from .wordnet import WordNet
 
-class IndexAbstractor():
+
+class IndexAbstractor(object):
+
     """ The IndexAbstractor provides a high-level index of the
     AbstractSyntaxTree.  Each Ontology is represented by a hashmap, the list of
     these hashmaps is the index.  Average access time is in O(n) where n is the
@@ -84,7 +86,7 @@ class IndexAbstractor():
 
         """
         term = normalize(term)
-        ret = {x : list() for x in self.ontologies}
+        ret = {x: list() for x in self.ontologies}
         for ast in self.index.get(term, []):
             ret[ast.ontology].append(repr(ast))
         return ret
@@ -150,7 +152,9 @@ class IndexAbstractor():
             results = self.wordnet.locate_term(term)
         return [' '.join([x[0], ''.join(['(', x[1].value, '):']), x[2]]) for x in results]
 
+
 class DotGraph():
+
     """ A utility class that handles layouting AbstractGraph objects.  This
     class returns a layouted version of an AbstractGraph and provides a mapping
     between the image and nodes in the AbstractGraph.
@@ -184,7 +188,9 @@ class DotGraph():
     def get_pic(self):
         """ Returns a layouted version of self.graph. """
 
+
 class AbstractGraph():
+
     """ An abstract representation of a subset of an Ontology as a collection
     of nodes and relations. This class can be used together with a DotGraph to
     create a graphical representation of an Ontology, or passed to the
@@ -209,7 +215,8 @@ class AbstractGraph():
             if root is not None:
                 self.nodes = sorted(self._filter_root(root, 0))
                 self.nodes.append(root)
-                self.relations = {x : y for x, y in self.relations.items() if x in self.nodes}
+                self.relations = {
+                    x: y for x, y in self.relations.items() if x in self.nodes}
 
     def _ontology_graph(self, ontologies):
         """ Produces an AbstractGraph of all the currently active ontologies. """
@@ -247,6 +254,7 @@ class AbstractGraph():
 
 
 class AbstractGraphNode():
+
     """ A node in an AbstractGraph. Contains information necessary to recreate
     an AbstractSyntaxTree from an AbstractGraph.
 
@@ -274,6 +282,7 @@ class AbstractGraphNode():
 
     def __hash__(self):
         return hash(self.name)
+
 
 def normalize(term):
     """ Normalizes term to aid in searching. """

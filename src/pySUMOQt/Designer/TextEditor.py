@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'TextEditor.ui'
 #
-# Created: Fri Jan 23 18:42:19 2015
+# Created: Tue Feb 10 15:05:14 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,16 +13,25 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(833, 475)
-        self.layoutWidget = QtGui.QWidget(Form)
-        self.layoutWidget.setGeometry(QtCore.QRect(1, 1, 831, 471))
-        self.layoutWidget.setObjectName("layoutWidget")
-        self.horizontalLayout = QtGui.QHBoxLayout(self.layoutWidget)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.plainTextEdit = QtGui.QPlainTextEdit(self.layoutWidget)
+        self.widget = QtGui.QWidget(Form)
+        self.widget.setGeometry(QtCore.QRect(4, 11, 821, 451))
+        self.widget.setObjectName("widget")
+        self.gridLayout = QtGui.QGridLayout(self.widget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setObjectName("gridLayout")
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem, 0, 1, 1, 1)
+        self.ontologySelector = QtGui.QComboBox(self.widget)
+        self.ontologySelector.setObjectName("ontologySelector")
+        self.gridLayout.addWidget(self.ontologySelector, 0, 2, 1, 1)
+        self.number_bar = QtGui.QWidget(self.widget)
+        self.number_bar.setMinimumSize(QtCore.QSize(30, 0))
+        self.number_bar.setObjectName("number_bar")
+        self.gridLayout.addWidget(self.number_bar, 1, 0, 1, 1)
+        self.plainTextEdit = QtGui.QPlainTextEdit(self.widget)
         self.plainTextEdit.setMinimumSize(QtCore.QSize(500, 0))
         self.plainTextEdit.setObjectName("plainTextEdit")
-        self.horizontalLayout.addWidget(self.plainTextEdit)
+        self.gridLayout.addWidget(self.plainTextEdit, 1, 1, 1, 2)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
