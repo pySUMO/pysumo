@@ -60,12 +60,11 @@ class indexTestCase(unittest.TestCase):
         self.assertEqual(len(graph.relations), 122)
 
     def test5GetOntology(self):
-        #TODO: Compare kifparsed once syntax-controller is merged
         of = self.indexabstractor.get_ontology_file(self.sumo)
-        sf = StringIO()
+        o_ast = parser.kifparse(of, self.sumo)
         with open(self.sumo.path) as sumo:
-            sf.write(sumo.read())
-        self.assertEqual(of.getvalue(), sf.getvalue())
+            s_ast = parser.kifparse(sumo, self.sumo)
+        self.assertEqual(o_ast, s_ast)
 
 indexTestSuit = unittest.makeSuite(indexTestCase, 'test')
 

@@ -59,8 +59,6 @@
      <property name="title">
       <string>Recent Ontologies</string>
      </property>
-     <addaction name="action1_Table_kif"/>
-     <addaction name="action2_Distance_kif"/>
      <addaction name="separator"/>
      <addaction name="clearHistoryAction"/>
     </widget>
@@ -186,6 +184,8 @@
     <addaction name="actionRemoveTerms"/>
     <addaction name="separator"/>
     <addaction name="actionUpdate"/>
+    <addaction name="separator"/>
+    <addaction name="actionActive_Ontologies"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -865,6 +865,14 @@
   <action name="actionCollapse">
    <property name="text">
     <string>Collapse</string>
+   </property>
+  </action>
+  <action name="actionActive_Ontologies">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Active Ontologies</string>
    </property>
   </action>
  </widget>
