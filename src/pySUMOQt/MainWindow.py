@@ -22,6 +22,8 @@ from pySUMOQt.Designer.NewOntologyDialog import Ui_NewOntologyDialog
 import os
 from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDialog
 import urllib
+from pySUMOQt.Widget.Widget import Widget
+from pysumo import parser
 
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -165,10 +167,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.fileChooser = QtGui.QFileDialog(self) # unique instance.
         
         self.indexAbstractor = IndexAbstractor()
+        Widget.IA = self.indexAbstractor
         self.syntaxController = SyntaxController(self.indexAbstractor)
         
         self.ontologyAdded.connect(self.notifyOntologyAdded)
-        
+        self.widgets = list()
         # restore and show the view.
         self.show()
 
@@ -239,6 +242,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             menu.setEnabled(True)
         menu.addAction(widget.toggleViewAction())
         self.addDeleteWidgetAction(widget)
+        self.widgets.append(widget.wrappedWidget)
     
     def updateStatusbar(self, plainTextEdit, arg1, arg2):
         if (plainTextEdit == None):
@@ -484,6 +488,12 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         ontologyMenu.addAction("Delete")
         ontologyMenu.addAction("Update")
         self.menuOntology.addMenu(ontologyMenu)
+        for widget in self.widgets :
+            if type(widget) == TextEditor :
+                with open(Ontology.path) as f :
+                    kif = parser.kifparse(f, Ontology)
+                    self.indexAbstractor.update_index(kif)
+                widget._updateOntologySelector()
         
 def main():
     app = QApplication(sys.argv)
