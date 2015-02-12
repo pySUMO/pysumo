@@ -52,15 +52,14 @@ class syntaxTestCase(unittest.TestCase):
     def test3AnotherAdd(self):
         self.maxDiff = None
         self.syntaxcontroller.add_ontology(self.sumo)
-        old_ast = self.syntaxcontroller.index.root
+        old_ast = deepcopy(self.syntaxcontroller.index.root)
+        self.assertNotEqual(old_ast, AbstractSyntaxTree(None))
         self.syntaxcontroller.add_ontology(self.milo)
         self.assertNotEqual(self.syntaxcontroller.index.root, old_ast)
         sterm = self.syntaxcontroller.index.search('raNgesubclass')
-        print(sterm[self.sumo])
-        print(['( instance rangeSubclass BinaryPredicate )', '( instance rangeSubclass AsymmetricRelation )', '( domain rangeSubclass 1 Function )', '( domainSubclass rangeSubclass 2 SetOrClass )', '( documentation rangeSubclass EnglishLanguage "(&%rangeSubclass ?FUNCTION ?CLASS) means thatall of the values assigned by ?FUNCTION are &%subclasses of ?CLASS." )'])
         self.assertListEqual(sterm[self.sumo], ['( instance rangeSubclass BinaryPredicate )', '( instance rangeSubclass AsymmetricRelation )', '( domain rangeSubclass 1 Function )', '( domainSubclass rangeSubclass 2 SetOrClass )', '( documentation rangeSubclass EnglishLanguage "(&%rangeSubclass ?FUNCTION ?CLASS) means thatall of the values assigned by ?FUNCTION are &%subclasses of ?CLASS." )'])
         mterm = self.syntaxcontroller.index.search('organISMRemains')
-        self.assertNotEqual(mterm, None)
+        self.assertListEqual(mterm[self.milo], ['( subclass OrganismRemains OrganicObject )', '( documentation OrganismRemains EnglishLanguage "An&%instance of &%OrganismRemains is &%Dead matter of aformerly &%Living &%Organism: &%Plant, &%Animal, or&%Microorganism.  An &%instance of &%OrganismRemains mightor might not be recognizable as the remains of a particularkind or species of organism, depending on the cause of the&%Organism\'s &%Death (heart failure, stroke, roadkill,dismemberment, etc.), the elapsed time since death, thespeed of decomposition, and any post-mortem processing ofthe dead organism (embalming, cremation, mummification,boiling, consumption as food, etc.)." )'])
 
     def test4GetOntologies(self):
         ontologies = get_ontologies(user='data')
