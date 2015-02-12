@@ -228,7 +228,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def addDeleteWidgetAction(self, widget):
         action = QtGui.QAction(widget)
         action.setText(widget.windowTitle())
-        action.triggered.connect(widget.deleteLater);
+        callback = partial(self.deleteWidget, widget)
+        action.triggered.connect(callback)
         if not self.menuDelete.isEnabled() :
             self.menuDelete.setEnabled(True)
         self.menuDelete.addAction(action)
@@ -429,7 +430,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """ Adds widget to the main window. """
 
     def deleteWidget(self, widget):
-        """ Deletes widget from the main window. """
+        self.widgets.remove(widget.wrappedWidget)
+        widget.deleteLater()
     
     def connectTextEditor(self, widget):
         callback = partial(self.updateStatusbar, widget.plainTextEdit)
@@ -454,10 +456,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
      
     @Slot()        
     def openLocalOntology(self):
-        filepath = QtGui.QFileDialog.getOpenFileName(self, "Open Ontology File",
+        x, y = QtGui.QFileDialog.getOpenFileName(self, "Open Ontology File",
                                                      os.environ['HOME'] + "/.pysumo", "SUO KIF Files (*.kif)")
-        filepath = filepath[0]
-        filename = os.path.splitext(filepath)[0]
+        if x == '' and y == '' :
+            return
+        filepath = x
+        filename = os.path.split(filepath)[1]
+        filename = os.path.splitext(filename)[0]
         ontology = Ontology(filepath, filename)
         self.addOntology(ontology)
         
