@@ -66,6 +66,16 @@ class indexTestCase(unittest.TestCase):
             s_ast = parser.kifparse(sumo, self.sumo)
         self.assertEqual(o_ast, s_ast)
 
+    def test6MultipleOntologies(self):
+        milo = Ontology('data/MILO.kif')
+        with open(milo.path) as f:
+            milo_kif = parser.kifparse(f, milo)
+        merged_asts = parser.astmerge((self.kif, milo_kif))
+        search_results = self.indexabstractor.search('rangesubclass')[self.sumo]
+        self.indexabstractor.update_index(merged_asts)
+        new_results = self.indexabstractor.search('rangesubclass')[self.sumo]
+        self.assertListEqual(search_results, new_results)
+
 indexTestSuit = unittest.makeSuite(indexTestCase, 'test')
 
 if __name__ == "__main__":

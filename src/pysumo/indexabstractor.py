@@ -54,6 +54,7 @@ class IndexAbstractor():
     def update_index(self, ast):
         """ Updates the index with all new AST nodes in ast. """
         self.root = ast
+        self.index = dict()
         self._build_index()
 
     def _build_index(self):
