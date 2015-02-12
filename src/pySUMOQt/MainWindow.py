@@ -497,27 +497,41 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.ontologyAdded.emit(Ontology)
         
     @Slot(Ontology)
-    def notifyOntologyAdded(self, Ontology):
+    def notifyOntologyAdded(self, ontology):
+        if ontology is None :
+            return
         count = len(self.menuRecent_Ontologies.actions())
         count = count - 2 # remove the separator action and the clear history action.
         name = str(count + 1)
         name += ". "
-        name += Ontology.name
+        name += ontology.name
         name += ".kif"
-        befAction = self.menuRecent_Ontologies.actions()[count]
-        action = QtGui.QAction(self)
-        action.setText(name)
-        self.menuRecent_Ontologies.insertAction(befAction, action)
+        found = False
+        for a in self.menuRecent_Ontologies.actions() :
+            o = a.data()
+            if o is None :
+                continue
+            if o.__eq__(ontology) :
+                found = True
+                break
+        if not found :
+            befAction = self.menuRecent_Ontologies.actions()[count]
+            action = QtGui.QAction(self)
+            action.setText(name)
+            action.setData(ontology)
+            callback = partial(self.addOntology, ontology)
+            action.triggered.connect(callback)
+            self.menuRecent_Ontologies.insertAction(befAction, action)
         ontologyMenu = QtGui.QMenu(self)
-        ontologyMenu.setTitle(Ontology.name)
+        ontologyMenu.setTitle(ontology.name)
         ontologyMenu.addAction("Close")
         ontologyMenu.addAction("Delete")
         ontologyMenu.addAction("Update")
         self.menuOntology.addMenu(ontologyMenu)
         for widget in self.widgets :
             if type(widget) == TextEditor :
-                with open(Ontology.path) as f :
-                    kif = parser.kifparse(f, Ontology)
+                with open(ontology.path) as f :
+                    kif = parser.kifparse(f, ontology)
                     self.indexAbstractor.update_index(kif)
                 widget._updateOntologySelector()
         
