@@ -1,7 +1,14 @@
 import os
 import unittest
 
-os.environ['PYTHONPATH'] = ':'.join([os.environ['PYTHONPATH'], os.getcwd() + '/test'])
+try:
+    py_path = os.environ['PYTHONPATH']
+except KeyError:
+    py_path = ''
+
+test_path = '/'.join([os.getcwd(), 'test'])
+if test_path not in py_path.split(':'):
+    os.environ['PYTHONPATH'] = ':'.join([py_path, test_path])
 
 from lib import parser, wordnet, indexabstractor, actionlog
 
