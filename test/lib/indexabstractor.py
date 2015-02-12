@@ -76,6 +76,11 @@ class indexTestCase(unittest.TestCase):
         new_results = self.indexabstractor.search('rangesubclass')[self.sumo]
         self.assertListEqual(search_results, new_results)
 
+    def test7GetCompletions(self):
+        completions = self.indexabstractor.get_completions()
+        self.assertIn('TwoDimensionalFigure', completions)
+        self.assertEqual(len(completions), 1167)
+
 indexTestSuit = unittest.makeSuite(indexTestCase, 'test')
 
 if __name__ == "__main__":

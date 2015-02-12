@@ -75,6 +75,10 @@ class IndexAbstractor():
                 ret.seek(0)
             return ret
 
+    def get_completions(self):
+        """ Returns a list of possible completions for the currently loaded ontologies. """
+        return [x[0].children[0].name for x in self.index.values()]
+
     def search(self, term):
         """ Search for term in the in-memory Ontology. Returns all objects that
         match the search.
