@@ -75,6 +75,7 @@ class TextEditor(RWWidget, Ui_Form):
             self.number_bar.updateContents)
 
     def _updateOntologySelector(self):
+        self.ontologySelector.clear()
         self.ontologySelector.addItems(
             [i.name for i in self.getIndexAbstractor().ontologies])
 
