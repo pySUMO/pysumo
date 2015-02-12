@@ -17,7 +17,7 @@ from random import SystemRandom
 
 from . import CONFIG_PATH
 
-class ActionLog():
+class ActionLog:
     """ The pySUMO action log. The SyntaxController queues a new log entry before every
     operation that makes changes to an Ontology, if the change is successful it OKs the
     entry in the log queue and the entry is written out. Log entries that are not OKed
@@ -125,7 +125,7 @@ class ActionLog():
         self.actionlog.append(diff)
         return self.current
 
-class LogIO():
+class LogIO:
     """ The IO interface for the pySUMO action log. This class provides a storage
     backend for the Action Log. Entries in the write queue are written to disk
     after a timeout, or when the write queue reaches a maximum size.

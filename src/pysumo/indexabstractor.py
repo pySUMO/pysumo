@@ -16,7 +16,7 @@ import string
 from io import StringIO
 from .wordnet import WordNet
 
-class IndexAbstractor():
+class IndexAbstractor:
     """ The IndexAbstractor provides a high-level index of the
     AbstractSyntaxTree.  Each Ontology is represented by a hashmap, the list of
     these hashmaps is the index.  Average access time is in O(n) where n is the
@@ -155,7 +155,7 @@ class IndexAbstractor():
             results = self.wordnet.locate_term(term)
         return [' '.join([x[0], ''.join(['(', x[1].value, '):']), x[2]]) for x in results]
 
-class DotGraph():
+class DotGraph:
     """ A utility class that handles layouting AbstractGraph objects.  This
     class returns a layouted version of an AbstractGraph and provides a mapping
     between the image and nodes in the AbstractGraph.
@@ -189,7 +189,7 @@ class DotGraph():
     def get_pic(self):
         """ Returns a layouted version of self.graph. """
 
-class AbstractGraph():
+class AbstractGraph:
     """ An abstract representation of a subset of an Ontology as a collection
     of nodes and relations. This class can be used together with a DotGraph to
     create a graphical representation of an Ontology, or passed to the
@@ -251,7 +251,7 @@ class AbstractGraph():
         return rel
 
 
-class AbstractGraphNode():
+class AbstractGraphNode:
     """ A node in an AbstractGraph. Contains information necessary to recreate
     an AbstractSyntaxTree from an AbstractGraph.
 

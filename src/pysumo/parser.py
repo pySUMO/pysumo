@@ -231,7 +231,7 @@ def _wtokenize(line, pos):
         sumo_concepts.add(SUMOConceptWordNetItem(name, suffix, synset_offset, lex_filenum, ss_type, synset, ptr_list, frames, gloss))
     return sumo_concepts
 
-class SUMOConceptWordNetItem():
+class SUMOConceptWordNetItem:
     """ The object returned from _wtokenize containing info on the SUMO-WordNet mapping. """
     def __init__(self, sumo_concept, suffix, synset_offset, lex_filenum,
                  ss_type, synset, ptr_list, frames, gloss):
@@ -258,7 +258,7 @@ class SSType(Enum):
     adv = 'r'
     adj_sat = 's'
 
-class AbstractSyntaxTree():
+class AbstractSyntaxTree:
     """ The AbstractSyntaxTree is a node in the abstract syntax tree. The
     abstract syntax tree is defined by a root node and its children. The
     AbstractSyntaxTree is the in-memory representation of the loaded Ontologies

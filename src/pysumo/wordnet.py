@@ -8,7 +8,7 @@ This module contains:
 
 from . import parser
 
-class WordNet():
+class WordNet:
     """ An interface to locate and search for items in WordNet. Searches
     WordNet for information about terms in the Ontology, to find colloquial
     variations of term names and to find terms that are synonyms of a word.

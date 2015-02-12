@@ -15,7 +15,7 @@ from . import CONFIG_PATH
 from os import makedirs
 from os.path import dirname
 
-class InfoLog():
+class InfoLog:
     """ The informational log handler for pySUMO. Initializes the python logging framework
     and contains several convenience functions. Instantiated only from the entry point.
 
