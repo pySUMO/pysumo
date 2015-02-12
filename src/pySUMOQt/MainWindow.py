@@ -150,14 +150,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         lineNbr = document.findBlock(textCursor.position()).blockNumber()
         cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
         self.ligneColNumber.setText(cursorPos)
-        try:
-            import chardet
-            data = str.encode(document.toPlainText())
-            encoding = chardet.detect(data)['encoding']
-            encoding = str(encoding).upper()
-            self.encodingLbl.setText(encoding)
-        except ImportError:
-            print("please install chardet to detect the encodage.")
 
     def closeEvent(self, event):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
@@ -305,12 +297,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         # statusBarLayout.setContentsMargins(10, 10, 10, 10)
         statusBarLayout.setSpacing(30)
         # loadStyleSheet(statusbar, "Statusbar")
-        # encoding of the current editing file.
-
-        self.encodingLbl = QLabel(statusbar)
-        self.encodingLbl.setMaximumHeight(24)
-        self.encodingLbl.setText("UTF-8")
-        statusBarLayout.addWidget(self.encodingLbl)
 
         # writing state of the current editing file.
         writableLbl = QLabel(statusbar)
@@ -429,11 +415,10 @@ class StatusBar():
 
     """ The StatusBar displays information about the status of pySUMO.  It
     displays both permanent status information as well as status messages from
-    the informational log.  It initializes a QLabel to display the encoding of
-    the Ontology file, a QLabel to display the line/column number of the cursor
-    in the TextEditor, a QSlider with 3 QPushButtons to represent text zoom in
-    the TextEditor.  It also has a QProgressBar to display the status of
-    background processes
+    the informational log. It initializes a QLabel to display the line/column
+    number of the cursor in the TextEditor, a QSlider with 3 QPushButtons to
+    represent text zoom in the TextEditor.  It also has a QProgressBar to
+    display the status of background processes
 
     Attributes:
 
