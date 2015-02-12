@@ -61,7 +61,7 @@ def kifparse(infile, ontology, graph=None, ast=None):
     - ontology: the ontology to parse
     - graph: a modified graph of this ontology
     - ast: the AST of ontologies which are needed from this ontology
-    -infile: the file object with be parresed
+    -infile: the file object to parse
 
     Returns:
 
@@ -84,7 +84,7 @@ def kifparse(infile, ontology, graph=None, ast=None):
             line = oldline + line
             oldline = None
         if line[0] != '(':
-            raise Exception("parse error in line",  i+1)
+            raise ParseError(" ".join(line),  i+1)
         if line.count('(') != line.count(')'):
             if linenumber == -1:
                 linenumber = i
@@ -99,8 +99,10 @@ def kifparse(infile, ontology, graph=None, ast=None):
             print(line)
             print(len(line))
             print(parsed)
-            raise Exception("parse error in line", i+1)
+            raise ParseError(" ".join(line), i+1)
         root.add_child(node)
+    if oldline != None:
+        raise ParseError(" ".join(oldline), linenumber)
     return root
 
 def astmerge(trees):
@@ -335,4 +337,11 @@ class AbstractSyntaxTree:
 
     def remove_child(self, entry):
         """ Removes entry from the node's children. """
-        self.children.remove(entry)
+
+class ParseError(Exception):
+    def __init__(self, line, linenumber):
+        self.line = line
+        self.linnumber = linenumber
+
+    def __str__(self):
+        return "".join(["Parse error in line", str(self.linnumber), "\n", line])
