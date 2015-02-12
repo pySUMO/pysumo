@@ -281,8 +281,7 @@ class AbstractSyntaxTree():
     """
 
     def __init__(self, ontology, parent=None, line=-1):
-        if parent != None:
-            self.parent = parent
+        self.parent = None
         self.children = []
         self.name = ''
         self.element_type = ''
@@ -331,7 +330,7 @@ class AbstractSyntaxTree():
 
     def add_child(self, entry):
         """ Adds entry as a child to self. """
-        entry.parent = self
+        # entry.parent = self
         self.children.append(entry)
 
     def remove_child(self, entry):
