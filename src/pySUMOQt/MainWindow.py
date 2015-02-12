@@ -171,6 +171,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.syntaxController = SyntaxController(self.indexAbstractor)
         
         self.ontologyAdded.connect(self.notifyOntologyAdded)
+        self.clearHistoryAction.triggered.connect(self.clearRecentOntologiesHistory)
         self.widgets = list()
         # restore and show the view.
         self.show()
@@ -516,7 +517,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
                 break
         if not found :
             befAction = self.menuRecent_Ontologies.actions()[count]
-            action = QtGui.QAction(self)
+            action = QtGui.QAction(self.menuRecent_Ontologies)
             action.setText(name)
             action.setData(ontology)
             callback = partial(self.addOntology, ontology)
@@ -534,6 +535,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
                     kif = parser.kifparse(f, ontology)
                     self.indexAbstractor.update_index(kif)
                 widget._updateOntologySelector()
+                
+    def clearRecentOntologiesHistory(self):
+        self.menuRecent_Ontologies.clear()
+        self.menuRecent_Ontologies.addSeparator()
+        self.menuRecent_Ontologies.addAction(self.clearHistoryAction)
         
 def main():
     app = QApplication(sys.argv)
