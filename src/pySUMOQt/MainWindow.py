@@ -7,7 +7,7 @@ This module contains:
 
 """
 from PySide import QtGui, QtCore
-from PySide.QtCore import QFile, QSettings, QCoreApplication, Qt, Slot, QObject, SIGNAL
+from PySide.QtCore import QSettings, QCoreApplication, Qt, Slot, QObject, SIGNAL
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
 import sys
 
@@ -24,15 +24,7 @@ from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDial
 import urllib
 from pySUMOQt.Widget.Widget import Widget
 from pysumo import parser
-from _io import StringIO
-import pickle
-
-chardetInstalled = False
-try:
-    import chardet
-    chardetInstalled = True
-except ImportError:
-    print("please install chardet to detect the encodage.")
+from signal import signal, SIGINT
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -269,11 +261,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         lineNbr = document.findBlock(textCursor.position()).blockNumber()
         cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
         self.ligneColNumber.setText(cursorPos)
-        if chardetInstalled :
-            data = str.encode(document.toPlainText())
-            encoding = chardet.detect(data)['encoding']
-            encoding = str(encoding).upper()
-            self.encodingLbl.setText(encoding)
 
     def closeEvent(self, event):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
@@ -570,9 +557,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         
 def main():
     app = QApplication(sys.argv)
+    signal(SIGINT, quit_handler)
     mainwindow = MainWindow()
     app.setActiveWindow(mainwindow)
-    app.exec_()
+    sys.exit(app.exec_())
+    
+def quit_handler(signum, frame):
+    QApplication.closeAllWindows()
     sys.exit()
 
 if __name__ == '__main__':
