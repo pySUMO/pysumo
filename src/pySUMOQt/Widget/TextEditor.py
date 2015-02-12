@@ -61,7 +61,7 @@ class TextEditor(RWWidget, Ui_Form):
 
         self.ontologySelector.currentIndexChanged.connect(
             self.showOtherOntology)
-
+        self._updateOntologySelector()
         self.hidden = {}
 
     def _initNumberBar(self):
