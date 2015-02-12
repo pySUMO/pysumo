@@ -80,6 +80,15 @@ class indexTestCase(unittest.TestCase):
         completions = self.indexabstractor.get_completions()
         self.assertIn('TwoDimensionalFigure', completions)
         self.assertEqual(len(completions), 1167)
+        milo = Ontology('data/MILO.kif')
+        with open(milo.path) as f:
+            milo_kif = parser.kifparse(f, milo)
+        merged_asts = parser.astmerge((self.kif, milo_kif))
+        self.indexabstractor.update_index(merged_asts)
+        completions = self.indexabstractor.get_completions()
+        self.assertIn('TwoDimensionalFigure', completions)
+        self.assertIn('SubstringFn', completions)
+        self.assertEqual(len(completions), 3227)
 
 indexTestSuit = unittest.makeSuite(indexTestCase, 'test')
 
