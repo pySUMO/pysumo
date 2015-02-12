@@ -24,6 +24,8 @@ from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDial
 import urllib
 from pySUMOQt.Widget.Widget import Widget
 from pysumo import parser
+from _io import StringIO
+import pickle
 
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -164,7 +166,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.openLocalOntologyAction.triggered.connect(self.openLocalOntology)
         self.openRemoteOntologyAction.triggered.connect(self.openRemoteOntology)
         self.createStatusBar()
-        self.fileChooser = QtGui.QFileDialog(self) # unique instance.
+        self.fileChooser = QtGui.QFileDialog(self)  # unique instance.
         
         self.indexAbstractor = IndexAbstractor()
         Widget.IA = self.indexAbstractor
@@ -242,7 +244,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         if not directAdd :
             restored = self.restoreDockWidget(widget)
         if not restored :
-            #print("could not restore the widget " + widget.objectName())
+            # print("could not restore the widget " + widget.objectName())
             if type(widget.wrappedWidget) == TextEditor :
                 self.addDockWidget(Qt.TopDockWidgetArea, widget)
             else :
@@ -277,6 +279,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         actions = self.menuHierarchyWidgets.actions()
         count = len(actions)
         self.settings.setValue("HierarchyWidgets/count", count)
+        self.saveRecentOntologyHistory()
         super(MainWindow, self).closeEvent(event)
         
         
@@ -292,7 +295,14 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.restoreDocumentationWidgets()
         # restore Hierarchy Widgets
         self.restoreHierarchyWidgets()
+        self.restoreRecentOntologyHistory()
         super(MainWindow, self).showEvent(event)
+        
+    def saveRecentOntologyHistory(self):
+        pass
+    
+    def restoreRecentOntologyHistory(self):
+        pass
         
     def restoreTextEditorWidgets(self):
         textEditorWidgetsCount = self.settings.value("TextEditorWidgets/count")
@@ -502,7 +512,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         if ontology is None :
             return
         count = len(self.menuRecent_Ontologies.actions())
-        count = count - 2 # remove the separator action and the clear history action.
+        count = count - 2  # remove the separator action and the clear history action.
         name = str(count + 1)
         name += ". "
         name += ontology.name
