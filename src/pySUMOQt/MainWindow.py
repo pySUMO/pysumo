@@ -16,14 +16,13 @@ from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
 from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
 from functools import partial
-from pysumo.indexabstractor import IndexAbstractor
-from pysumo.syntaxcontroller import SyntaxController, Ontology
+from pysumo.syntaxcontroller import Ontology
 from pySUMOQt.Designer.NewOntologyDialog import Ui_NewOntologyDialog
 import os
 from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDialog
 import urllib
-from pySUMOQt.Widget.Widget import Widget
-from pysumo import parser
+from pySUMOQt.Widget.Widget import Widget, RWWidget
+from pysumo import updater
 from signal import signal, SIGINT
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -31,62 +30,61 @@ QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
 
 class NewOntologyDialog(QtGui.QDialog, Ui_NewOntologyDialog):
-    
+
     def __init__(self, parent):
         super(NewOntologyDialog, self).__init__(parent)
         self.setupUi(self)
-        self.defPath = os.environ['HOME']
-        self.defPath += "/.pysumo"
+        self.defPath = '/'.join([os.environ['HOME'], '.pysumo'])
         self.ontologyPath.setText(self.defPath)
         self.browseFolderBtn.clicked.connect(self.chooseOntologyPath)
         restoreDefsBtn = self.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
         restoreDefsBtn.clicked.connect(self.restoreDefaults)
-        
+
     def chooseOntologyPath(self):
         path = self.ontologyPath.text()
         path = QtGui.QFileDialog.getExistingDirectory(self, 'Choose Directory', path)
         self.ontologyPath.setText(path)
-        
+
     def restoreDefaults(self):
         self.ontologyPath.setText(self.defPath)
-        
+
     def accept(self):
         path = self.ontologyPath.text()
-        if not os.path.exists(path) :
+        if not os.path.exists(path):
             os.makedirs(path)
-        path += "/"
-        path += self.ontologyName.text()
-        path += ".kif"
+        path = ''.join([path, '/', self.ontologyName.text(), '.kif'])
         path = os.path.normpath(path)
-        
+
         # create the ontology file.
-        file = open(path, 'wb+')
-        file.close()
-        
+        try:
+            with open(path, 'x') as f:
+                pass
+        except FileExistsError:
+            pass
+
         ontology = Ontology(path, self.ontologyName.text())
         self.parent().addOntology(ontology)
         super(NewOntologyDialog, self).accept()
-        
+
 class OpenRemoteOntologyDialog(QtGui.QDialog, Ui_OpenRemoteOntologyDialog):
-    
+
     def __init__(self, parent):
         super(OpenRemoteOntologyDialog, self).__init__(parent)
         self.setupUi(self)
-        self.defPath = os.environ['HOME']
-        self.defPath += "/.pysumo"
+        self.defPath = '/'.join([os.environ['HOME'], '.pysumo'])
         self.path.setText(self.defPath)
         self.browseBtn.clicked.connect(self.chooseOntologyPath)
         restoreDefsBtn = self.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
         restoreDefsBtn.clicked.connect(self.restoreDefaults)
-        
+
     def chooseOntologyPath(self):
         path = self.path.text()
         path = QtGui.QFileDialog.getExistingDirectory(self, 'Choose Directory', path)
         self.path.setText(path)
-        
+
     def restoreDefaults(self):
         self.path.setText(self.defPath)
-        
+
     def accept(self):
         path = self.path.text()
         if not os.path.exists(path) :
@@ -95,14 +93,13 @@ class OpenRemoteOntologyDialog(QtGui.QDialog, Ui_OpenRemoteOntologyDialog):
         path += self.name.text()
         path += ".kif"
         path = os.path.normpath(path)
-        
+
         # create the ontology file.
-        file = open(path, 'wb+')
-        # download the ontology and fill the file,
-        urllib.request.urlretrieve(self.url.text(), path)
-        file.close()
-        
-        ontology = Ontology(path, self.name.text())
+        ontology = Ontology(path, self.name.text(), self.url.text())
+        with open(path, 'wb+') as f:
+            # download the ontology and fill the file,
+            updater.update(ontology)
+
         self.parent().addOntology(ontology)
         super(OpenRemoteOntologyDialog, self).accept()
 
@@ -114,7 +111,7 @@ class PySUMOWidget(QtGui.QDockWidget):
         QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
         self.wrappedWidget = None
         self.callback = None
-        
+
     @Slot()
     def setPopedOut(self):
         if not self.isPopedOut :
@@ -123,18 +120,17 @@ class PySUMOWidget(QtGui.QDockWidget):
             self.isPopedOut = True
         else :
             self.isPopedOut = False
-            
-    def eventFilter(self, source, event):
-        if event.type() == QtCore.QEvent.FocusIn :
-            if type(self.wrappedWidget) == TextEditor :
-                self.callback = self.mainWindow.connectTextEditor(self.wrappedWidget)
-        elif event.type() == QtCore.QEvent.FocusOut :
-            if type(self.wrappedWidget) == TextEditor :
-                self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback) 
-        return super(PySUMOWidget, self).eventFilter(source, event)
-        
-class MainWindow(Ui_mainwindow, QMainWindow):
 
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.FocusIn:
+            if type(self.wrappedWidget) == TextEditor:
+                self.callback = self.mainWindow.connectTextEditor(self.wrappedWidget)
+        elif event.type() == QtCore.QEvent.FocusOut:
+            if type(self.wrappedWidget) == TextEditor:
+                self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback)
+        return super(PySUMOWidget, self).eventFilter(source, event)
+
+class MainWindow(Ui_mainwindow, QMainWindow):
     """ This class is the entry point of the application. It creates the main
     window, initiates all the subsystems and then displays the GUI.  It
     consists of: a main frame with a menu bar, toolbar, status bar and numerous
@@ -165,11 +161,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.openRemoteOntologyAction.triggered.connect(self.openRemoteOntology)
         self.createStatusBar()
         self.fileChooser = QtGui.QFileDialog(self)  # unique instance.
-        
-        self.indexAbstractor = IndexAbstractor()
-        Widget.IA = self.indexAbstractor
-        self.syntaxController = SyntaxController(self.indexAbstractor)
-        
+
         self.ontologyAdded.connect(self.notifyOntologyAdded)
         self.clearHistoryAction.triggered.connect(self.clearRecentOntologiesHistory)
         self.widgets = list()
@@ -180,7 +172,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def addTextEditorWidget(self):
         widget = self.createTextEditorWidget()
         self.addOrRestoreWidget(widget, self.menuTextEditorWidgets, True)
-    
+
     def createTextEditorWidget(self):
         widget = PySUMOWidget(self)
         textEditorWidget = TextEditor(widget)
@@ -190,7 +182,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Text Editor Widget")
         widget.setWidget(textEditorWidget.getLayoutWidget())
         # gives the reference of the wrapped widget.
-        widget.wrappedWidget = textEditorWidget 
+        widget.wrappedWidget = textEditorWidget
         # install event filter.
         textEditorWidget.plainTextEdit.installEventFilter(widget)
         return widget
@@ -199,7 +191,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def addDocumentationWidget(self):
         widget = self.createDocumentationWidget()
         self.addOrRestoreWidget(widget, self.menuDocumentationWidgets, True)
-        
+
     def createDocumentationWidget(self):
         widget = PySUMOWidget(self)
         wWidget = QWidget(self)
@@ -216,7 +208,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def addHierarchyWidget(self):
         widget = self.createHierarchyWidget()
         self.addOrRestoreWidget(widget, self.menuHierarchyWidgets, True)
-        
+
     def createHierarchyWidget(self):
         widget = PySUMOWidget(self)
         hierarchyWidget = HierarchyWidget(widget)
@@ -227,32 +219,32 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.setWindowTitle("Hierarchy Widget")
         widget.setWidget(hierarchyWidget.widget)
         return widget
-    
+
     def addDeleteWidgetAction(self, widget):
         action = QtGui.QAction(widget)
         action.setText(widget.windowTitle())
         callback = partial(self.deleteWidget, widget)
         action.triggered.connect(callback)
-        if not self.menuDelete.isEnabled() :
+        if not self.menuDelete.isEnabled():
             self.menuDelete.setEnabled(True)
         self.menuDelete.addAction(action)
-        
+
     def addOrRestoreWidget(self, widget, menu, directAdd=False):
         restored = False
-        if not directAdd :
+        if not directAdd:
             restored = self.restoreDockWidget(widget)
-        if not restored :
+        if not restored:
             # print("could not restore the widget " + widget.objectName())
-            if type(widget.wrappedWidget) == TextEditor :
+            if type(widget.wrappedWidget) == TextEditor:
                 self.addDockWidget(Qt.TopDockWidgetArea, widget)
-            else :
+            else:
                 self.addDockWidget(Qt.BottomDockWidgetArea, widget)
-        if not menu.isEnabled() :
+        if not menu.isEnabled():
             menu.setEnabled(True)
         menu.addAction(widget.toggleViewAction())
         self.addDeleteWidgetAction(widget)
         self.widgets.append(widget.wrappedWidget)
-    
+
     def updateStatusbar(self, plainTextEdit, arg1, arg2):
         if (plainTextEdit == None):
             return
@@ -279,8 +271,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.settings.setValue("HierarchyWidgets/count", count)
         self.saveRecentOntologyHistory()
         super(MainWindow, self).closeEvent(event)
-        
-        
+
     def showEvent(self, event):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
         self.restoreState(self.settings.value("mainWindow/state"))
@@ -295,42 +286,42 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.restoreHierarchyWidgets()
         self.restoreRecentOntologyHistory()
         super(MainWindow, self).showEvent(event)
-        
+
     def saveRecentOntologyHistory(self):
         pass
-    
+
     def restoreRecentOntologyHistory(self):
         pass
-        
+
     def restoreTextEditorWidgets(self):
         textEditorWidgetsCount = self.settings.value("TextEditorWidgets/count")
-        if textEditorWidgetsCount == None :
+        if textEditorWidgetsCount == None:
             textEditorWidgetsCount = 0
         textEditorWidgetsCount = int(textEditorWidgetsCount)
         count = 0
-        while count < textEditorWidgetsCount :
+        while count < textEditorWidgetsCount:
             widget = self.createTextEditorWidget()
             self.addOrRestoreWidget(widget, self.menuTextEditorWidgets)
             count = count + 1
             
     def restoreDocumentationWidgets(self):
         documentationWidgetsCount = self.settings.value("DocumentationWidgets/count")
-        if documentationWidgetsCount == None :
+        if documentationWidgetsCount == None:
             documentationWidgetsCount = 0
         documentationWidgetsCount = int(documentationWidgetsCount)
         count = 0 
-        while count < documentationWidgetsCount :
+        while count < documentationWidgetsCount:
             widget = self.createDocumentationWidget()
             self.addOrRestoreWidget(widget, self.menuDocumentationWidgets)
             count = count + 1
 
     def restoreHierarchyWidgets(self):
         hierarchyWidgetsCount = self.settings.value("HierarchyWidgets/count")
-        if hierarchyWidgetsCount == None :
+        if hierarchyWidgetsCount == None:
             hierarchyWidgetsCount = 0
         hierarchyWidgetsCount = int(hierarchyWidgetsCount)
         count = 0 
-        while count < hierarchyWidgetsCount :
+        while count < hierarchyWidgetsCount:
             widget = self.createHierarchyWidget()
             self.addOrRestoreWidget(widget, self.menuHierarchyWidgets)
             count = count + 1
@@ -343,16 +334,16 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         objName = qItem.objectName()
         visible = self.settings.value(objName + "/visible")
         visible = str(visible).lower()
-        if visible == "false" :
+        if visible == "false":
             visible = False
-        elif visible == "true" :
+        elif visible == "true":
             visible = True
-        else :
+        else:
             visible = None
         # if not visible :
         #   qAction.triggered.emit()
         #  qAction.setChecked(False)
-        if visible != None :
+        if visible != None:
             if qAction != None:
                 qAction.setChecked(visible)
             qItem.setVisible(visible)
@@ -392,7 +383,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         width = int(width)
         height = int(height)
         qItem.resize(width, height)
-            
+
     def saveStatusBarState(self):
         self.saveVisibilityState(self.statusBar)
 
@@ -450,19 +441,19 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget.deleteLater()
         QMenu = None
         widgetType = type(widget.wrappedWidget)
-        if widgetType == TextEditor :
+        if widgetType == TextEditor:
             QMenu = self.menuTextEditorWidgets
-        elif widgetType == DocumentationWidget :
+        elif widgetType == DocumentationWidget:
             QMenu = self.menuDocumentationWidgets
-        elif widgetType == HierarchyWidget :
+        elif widgetType == HierarchyWidget:
             QMenu = self.menuHierarchyWidgets
-            
-        if QMenu != None and len(QMenu.actions()) == 1 :
+
+        if QMenu != None and len(QMenu.actions()) == 1:
             QMenu.setEnabled(False)
-            
-        if len(self.menuDelete.actions()) == 1 :
+
+        if len(self.menuDelete.actions()) == 1:
             self.menuDelete.setEnabled(False)
-    
+
     def connectTextEditor(self, widget):
         callback = partial(self.updateStatusbar, widget.plainTextEdit)
         widget.getWidget().updateRequest.connect(callback)
@@ -471,43 +462,43 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionZoomIn.triggered.connect(widget.increaseSize)
         self.actionZoomOut.triggered.connect(widget.decreaseSize)
         return callback
-        
+
     def disconnectTextEditor(self, widget, callback):
         widget.getWidget().updateRequest.disconnect(callback)
         self.actionExpand.triggered.disconnect(widget.expandAll)
         self.actionCollapse.triggered.disconnect(widget.hideAll)
         self.actionZoomIn.triggered.disconnect(widget.increaseSize)
         self.actionZoomOut.triggered.disconnect(widget.decreaseSize)
-        
+
     @Slot()
     def createNewOntology(self):
         dialog = NewOntologyDialog(self)
         dialog.show()
-     
-    @Slot()        
+
+    @Slot()
     def openLocalOntology(self):
         x, y = QtGui.QFileDialog.getOpenFileName(self, "Open Ontology File",
-                                                     os.environ['HOME'] + "/.pysumo", "SUO KIF Files (*.kif)")
-        if x == '' and y == '' :
+                                                 os.environ['HOME'] + "/.pysumo", "SUO KIF Files (*.kif)")
+        if x == '' and y == '':
             return
         filepath = x
         filename = os.path.split(filepath)[1]
         filename = os.path.splitext(filename)[0]
         ontology = Ontology(filepath, filename)
         self.addOntology(ontology)
-        
+
     @Slot()
     def openRemoteOntology(self):
         dialog = OpenRemoteOntologyDialog(self)
         dialog.show()
-                
-    def addOntology(self, Ontology):
-        self.syntaxController.add_ontology(Ontology)
-        self.ontologyAdded.emit(Ontology)
-        
+
+    def addOntology(self, ontology):
+        RWWidget.SyntaxController.add_ontology(ontology)
+        self.ontologyAdded.emit(ontology)
+
     @Slot(Ontology)
     def notifyOntologyAdded(self, ontology):
-        if ontology is None :
+        if ontology is None:
             return
         count = len(self.menuRecent_Ontologies.actions())
         count = count - 2  # remove the separator action and the clear history action.
@@ -516,14 +507,14 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         name += ontology.name
         name += ".kif"
         found = False
-        for a in self.menuRecent_Ontologies.actions() :
+        for a in self.menuRecent_Ontologies.actions():
             o = a.data()
-            if o is None :
+            if o is None:
                 continue
-            if o.__eq__(ontology) :
+            if o.__eq__(ontology):
                 found = True
                 break
-        if not found :
+        if not found:
             befAction = self.menuRecent_Ontologies.actions()[count]
             action = QtGui.QAction(self.menuRecent_Ontologies)
             action.setText(name)
@@ -537,32 +528,32 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         ontologyMenu.addAction("Delete")
         ontologyMenu.addAction("Update")
         self.menuOntology.addMenu(ontologyMenu)
-        for widget in self.widgets :
-            if type(widget) == TextEditor :
-                with open(ontology.path) as f :
-                    kif = parser.kifparse(f, ontology)
-                    self.indexAbstractor.update_index(kif)
-                widget._updateOntologySelector()
-                
+        # TODO: Either fix this, or get rid of it.
+        # for widget in self.widgets:
+        #     if type(widget) == TextEditor:
+        #         with open(ontology.path) as f:
+        #             kif = parser.kifparse(f, ontology)
+        #             self.indexAbstractor.update_index(kif)
+        #         widget._updateOntologySelector()
+
     def clearRecentOntologiesHistory(self):
         self.menuRecent_Ontologies.clear()
         self.menuRecent_Ontologies.addSeparator()
         self.menuRecent_Ontologies.addAction(self.clearHistoryAction)
-        
+
 def main():
     app = QApplication(sys.argv)
     signal(SIGINT, quit_handler)
     mainwindow = MainWindow()
     app.setActiveWindow(mainwindow)
     sys.exit(app.exec_())
-    
+
 def quit_handler(signum, frame):
     QApplication.closeAllWindows()
     sys.exit()
 
 if __name__ == '__main__':
     main()
-
 
 class Toolbar():
 
