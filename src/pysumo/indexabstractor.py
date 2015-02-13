@@ -49,7 +49,8 @@ class IndexAbstractor:
 
     def init_wordnet(self):
         """ Initializes the SUMO mapping to WordNet. """
-        self.wordnet = WordNet()
+        if self.wordnet is None:
+            self.wordnet = WordNet()
 
     def update_index(self, ast):
         """ Updates the index with all new AST nodes in ast. """
