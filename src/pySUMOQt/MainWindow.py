@@ -528,13 +528,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         ontologyMenu.addAction("Delete")
         ontologyMenu.addAction("Update")
         self.menuOntology.addMenu(ontologyMenu)
-        # TODO: Either fix this, or get rid of it.
-        # for widget in self.widgets:
-        #     if type(widget) == TextEditor:
-        #         with open(ontology.path) as f:
-        #             kif = parser.kifparse(f, ontology)
-        #             self.indexAbstractor.update_index(kif)
-        #         widget._updateOntologySelector()
+        for widget in self.widgets:
+            if type(widget) == TextEditor:
+                widget._updateOntologySelector()
 
     def clearRecentOntologiesHistory(self):
         self.menuRecent_Ontologies.clear()
