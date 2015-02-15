@@ -8,7 +8,7 @@ This module contains:
 
 """
 
-from io import StringIO
+from io import StringIO, BytesIO
 from os import environ, listdir
 from os.path import basename, isdir, join
 from .logger import actionlog
@@ -53,7 +53,7 @@ class SyntaxController:
         """ Initializes the SyntaxController object. """
         self.index = index
 
-    def parse_partial(self, code_block):
+    def parse_partial(self, code_block, ontology=None):
         """ Tells self.parser to check code_block for syntactical correctness.
 
         Arguments:
@@ -66,8 +66,9 @@ class SyntaxController:
 
         """
         f = StringIO(code_block)
-        parser.kifparse(f, None)
+        ast = parser.kifparse(f, ontology)
         f.close()
+        return ast
 
     def parse_add(self, code_block, ontology):
         """ Tells self.parser to check code_block for syntactical correctness and add it to the
@@ -84,8 +85,11 @@ class SyntaxController:
         """
         f = StringIO(code_block)
         parsed = parser.kifparse(f, ontology)
+        # code_block needs to be the complete new kif file
+        num = ontology.action_log.queue_log(BytesIO(code_block.encode()))
         newast = parser.astmerge((self.index.root, parsed))
         self.index.update_index(newast)
+        ontology.action_log.ok_log_item(num)
         f.close()
 
     def parse_graph(self, graph):
@@ -116,11 +120,15 @@ class SyntaxController:
         """
         with open(ontology.path) as f:
             newast = parser.kifparse(f, ontology, ast=self.index.root)
+        # Not sure if reopening the file is faster than encoding to binary
+        with open(ontology.path, 'r+b') as f:
+            num = ontology.action_log.queue_log(BytesIO(f.read()))
         try:
             self.remove_ontology(ontology)
             newast = parser.astmerge((self.index.root, newast))
         except AttributeError:
             pass
+        ontology.action_log.ok_log_item(num)
         newast.ontology = None
         self.index.update_index(newast)
 
@@ -142,9 +150,21 @@ class SyntaxController:
         self.index.update_index(self.index.root)
 
 
-    def serialize(self, ontology, path=None):
-        """ Serializes ontology to path. """
-        pass
+    def undo(self, ontology):
+        """ Undoes the last action in ontology """
+        kif = ontology.action_log.undo().getvalue().decode()
+        self._update_asts(ontology, kif)
+
+    def redo(self, ontology):
+        """ Redoes the last action in ontology """
+        kif = ontology.action_log.redo().getvalue().decode()
+        self._update_asts(ontology, kif)
+
+    def _update_asts(self, ontology, kif):
+        ast = self.parse_partial(kif, ontology)
+        self.remove_ontology(ontology)
+        newast = parser.astmerge((self.index.root, ast))
+        self.index.update_index(newast)
 
 class Ontology:
     """ Contains basic information about a KIF file.  This class is used to
@@ -160,13 +180,13 @@ class Ontology:
 
     """
 
-    def __init__(self, path, name=None, url=None):
+    def __init__(self, path, name=None, url=None, lpath=None):
         """ Initializes an Ontology and instantiates variables. """
         if name is None:
             self.name = basename(path)
         else:
             self.name = name
-        self.action_log = actionlog.ActionLog(self.name)
+        self.action_log = actionlog.ActionLog(self.name, lpath)
         self.path = path
         self.url = url
         self.active = False

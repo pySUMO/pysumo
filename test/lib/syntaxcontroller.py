@@ -1,17 +1,29 @@
+import atexit
 import unittest
 
 from copy import deepcopy
+from io import StringIO
 from pickle import dumps
+from shutil import rmtree
+from tempfile import mkdtemp
 
 from pysumo.syntaxcontroller import *
 from pysumo.indexabstractor import IndexAbstractor
-from pysumo.parser import kifparse, AbstractSyntaxTree
+from pysumo.parser import kifparse, AbstractSyntaxTree, astmerge
 
 class syntaxTestCase(unittest.TestCase):
     def setUp(self):
-        self.sumo = Ontology('data/Merge.kif', name='SUMO')
-        self.milo = Ontology('data/MILO.kif', name='MILO')
+        self.tmpdir = mkdtemp()
+        self.sumo = Ontology('data/Merge.kif', name='SUMO', lpath=self.tmpdir)
+        self.milo = Ontology('data/MILO.kif', name='MILO', lpath=self.tmpdir)
         self.syntaxcontroller = SyntaxController(IndexAbstractor())
+        atexit.unregister(self.sumo.action_log.log_io.flush_write_queues)
+        atexit.unregister(self.milo.action_log.log_io.flush_write_queues)
+
+    def tearDown(self):
+        self.sumo.action_log.log_io.flush_write_queues()
+        self.milo.action_log.log_io.flush_write_queues()
+        rmtree(self.tmpdir)
 
     def test0FirstOntology(self):
         self.assertEqual(self.syntaxcontroller.index.root, None)
@@ -26,6 +38,8 @@ class syntaxTestCase(unittest.TestCase):
         self.syntaxcontroller.add_ontology(self.sumo)
         old_ast = deepcopy(self.syntaxcontroller.index.root)
         self.syntaxcontroller.add_ontology(self.sumo)
+        # Ignore changed action_log when comparing
+        old_ast.children[0].ontology.action_log = self.sumo.action_log
         x = deepcopy(old_ast.children[0])
         y = deepcopy(self.syntaxcontroller.index.root.children[0])
         self.assertEqual(dumps(x), dumps(y))
@@ -66,6 +80,30 @@ class syntaxTestCase(unittest.TestCase):
         self.assertIn(Ontology('data/Merge.kif'), ontologies)
         self.assertIn(Ontology('data/MILO.kif'), ontologies)
 
+    def test5ParseAdd(self):
+        self.syntaxcontroller.add_ontology(self.sumo)
+        old_ast = deepcopy(self.syntaxcontroller.index.root)
+        code_block = StringIO()
+        with open(self.sumo.path) as code:
+            code_block.write(code.read())
+        code_block.write('(instance foo Entity)\n(documentation foo EnglishLanguage "&%foo is an object of type foo")\n')
+        self.syntaxcontroller.parse_add(code_block.getvalue(), self.sumo)
+        sterm = self.syntaxcontroller.index.search('foo')
+        self.assertListEqual(sterm[self.sumo], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
+        sio = StringIO('(instance foo Entity)\n(documentation foo EnglishLanguage "&%foo is an object of type foo")\n')
+        ast = kifparse(sio, self.sumo)
+        old_ast.children.extend(ast.children)
+        self.assertEqual(len(self.syntaxcontroller.index.root.children), len(old_ast.children))
+
+    def test6UndoRedo(self):
+        self.test5ParseAdd()
+        self.syntaxcontroller.undo(self.sumo)
+        sterm = self.syntaxcontroller.index.search('foo')
+        self.assertListEqual(sterm[self.sumo], list())
+        self.assertRaises(KeyError, self.syntaxcontroller.index._find_term, 'foo')
+        self.syntaxcontroller.redo(self.sumo)
+        sterm = self.syntaxcontroller.index.search('foo')
+        self.assertListEqual(sterm[self.sumo], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
 
 syntaxTestSuit = unittest.makeSuite(syntaxTestCase, 'test')
 
