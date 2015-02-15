@@ -337,6 +337,7 @@ class AbstractSyntaxTree:
 
     def remove_child(self, entry):
         """ Removes entry from the node's children. """
+        self.children.remove(entry)
 
 class ParseError(Exception):
     def __init__(self, line, linenumber):
