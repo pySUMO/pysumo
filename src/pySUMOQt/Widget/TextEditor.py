@@ -59,7 +59,7 @@ class TextEditor(RWWidget, Ui_Form):
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
 
-        self.ontologySelector.currentIndexChanged.connect(
+        self.ontologySelector.currentIndexChanged[str].connect(
             self.showOtherOntology)
         self._updateOntologySelector()
         self.hidden = {}
