@@ -169,6 +169,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.dialog = QtGui.QPrintDialog()
 
         # restore and show the view.
+        self.restoreLayout()
         self.show()
 
     @Slot()
@@ -275,7 +276,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.saveRecentOntologyHistory()
         super(MainWindow, self).closeEvent(event)
 
-    def showEvent(self, event):
+    def restoreLayout(self):
         self.settings = QSettings("user-layout.ini", QSettings.IniFormat)
         self.restoreState(self.settings.value("mainWindow/state"))
         self.restoreSizeState(self)
@@ -288,7 +289,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         # restore Hierarchy Widgets
         self.restoreHierarchyWidgets()
         self.restoreRecentOntologyHistory()
-        super(MainWindow, self).showEvent(event)
 
     def saveRecentOntologyHistory(self):
         pass
