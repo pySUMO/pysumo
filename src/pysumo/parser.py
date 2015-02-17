@@ -106,19 +106,18 @@ def kifparse(infile, ontology, graph=None, ast=None):
         return root
     for node in graph[1].nodes:
         if node in graph[0].nodes:
-            if grap[0].relations[node] == grap[1].relations[node]:
-                continue
-            else:
+            if grap[0].relations[node] != grap[1].relations[node]:
                 for relation in grap[1].relations[node]:
-                    if relation in grap[0].relations[node]:
-                        continue
-                    else:
+                    if not relation in grap[0].relations[node]:
+#add new relation
                         pass
                 for relation in grap[0].relations[node]:
                     if not relation in grap[1].relations[node]:
+#remove relation
                         pass
         else:
             for relation in grap[1].relations[node]:
+#add new relation
                 pass
     return root
 
