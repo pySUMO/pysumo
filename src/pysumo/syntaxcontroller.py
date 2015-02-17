@@ -131,6 +131,7 @@ class SyntaxController:
         ontology.action_log.ok_log_item(num)
         newast.ontology = None
         self.index.update_index(newast)
+        self.index.ontologies.add(ontology)
 
     def remove_ontology(self, ontology):
         """ Removes ontology from the current in-memory Ontology.
@@ -148,7 +149,7 @@ class SyntaxController:
             if c.ontology == ontology:
                 self.index.root.remove_child(c)
         self.index.update_index(self.index.root)
-
+        self.index.ontologies.discard(ontology)
 
     def undo(self, ontology):
         """ Undoes the last action in ontology """
