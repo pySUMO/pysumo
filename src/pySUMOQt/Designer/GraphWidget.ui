@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>393</width>
     <height>300</height>
    </rect>
   </property>
@@ -16,10 +16,10 @@
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>10</y>
+     <x>1</x>
+     <y>0</y>
      <width>391</width>
-     <height>281</height>
+     <height>291</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -47,7 +47,7 @@
      <widget class="QComboBox" name="comboBox"/>
     </item>
     <item row="1" column="0" colspan="3">
-     <widget class="QWidget" name="widget" native="true"/>
+     <widget class="QGraphicsView" name="graphicsView"/>
     </item>
    </layout>
   </widget>

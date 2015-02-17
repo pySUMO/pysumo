@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GraphWidget.ui'
 #
-# Created: Tue Feb 17 14:19:31 2015
+# Created: Tue Feb 17 16:05:30 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,9 +12,9 @@ from PySide import QtCore, QtGui
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(400, 300)
+        Form.resize(393, 300)
         self.widget = QtGui.QWidget(Form)
-        self.widget.setGeometry(QtCore.QRect(0, 10, 391, 281))
+        self.widget.setGeometry(QtCore.QRect(1, 0, 391, 291))
         self.widget.setObjectName("widget")
         self.gridLayout = QtGui.QGridLayout(self.widget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -27,9 +27,9 @@ class Ui_Form(object):
         self.comboBox = QtGui.QComboBox(self.widget)
         self.comboBox.setObjectName("comboBox")
         self.gridLayout.addWidget(self.comboBox, 0, 2, 1, 1)
-        self.widget1 = QtGui.QWidget(self.widget)
-        self.widget1.setObjectName("widget1")
-        self.gridLayout.addWidget(self.widget1, 1, 0, 1, 3)
+        self.graphicsView = QtGui.QGraphicsView(self.widget)
+        self.graphicsView.setObjectName("graphicsView")
+        self.gridLayout.addWidget(self.graphicsView, 1, 0, 1, 3)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
