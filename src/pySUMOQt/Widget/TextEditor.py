@@ -16,6 +16,7 @@ from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
+from PySide import QtGui
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -98,23 +99,19 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot()
     def increaseSize(self):
-        begin = self.getWidget().document().begin()
-        last = self.getWidget().document().end()
-
-        while (begin != last):
-            begin.charFormat().setFontPointSize(
-                begin.charFormat().fontPointSize() + 1)
-            begin = begin.next()
+        doc = self.getWidget().document()
+        font = doc.defaultFont()
+        font.setPointSize(font.pointSize() + 1)
+        font = QFont(font)
+        doc.setDefaultFont(font)
 
     @Slot()
     def decreaseSize(self):
-        begin = self.getWidget().document().begin()
-        last = self.getWidget().document().end()
-
-        while (begin != last):
-            begin.charFormat().setFontPointSize(
-                begin.charFormat().fontPointSize() - 1)
-            begin = begin.next()
+        doc = self.getWidget().document()
+        font = doc.defaultFont()
+        font.setPointSize(font.pointSize() - 1)
+        font = QFont(font)
+        doc.setDefaultFont(font)
 
     @Slot()
     def expandAll(self):
