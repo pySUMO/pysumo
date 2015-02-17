@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Tue Feb 10 18:51:53 2015
+# Created: Tue Feb 17 14:57:28 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -330,6 +330,12 @@ class Ui_mainwindow(object):
         self.actionActive_Ontologies = QtGui.QAction(mainwindow)
         self.actionActive_Ontologies.setEnabled(False)
         self.actionActive_Ontologies.setObjectName("actionActive_Ontologies")
+        self.actionPrintPreview = QtGui.QAction(mainwindow)
+        icon30 = QtGui.QIcon()
+        icon30.addPixmap(QtGui.QPixmap(":/actions/gfx/document-print-preview.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionPrintPreview.setIcon(icon30)
+        self.actionPrintPreview.setIconVisibleInMenu(True)
+        self.actionPrintPreview.setObjectName("actionPrintPreview")
         self.openOntology.addAction(self.openLocalOntologyAction)
         self.openOntology.addSeparator()
         self.openOntology.addAction(self.openRemoteOntologyAction)
@@ -343,6 +349,7 @@ class Ui_mainwindow(object):
         self.menuFile.addAction(self.actionSaveAs)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionPrint)
+        self.menuFile.addAction(self.actionPrintPreview)
         self.menuFile.addAction(self.actionQuickPrint)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionProperties)
@@ -519,6 +526,7 @@ class Ui_mainwindow(object):
         self.actionExpand.setText(QtGui.QApplication.translate("mainwindow", "Expand", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCollapse.setText(QtGui.QApplication.translate("mainwindow", "Collapse", None, QtGui.QApplication.UnicodeUTF8))
         self.actionActive_Ontologies.setText(QtGui.QApplication.translate("mainwindow", "Active Ontologies", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPrintPreview.setText(QtGui.QApplication.translate("mainwindow", "Print Preview...", None, QtGui.QApplication.UnicodeUTF8))
 
 import pySUMOQt.Designer.css_rc
 import pySUMOQt.Designer.gfx_rc

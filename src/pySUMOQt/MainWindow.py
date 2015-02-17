@@ -124,10 +124,10 @@ class PySUMOWidget(QtGui.QDockWidget):
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.FocusIn:
             if type(self.wrappedWidget) == TextEditor:
-                self.callback = self.mainWindow.connectTextEditor(self.wrappedWidget)
+                self.callback, self.callback2, self.callback3, self.callback4 = self.mainWindow.connectTextEditor(self.wrappedWidget)
         elif event.type() == QtCore.QEvent.FocusOut:
             if type(self.wrappedWidget) == TextEditor:
-                self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback)
+                self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback, self.callback2, self.callback3, self.callback4)
         return super(PySUMOWidget, self).eventFilter(source, event)
 
 class MainWindow(Ui_mainwindow, QMainWindow):
@@ -165,6 +165,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.ontologyAdded.connect(self.notifyOntologyAdded)
         self.clearHistoryAction.triggered.connect(self.clearRecentOntologiesHistory)
         self.widgets = list()
+        
+        self.dialog = QtGui.QPrintDialog()
+
         # restore and show the view.
         self.show()
 
@@ -461,14 +464,23 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionCollapse.triggered.connect(widget.hideAll)
         self.actionZoomIn.triggered.connect(widget.increaseSize)
         self.actionZoomOut.triggered.connect(widget.decreaseSize)
-        return callback
+        callback2 = partial(self.onPrint, widget)
+        self.actionPrint.triggered.connect(callback2)
+        callback3 = partial(self.onQuickPrint, widget)
+        self.actionQuickPrint.triggered.connect(callback3)
+        callback4 = partial(self.onPrintPreview, widget)
+        self.actionPrintPreview.triggered.connect(callback4)
+        return callback, callback2, callback3, callback4
 
-    def disconnectTextEditor(self, widget, callback):
+    def disconnectTextEditor(self, widget, callback, callback2, callback3, callback4):
         widget.getWidget().updateRequest.disconnect(callback)
         self.actionExpand.triggered.disconnect(widget.expandAll)
         self.actionCollapse.triggered.disconnect(widget.hideAll)
         self.actionZoomIn.triggered.disconnect(widget.increaseSize)
         self.actionZoomOut.triggered.disconnect(widget.decreaseSize)
+        self.actionPrint.triggered.disconnect(callback2)
+        self.actionQuickPrint.triggered.disconnect(callback3)
+        self.actionPrintPreview.triggered.disconnect(callback4)
 
     @Slot()
     def createNewOntology(self):
@@ -536,7 +548,24 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.menuRecent_Ontologies.clear()
         self.menuRecent_Ontologies.addSeparator()
         self.menuRecent_Ontologies.addAction(self.clearHistoryAction)
-
+        
+    def onPrint(self, wrappedWidget):
+        self.dialog.setOption(QtGui.QAbstractPrintDialog.PrintToFile)
+        if self.dialog.exec_() == QtGui.QDialog.Accepted :
+            doc = wrappedWidget.plainTextEdit.document()
+            doc.print_(self.dialog.printer())
+            
+    def onQuickPrint(self, wrappedWidget):
+        doc = wrappedWidget.plainTextEdit.document()
+        printer = self.dialog.printer()
+        if not printer is None :
+            doc.print_(printer)
+            
+    def onPrintPreview(self, wrappedWidget):
+        dialog = QtGui.QPrintPreviewDialog()
+        dialog.paintRequested.connect(wrappedWidget.plainTextEdit.print_)
+        dialog.exec_()
+    
 def main():
     app = QApplication(sys.argv)
     signal(SIGINT, quit_handler)

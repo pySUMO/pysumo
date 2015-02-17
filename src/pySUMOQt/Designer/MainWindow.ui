@@ -70,6 +70,7 @@
     <addaction name="actionSaveAs"/>
     <addaction name="separator"/>
     <addaction name="actionPrint"/>
+    <addaction name="actionPrintPreview"/>
     <addaction name="actionQuickPrint"/>
     <addaction name="separator"/>
     <addaction name="actionProperties"/>
@@ -873,6 +874,18 @@
    </property>
    <property name="text">
     <string>Active Ontologies</string>
+   </property>
+  </action>
+  <action name="actionPrintPreview">
+   <property name="icon">
+    <iconset resource="gfx.qrc">
+     <normaloff>:/actions/gfx/document-print-preview.png</normaloff>:/actions/gfx/document-print-preview.png</iconset>
+   </property>
+   <property name="text">
+    <string>Print Preview...</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
  </widget>
