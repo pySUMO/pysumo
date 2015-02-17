@@ -536,9 +536,32 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             self.menuRecent_Ontologies.insertAction(befAction, action)
         ontologyMenu = QtGui.QMenu(self)
         ontologyMenu.setTitle(ontology.name)
-        ontologyMenu.addAction("Close")
-        ontologyMenu.addAction("Delete")
-        ontologyMenu.addAction("Update")
+        
+        # Update action
+        actionUpdate = ontologyMenu.addAction("Update")
+        actionUpdate.setData(ontology)
+        actionRevert = ontologyMenu.addAction("Revert")
+        actionRevert.setData(ontology)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/actions/gfx/actions/document-revert.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        actionRevert.setIcon(icon)
+        actionRevert.setIconVisibleInMenu(True)
+        actionProperties = ontologyMenu.addAction("Properties")
+        actionProperties.setData(ontology)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/actions/gfx/actions/document-properties.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        actionProperties.setIconVisibleInMenu(True)
+        actionProperties.setIcon(icon)
+        ontologyMenu.addSeparator()
+        # Close action
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/actions/gfx/actions/document-close.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        actionClose = ontologyMenu.addAction("Close")
+        actionClose.setIcon(icon)
+        actionClose.setIconVisibleInMenu(True)
+        actionClose.setData(ontology)
+        ontologyMenu.addSeparator()
+        
         self.menuOntology.addMenu(ontologyMenu)
         for widget in self.widgets:
             if type(widget) == TextEditor:

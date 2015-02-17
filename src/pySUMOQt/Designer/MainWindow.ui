@@ -73,10 +73,6 @@
     <addaction name="actionPrintPreview"/>
     <addaction name="actionQuickPrint"/>
     <addaction name="separator"/>
-    <addaction name="actionProperties"/>
-    <addaction name="actionRevert"/>
-    <addaction name="actionClose"/>
-    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -345,16 +341,6 @@
     <bool>true</bool>
    </property>
   </action>
-  <action name="action1_Table_kif">
-   <property name="text">
-    <string>1 Table.kif</string>
-   </property>
-  </action>
-  <action name="action2_Distance_kif">
-   <property name="text">
-    <string>2 Distance.kif</string>
-   </property>
-  </action>
   <action name="clearHistoryAction">
    <property name="icon">
     <iconset resource="gfx.qrc">
@@ -397,18 +383,6 @@
     <bool>true</bool>
    </property>
   </action>
-  <action name="actionRevert">
-   <property name="icon">
-    <iconset resource="gfx.qrc">
-     <normaloff>:/actions/gfx/actions/document-revert.png</normaloff>:/actions/gfx/actions/document-revert.png</iconset>
-   </property>
-   <property name="text">
-    <string>Revert</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-  </action>
   <action name="actionPrint">
    <property name="icon">
     <iconset resource="gfx.qrc">
@@ -419,18 +393,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionClose">
-   <property name="icon">
-    <iconset resource="gfx.qrc">
-     <normaloff>:/actions/gfx/actions/document-close.png</normaloff>:/actions/gfx/actions/document-close.png</iconset>
-   </property>
-   <property name="text">
-    <string>Close</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
@@ -449,18 +411,6 @@
    </property>
    <property name="menuRole">
     <enum>QAction::QuitRole</enum>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionProperties">
-   <property name="icon">
-    <iconset resource="gfx.qrc">
-     <normaloff>:/actions/gfx/actions/document-properties.png</normaloff>:/actions/gfx/actions/document-properties.png</iconset>
-   </property>
-   <property name="text">
-    <string>Properties...</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
