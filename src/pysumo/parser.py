@@ -14,7 +14,6 @@ import re
 
 from .logger import actionlog
 from enum import Enum
-from .indexabstractor import .IndexAbstractor
 
 def tokenize_docstring(chars, f):
     n = 0
@@ -59,9 +58,9 @@ def kifparse(infile, ontology, graph=None, ast=None):
     Args:
 
     - ontology: the ontology to parse
-    - graph: a modified graph of this ontology
+    - graph: a tuple of 2 graphs 1. old graph 2. modified graph
     - ast: the AST of ontologies which are needed from this ontology
-    -infile: the file object with be parresed
+    - infile: the file object with be parresed
 
     Returns:
 
@@ -103,11 +102,24 @@ def kifparse(infile, ontology, graph=None, ast=None):
         root.add_child(node)
     if graph == None:
         return root
-    index = IndexAbstractor()
-    index.update_index(root)
-    newgraph = index.get_graph(graph._settings[0], graph._settings[1], graph._settings[2])
-    if newgraph == graph:
+    if graph[0] == graph[1]:
         return root
+    for node in graph[1].nodes:
+        if node in graph[0].nodes:
+            if grap[0].relations[node] == grap[1].relations[node]:
+                continue
+            else:
+                for relation in grap[1].relations[node]:
+                    if relation in grap[0].relations[node]:
+                        continue
+                    else:
+                        pass
+                for relation in grap[0].relations[node]:
+                    if not relation in grap[1].relations[node]:
+                        pass
+        else:
+            for relation in grap[1].relations[node]:
+                pass
     return root
 
 def astmerge(trees):
