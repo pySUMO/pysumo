@@ -55,6 +55,7 @@ class TextEditor(RWWidget, Ui_Form):
             self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
 
         self._initNumberBar()
+        self.hidden = {}
 
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
@@ -63,7 +64,6 @@ class TextEditor(RWWidget, Ui_Form):
         self.ontologySelector.currentIndexChanged[str].connect(
             self.showOtherOntology)
         self._updateOntologySelector()
-        self.hidden = {}
 
     def _initNumberBar(self):
         self.number_bar = NumberBar(self)
