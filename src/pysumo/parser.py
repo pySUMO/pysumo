@@ -114,6 +114,10 @@ def kifparse(infile, ontology, graph=None, ast=None):
                 for relation in grap[0].relations[node]:
                     if not relation in grap[1].relations[node]:
 #remove relation
+                        for a in root.children:
+                            if graph[0].match(a)
+                                and a.childer[graph[0].variant.miner].name == relation:
+                                root.remove_child(a)
                         pass
         else:
             for relation in grap[1].relations[node]:
