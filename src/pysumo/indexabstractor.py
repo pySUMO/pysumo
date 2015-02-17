@@ -12,9 +12,10 @@ This module contains:
 """
 
 from io import StringIO
+
 import string
 
-from .wordnet import WordNet
+from pysumo.wordnet import WordNet
 
 class IndexAbstractor:
     """ The IndexAbstractor provides a high-level index of the
