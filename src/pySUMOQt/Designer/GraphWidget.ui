@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>300</height>
+    <width>889</width>
+    <height>680</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>1</x>
+     <x>2</x>
      <y>0</y>
-     <width>391</width>
-     <height>291</height>
+     <width>881</width>
+     <height>671</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -44,9 +44,22 @@
      </spacer>
     </item>
     <item row="0" column="2">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox">
+      <property name="maximum">
+       <double>5.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>0.100000000000000</double>
+      </property>
+      <property name="value">
+       <double>1.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
      <widget class="QComboBox" name="comboBox"/>
     </item>
-    <item row="1" column="0" colspan="3">
+    <item row="1" column="0" colspan="4">
      <widget class="QGraphicsView" name="graphicsView"/>
     </item>
    </layout>

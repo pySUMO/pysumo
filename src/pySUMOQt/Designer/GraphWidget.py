@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'GraphWidget.ui'
 #
-# Created: Tue Feb 17 16:05:30 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.1
+# Created: Wed Feb 18 01:07:16 2015
+#      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,9 +12,9 @@ from PySide import QtCore, QtGui
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(393, 300)
+        Form.resize(889, 680)
         self.widget = QtGui.QWidget(Form)
-        self.widget.setGeometry(QtCore.QRect(1, 0, 391, 291))
+        self.widget.setGeometry(QtCore.QRect(2, 0, 881, 671))
         self.widget.setObjectName("widget")
         self.gridLayout = QtGui.QGridLayout(self.widget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -24,12 +24,18 @@ class Ui_Form(object):
         self.gridLayout.addWidget(self.pushButton, 0, 0, 1, 1)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem, 0, 1, 1, 1)
+        self.doubleSpinBox = QtGui.QDoubleSpinBox(self.widget)
+        self.doubleSpinBox.setMaximum(5.0)
+        self.doubleSpinBox.setSingleStep(0.1)
+        self.doubleSpinBox.setProperty("value", 1.0)
+        self.doubleSpinBox.setObjectName("doubleSpinBox")
+        self.gridLayout.addWidget(self.doubleSpinBox, 0, 2, 1, 1)
         self.comboBox = QtGui.QComboBox(self.widget)
         self.comboBox.setObjectName("comboBox")
-        self.gridLayout.addWidget(self.comboBox, 0, 2, 1, 1)
+        self.gridLayout.addWidget(self.comboBox, 0, 3, 1, 1)
         self.graphicsView = QtGui.QGraphicsView(self.widget)
         self.graphicsView.setObjectName("graphicsView")
-        self.gridLayout.addWidget(self.graphicsView, 1, 0, 1, 3)
+        self.gridLayout.addWidget(self.graphicsView, 1, 0, 1, 4)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)

@@ -7,14 +7,15 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 
 """
 
-from PySide.QtGui import QApplication, QMainWindow
-from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
+from PySide.QtCore import QLineF, Slot
+from PySide.QtGui import QApplication, QMainWindow, QColor
+from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem, QPainterPath, QGraphicsPathItem
 import pygraphviz
+from pygraphviz.agraph import Edge
 import sys
 
 from pySUMOQt.Designer.GraphWidget import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
-
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
 
@@ -40,25 +41,71 @@ class GraphWidget(RWWidget, Ui_Form):
         self.abstractGraph = None
         self.dotGraph = None
         self.layout = None
+        self.layoutedGraph = None
+
+        self.nodesToQNodes = None
+        self.qLines = []
+        self.lastScale = 1
+        #self.graphicsView.scale(0.33, 0.33)
+        self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
+
+    @Slot(float)
+    def changeScale(self, val):
+        toScale = val / self.lastScale
+        self.lastScale = val
+        self.graphicsView.scale(toScale, toScale)
+
+    @Slot()
+    def renewplot(self):
+        scene = self.graphicsView.scene()
+        for i in self.qLines:
+            scene.removeItem(i)
+
+        self.qLines = []
+
+        for edge in gv.edges_iter():
+
+            qnode1 = self.nodesToQNodes[edge[0]]
+            qnode2 = self.nodesToQNodes[edge[1]]
+            line = QLineF(qnode1.pos(), qnode2.pos())
+            item = scene.addLine(line)
+            self.qLines.append(item)
 
     def plot(self, layoutedgraph):
+        if layoutedgraph is None:
+            return
+        self.layoutedGraph = layoutedgraph
         scene = QGraphicsScene()
+        self.nodesToQNodes = {}
         for node in gv.nodes_iter():
             (x, y) = node.attr['pos'].split(',')
-            qnode = QGraphicsEllipseItem(float(x), float(y), 30, 30)
+            qnode = QGraphicsEllipseItem(-25, -25, 50, 50)
+            qnode.setPos(float(x) * 4, float(y) * 4)
             qnode.setFlag(QGraphicsItem.ItemIsMovable)
+            qnode.setBrush(QColor(255, 150, 150))
             txt = QGraphicsSimpleTextItem(qnode)
-            txt.setPos(float(x), float(y))
+            txt.setPos(-25, 0)
             font = txt.font()
-            font.setPointSize(12)
+            font.setPointSize(7)
             txt.setFont(font)
             txt.setText(node)
-
             scene.addItem(qnode)
+
+            self.nodesToQNodes[node] = qnode
+
+        for edge in gv.edges_iter():
+
+            qnode1 = self.nodesToQNodes[edge[0]]
+            qnode2 = self.nodesToQNodes[edge[1]]
+            line = QLineF(qnode1.pos(), qnode2.pos())
+            item = scene.addLine(line)
+            self.qLines.append(item)
+            # break
+        scene.changed.connect(self.renewplot)
         self.graphicsView.setScene(scene)
 
 if __name__ == "__main__":
-    gv = pygraphviz.AGraph()
+    gv = pygraphviz.AGraph(strict=False)
 
     application = QApplication(sys.argv)
     mainwindow = QMainWindow()
@@ -70,14 +117,16 @@ if __name__ == "__main__":
     x.getIndexAbstractor().update_index(kif)
     y = x.getIndexAbstractor().get_graph('instance')
 
-    gv.add_nodes_from(y.nodes)
+    # gv.add_nodes_from(y.nodes)
     l = list()
     for k in y.relations.keys():
         l.extend([(k, v) for v in y.relations[k]])
     gv.add_edges_from(l)
-    gv.layout("dot")
+    gv.layout("sfdp")
 
     x.plot(gv)
+
+    gv.write("layouted.dot")
     mainwindow.show()
 
     sys.exit(application.exec_())
