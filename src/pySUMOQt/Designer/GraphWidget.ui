@@ -16,7 +16,7 @@
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>2</x>
+     <x>3</x>
      <y>0</y>
      <width>881</width>
      <height>671</height>
@@ -44,6 +44,22 @@
      </spacer>
     </item>
     <item row="0" column="2">
+     <widget class="QComboBox" name="relations"/>
+    </item>
+    <item row="0" column="3">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="4">
      <widget class="QDoubleSpinBox" name="doubleSpinBox">
       <property name="maximum">
        <double>5.000000000000000</double>
@@ -56,10 +72,10 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="3">
+    <item row="0" column="5">
      <widget class="QComboBox" name="comboBox"/>
     </item>
-    <item row="1" column="0" colspan="4">
+    <item row="1" column="0" colspan="6">
      <widget class="QGraphicsView" name="graphicsView"/>
     </item>
    </layout>

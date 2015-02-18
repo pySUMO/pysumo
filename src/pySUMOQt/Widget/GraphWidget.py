@@ -8,7 +8,7 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 """
 
 from PySide.QtCore import QLineF, Slot, Qt
-from PySide.QtGui import QApplication, QMainWindow, QColor, QPen
+from PySide.QtGui import QApplication, QMainWindow, QColor, QPen, QStandardItem
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem, QPainterPath, QGraphicsPathItem
 import pygraphviz
 from pygraphviz.agraph import Edge
@@ -50,6 +50,11 @@ class GraphWidget(RWWidget, Ui_Form):
         self.lastScale = 1
         #self.graphicsView.scale(0.33, 0.33)
         self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
+
+    def initRelationBox(self):
+        m = self.relations.model()
+        for i in self.getIndexAbstractor().get_graph('instance').relations.keys():
+            m.appendRow(QStandardItem(i))
 
     @Slot(float)
     def changeScale(self, val):
@@ -133,7 +138,7 @@ if __name__ == "__main__":
     gv.layout("sfdp")
     # print(gv)
     x.plot(gv)
-
+    x.initRelationBox()
     gv.write("layouted.dot")
     mainwindow.show()
 
