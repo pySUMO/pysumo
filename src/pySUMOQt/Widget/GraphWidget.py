@@ -7,11 +7,12 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 
 """
 
-from PySide.QtCore import QLineF, Slot
-from PySide.QtGui import QApplication, QMainWindow, QColor
+from PySide.QtCore import QLineF, Slot, Qt
+from PySide.QtGui import QApplication, QMainWindow, QColor, QPen
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem, QPainterPath, QGraphicsPathItem
 import pygraphviz
 from pygraphviz.agraph import Edge
+import random
 import sys
 
 from pySUMOQt.Designer.GraphWidget import Ui_Form
@@ -45,6 +46,7 @@ class GraphWidget(RWWidget, Ui_Form):
 
         self.nodesToQNodes = None
         self.qLines = []
+        self.qpens = {}
         self.lastScale = 1
         #self.graphicsView.scale(0.33, 0.33)
         self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
@@ -68,7 +70,7 @@ class GraphWidget(RWWidget, Ui_Form):
             qnode1 = self.nodesToQNodes[edge[0]]
             qnode2 = self.nodesToQNodes[edge[1]]
             line = QLineF(qnode1.pos(), qnode2.pos())
-            item = scene.addLine(line)
+            item = scene.addLine(line, self.qpens[edge.attr['color']])
             self.qLines.append(item)
 
     def plot(self, layoutedgraph):
@@ -97,8 +99,13 @@ class GraphWidget(RWWidget, Ui_Form):
 
             qnode1 = self.nodesToQNodes[edge[0]]
             qnode2 = self.nodesToQNodes[edge[1]]
-            line = QLineF(qnode1.pos(), qnode2.pos())
-            item = scene.addLine(line)
+            line = QLineF(
+                qnode1.pos(), qnode2.pos())
+            if edge.attr['color'] not in self.qpens:
+                self.qpens[edge.attr['color']] = QPen(
+                    QColor(edge.attr['color']))
+            item = scene.addLine(line, self.qpens[edge.attr['color']])
+
             self.qLines.append(item)
             # break
         scene.changed.connect(self.renewplot)
@@ -116,14 +123,15 @@ if __name__ == "__main__":
 
     x.getIndexAbstractor().update_index(kif)
     y = x.getIndexAbstractor().get_graph('instance')
-
+    colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
+              "yellow", "turquoise", "sienna", "darkgreen"]
     # gv.add_nodes_from(y.nodes)
-    l = list()
+    # print(len(y.relations.keys()))
     for k in y.relations.keys():
-        l.extend([(k, v) for v in y.relations[k]])
-    gv.add_edges_from(l)
+        l = [(k, v) for v in y.relations[k]]
+        gv.add_edges_from(l, color=random.choice(colors))
     gv.layout("sfdp")
-
+    # print(gv)
     x.plot(gv)
 
     gv.write("layouted.dot")
