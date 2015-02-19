@@ -35,7 +35,6 @@ from pySUMOQt.Widget.GraphWidget import GraphWidget
 from pysumo.syntaxcontroller import Ontology
 from pysumo.logger.infolog import InfoLog
 
-
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
