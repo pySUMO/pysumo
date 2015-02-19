@@ -7,28 +7,6 @@ This module contains:
 
 """
 
-from PySide.QtCore import QCoreApplication, Qt, Slot, QObject, SIGNAL
-from PySide.QtCore import QEvent, Signal
-from PySide.QtGui import QAction, QMenu, QAbstractPrintDialog
-from PySide.QtGui import QDialog, QPrintPreviewDialog
-from PySide.QtGui import QIcon, QDockWidget, QFileDialog, QPrintDialog
-from PySide.QtGui import QMainWindow, QApplication, QLabel, QPixmap
-from PySide.QtNetwork import QLocalServer, QAbstractSocket
-
-from pySUMOQt.Designer.MainWindow import Ui_mainwindow
-from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog,\
-    OptionDialog
-from pySUMOQt.Settings import LayoutManager
-from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
-from pySUMOQt.Widget.GraphWidget import GraphWidget
-from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
-from pySUMOQt.Widget.TextEditor import TextEditor
-from pySUMOQt.Widget.Widget import RWWidget
-from pySUMOQt.Settings import LayoutManager
-from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog
-from pysumo.syntaxcontroller import Ontology
-from pysumo.logger.infolog import InfoLog
-
 from functools import partial
 from signal import signal, SIGINT
 from pickle import loads
@@ -37,47 +15,61 @@ import logging
 import os
 import sys
 
+from PySide.QtCore import QCoreApplication, Qt, Slot, QObject, SIGNAL
+from PySide.QtCore import QEvent, Signal
+from PySide.QtGui import QMainWindow, QApplication, QLabel, QPixmap
+from PySide.QtGui import QIcon, QDockWidget, QFileDialog, QPrintDialog
+from PySide.QtGui import QAction, QMenu, QAbstractPrintDialog
+from PySide.QtGui import QDialog, QPrintPreviewDialog
+from PySide.QtNetwork import QLocalServer, QAbstractSocket
+
+from pySUMOQt.Designer.MainWindow import Ui_mainwindow
+from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
+from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
+from pySUMOQt.Widget.TextEditor import TextEditor
+from pySUMOQt.Widget.Widget import RWWidget
+
+from pySUMOQt.Settings import LayoutManager
+from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog, OptionDialog
+from pySUMOQt.Widget.GraphWidget import GraphWidget
+from pysumo.syntaxcontroller import Ontology
+from pysumo.logger.infolog import InfoLog
+
+
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
 
-
 class PySUMOWidget(QDockWidget):
-
     """This wrapper widget holds a pysumo widget."""
 
     def __init__(self, parent):
         super(PySUMOWidget, self).__init__(parent)
         self.mainWindow = parent
         self.isPopedOut = False
-        QObject.connect(
-            self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
+        QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
         self.wrappedWidget = None
         self.callback = None
 
     @Slot()
     def setPopedOut(self):
-        if not self.isPopedOut:
+        if not self.isPopedOut :
             self.setWindowFlags(Qt.Window)
             self.show()
             self.isPopedOut = True
-        else:
+        else :
             self.isPopedOut = False
 
     def eventFilter(self, source, event):
         if event.type() == QEvent.FocusIn:
             if type(self.wrappedWidget) == TextEditor:
-                self.callback, self.callback2, self.callback3, self.callback4 = self.mainWindow.connectTextEditor(
-                    self.wrappedWidget)
+                self.callback, self.callback2, self.callback3, self.callback4 = self.mainWindow.connectTextEditor(self.wrappedWidget)
         elif event.type() == QEvent.FocusOut:
             if type(self.wrappedWidget) == TextEditor:
-                self.mainWindow.disconnectTextEditor(
-                    self.wrappedWidget, self.callback, self.callback2, self.callback3, self.callback4)
+                self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback, self.callback2, self.callback3, self.callback4)
         return super(PySUMOWidget, self).eventFilter(source, event)
 
-
 class MainWindow(Ui_mainwindow, QMainWindow):
-
     """ This class is the entry point of the application. It creates the main
     window, initiates all the subsystems and then displays the GUI.  It
     consists of: a main frame with a menu bar, toolbar, status bar and numerous
@@ -88,7 +80,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     - widgets: A list of the main window's currently active widgets.
 
     """
-
+    
     ontologyAdded = Signal(Ontology)
 
     def __init__(self):
@@ -102,30 +94,23 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.menuHierarchyWidgets.setEnabled(False)
         self.setWindowTitle("pySUMO")
         self.setCentralWidget(None)
-        callback = partial(
-            self.addWidget, "TextEditorWidget", self.menuTextEditorWidgets)
+        callback = partial(self.addWidget, "TextEditorWidget", self.menuTextEditorWidgets)
         self.actionTextEditorWidget.triggered.connect(callback)
-        callback = partial(
-            self.addWidget, "DocumentationWidget", self.menuDocumentationWidgets)
+        callback = partial(self.addWidget, "DocumentationWidget", self.menuDocumentationWidgets)
         self.actionDocumentationWidget.triggered.connect(callback)
-        callback = partial(
-            self.addWidget, "HierarchyWidget", self.menuHierarchyWidgets)
+        callback = partial(self.addWidget, "HierarchyWidget", self.menuHierarchyWidgets)
         self.actionHierarchyWidget.triggered.connect(callback)
-        callback = partial(
-            self.addWidget, "GraphWidget", self.menuGraphWidgets)
+        callback = partial(self.addWidget, "GraphWidget", self.menuGraphWidgets)
         self.actionGraphWidget.triggered.connect(callback)
         self.newOntologyAction.triggered.connect(self.onNewOntology)
-        self.openLocalOntologyAction.triggered.connect(
-            self.onOpenLocalOntology)
-        self.openRemoteOntologyAction.triggered.connect(
-            self.onOpenRemoteOntology)
+        self.openLocalOntologyAction.triggered.connect(self.onOpenLocalOntology)
+        self.openRemoteOntologyAction.triggered.connect(self.onOpenRemoteOntology)
         self.createStatusBar()
         self.ontologyAdded.connect(self.notifyOntologyAdded)
-        self.clearHistoryAction.triggered.connect(
-            self.onClearRecentOntologiesHistory)
+        self.clearHistoryAction.triggered.connect(self.onClearRecentOntologiesHistory)
         self.widgets = list()
         # unique instances.
-        self.fileChooser = QFileDialog(self)
+        self.fileChooser = QFileDialog(self)  
         self.dialog = QPrintDialog()
         self.userLayout = LayoutManager(self)
         # restore and show the view.
@@ -136,21 +121,21 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         '''Add a widget into the layout with the given widget type as string.'''
         widget = self.createPySumoWidget(widgetType, widgetMenu)
         self.addOrRestoreWidget(widget, widgetMenu, True)
-
+        
     def createPySumoWidget(self, widgetType, widgetMenu):
         '''Create a widget wrapper containing the given widget type.'''
         widget = PySUMOWidget(self)
         wrappedWidget = None
-        if widgetType == "TextEditorWidget":
+        if widgetType == "TextEditorWidget" :
             wrappedWidget = TextEditor(widget)
             wrappedWidget.plainTextEdit.installEventFilter(widget)
-        elif widgetType == "DocumentationWidget":
+        elif widgetType == "DocumentationWidget" :
             wrappedWidget = DocumentationWidget(widget)
-        elif widgetType == "HierarchyWidget":
+        elif widgetType == "HierarchyWidget" :
             wrappedWidget = HierarchyWidget(widget)
         elif widgetType == "GraphWidget":
             wrappedWidget = GraphWidget(widget)
-        if wrappedWidget is None:
+        if wrappedWidget is None :
             print("can not create widget with type " + widgetType)
             return
         objName = widgetType
@@ -222,9 +207,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         '''Update the status bar.'''
         # arg1 and arg2 are used to resolve an argument number error.
         plainTextEdit = None
-        if not wrappedWidget is None and type(wrappedWidget) == TextEditor:
-            plainTextEdit = wrappedWidget.plainTextEdit
-        if plainTextEdit is None:
+        if not wrappedWidget is None and type(wrappedWidget) == TextEditor :
+            plainTextEdit = wrappedWidget.plainTextEdit 
+        if plainTextEdit is None :
             return
         textCursor = plainTextEdit.textCursor()
         document = plainTextEdit.document()
@@ -248,6 +233,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             QMenu = self.menuDocumentationWidgets
         elif widgetType == HierarchyWidget:
             QMenu = self.menuHierarchyWidgets
+        elif widgetType == GraphWidget:
+            QMenu = self.menuGraphWidgets
 
         if QMenu != None and len(QMenu.actions()) == 1:
             QMenu.setEnabled(False)
@@ -292,8 +279,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionCopy.triggered.disconnect(widget.plainTextEdit.copy)
         self.actionPaste.triggered.disconnect(widget.plainTextEdit.paste)
         self.actionDelete.triggered.disconnect(widget.plainTextEdit.clear)
-        self.actionSelectAll.triggered.disconnect(
-            widget.plainTextEdit.selectAll)
+        self.actionSelectAll.triggered.disconnect(widget.plainTextEdit.selectAll)
 
     def onNewOntology(self):
         '''Handles the new ontology action when it is triggered.'''
@@ -327,8 +313,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         if ontology is None:
             return
         count = len(self.menuRecent_Ontologies.actions())
-        # remove the separator action and the clear history action.
-        count = count - 2
+        count = count - 2  # remove the separator action and the clear history action.
         name = str(count + 1)
         name += ". "
         name += ontology.name
@@ -351,47 +336,44 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             self.menuRecent_Ontologies.insertAction(befAction, action)
         ontologyMenu = QMenu(self)
         ontologyMenu.setTitle(ontology.name)
-
+        
         # Update action
         actionUpdate = ontologyMenu.addAction("Update")
         actionUpdate.setData(ontology)
         actionRevert = ontologyMenu.addAction("Revert")
         actionRevert.setData(ontology)
         icon = QIcon()
-        icon.addPixmap(
-            QPixmap(":/actions/gfx/actions/document-revert.png"), QIcon.Normal, QIcon.Off)
+        icon.addPixmap(QPixmap(":/actions/gfx/actions/document-revert.png"), QIcon.Normal, QIcon.Off)
         actionRevert.setIcon(icon)
         actionRevert.setIconVisibleInMenu(True)
         actionProperties = ontologyMenu.addAction("Properties")
         actionProperties.setData(ontology)
         icon = QIcon()
-        icon.addPixmap(QPixmap(
-            ":/actions/gfx/actions/document-properties.png"), QIcon.Normal, QIcon.Off)
+        icon.addPixmap(QPixmap(":/actions/gfx/actions/document-properties.png"), QIcon.Normal, QIcon.Off)
         actionProperties.setIconVisibleInMenu(True)
         actionProperties.setIcon(icon)
         ontologyMenu.addSeparator()
         # Close action
         icon = QIcon()
-        icon.addPixmap(
-            QPixmap(":/actions/gfx/actions/document-close.png"), QIcon.Normal, QIcon.Off)
+        icon.addPixmap(QPixmap(":/actions/gfx/actions/document-close.png"), QIcon.Normal, QIcon.Off)
         actionClose = ontologyMenu.addAction("Close")
         actionClose.setIcon(icon)
         actionClose.setIconVisibleInMenu(True)
         actionClose.setData(ontology)
         ontologyMenu.addSeparator()
-
+        
         self.menuOntology.addMenu(ontologyMenu)
         for widget in self.widgets:
             if type(widget) == TextEditor:
                 widget._updateOntologySelector()
-
+                
         # update graph widget
-        for x in self.widgets:
-            if type(x) == GraphWidget:
+        for x in self.widgets :
+            if type(x) == GraphWidget :
                 x.createGV()
                 x.plot()
                 x.initRelationBox()
-
+                
         # print(gv)
 
     def onClearRecentOntologiesHistory(self):
@@ -399,28 +381,27 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.menuRecent_Ontologies.clear()
         self.menuRecent_Ontologies.addSeparator()
         self.menuRecent_Ontologies.addAction(self.clearHistoryAction)
-
+        
     def onPrint(self, wrappedWidget):
         '''Handles the print action when it is triggered.'''
         self.dialog.setOption(QAbstractPrintDialog.PrintToFile)
-        if self.dialog.exec_() == QDialog.Accepted:
+        if self.dialog.exec_() == QDialog.Accepted :
             doc = wrappedWidget.plainTextEdit.document()
             doc.print_(self.dialog.printer())
-
+            
     def onQuickPrint(self, wrappedWidget):
         '''Handles the quick print action when it is triggered.'''
         doc = wrappedWidget.plainTextEdit.document()
         printer = self.dialog.printer()
-        if not printer is None:
+        if not printer is None :
             doc.print_(printer)
-
+            
     def onPrintPreview(self, wrappedWidget):
         '''Handles the print preview action when it is triggered.'''
         dialog = QPrintPreviewDialog()
         dialog.paintRequested.connect(wrappedWidget.plainTextEdit.print_)
         dialog.exec_()
-
-
+        
 def main():
     app = QApplication(sys.argv)
     signal(SIGINT, quit_handler)
@@ -428,10 +409,10 @@ def main():
     app.setActiveWindow(mainwindow)
     sys.exit(app.exec_())
 
-
 def quit_handler(signum, frame):
     QApplication.closeAllWindows()
     sys.exit()
 
 if __name__ == '__main__':
     main()
+    
