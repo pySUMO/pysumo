@@ -7,16 +7,15 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 
 """
 
-from PySide.QtCore import QLineF, Slot, Qt
+from PySide.QtCore import QLineF, Slot
 from PySide.QtGui import QApplication, QMainWindow, QColor, QPen, QStandardItem
-from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem, QPainterPath, QGraphicsPathItem
+from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
 import pygraphviz
-from pygraphviz.agraph import Edge
 import random
 import sys
 
 from pySUMOQt.Designer.GraphWidget import Ui_Form
-from pySUMOQt.Widget.Widget import RWWidget, Widget
+from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
 
@@ -65,6 +64,7 @@ class GraphWidget(RWWidget, Ui_Form):
     @Slot()
     def renewplot(self):
         scene = self.graphicsView.scene()
+        scene.changed.disconnect(self.renewplot)
         for i in self.qLines:
             scene.removeItem(i)
 
@@ -112,16 +112,16 @@ class GraphWidget(RWWidget, Ui_Form):
             # break
         scene.changed.connect(self.renewplot)
         self.graphicsView.setScene(scene)
-    
+
     def createGV(self):
         gv = pygraphviz.AGraph(strict=False)
         y = self.getIndexAbstractor().get_graph('instance')
         colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
-              "yellow", "turquoise", "sienna", "darkgreen"]
+                  "yellow", "turquoise", "sienna", "darkgreen"]
         for k in y.relations.keys():
             l = [(k, v) for v in y.relations[k]]
             gv.add_edges_from(l, color=random.choice(colors))
-        gv.layout("sfdp")    
+        gv.layout("sfdp")
 
         self.gv = gv
 if __name__ == "__main__":
@@ -134,14 +134,10 @@ if __name__ == "__main__":
         kif = parser.kifparse(f, sumo)
 
     x.getIndexAbstractor().update_index(kif)
-    # gv.add_nodes_from(y.nodes)
-    # print(len(y.relations.keys()))
-    
-    # print(gv)
+
     x.createGV()
     x.plot()
     x.initRelationBox()
-    #gv.write("layouted.dot")
     mainwindow.show()
 
     sys.exit(application.exec_())
