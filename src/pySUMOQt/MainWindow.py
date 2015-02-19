@@ -28,6 +28,7 @@ from pySUMOQt.Widget.Widget import RWWidget
 from pySUMOQt.Settings import LayoutManager
 from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog,\
     OptionDialog
+from pySUMOQt.Widget.GraphWidget import GraphWidget
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -202,6 +203,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             QMenu = self.menuDocumentationWidgets
         elif widgetType == HierarchyWidget:
             QMenu = self.menuHierarchyWidgets
+        elif widgetType == GraphWidget:
+            QMenu = self.menuGraphWidgets
 
         if QMenu != None and len(QMenu.actions()) == 1:
             QMenu.setEnabled(False)
