@@ -8,3 +8,4 @@ Entwurf/src/docs/_build/*
 .pydevproject
 .settings
 *user-layout.ini
+src/layouted.dot

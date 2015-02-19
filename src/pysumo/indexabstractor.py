@@ -12,11 +12,14 @@ This module contains:
 """
 
 from io import StringIO
+
 import string
 
-from .wordnet import WordNet
+from pysumo.wordnet import WordNet
 
-class IndexAbstractor:
+
+class IndexAbstractor(object):
+
     """ The IndexAbstractor provides a high-level index of the
     AbstractSyntaxTree.  Each Ontology is represented by a hashmap, the list of
     these hashmaps is the index.  Average access time is in O(n) where n is the
@@ -49,13 +52,11 @@ class IndexAbstractor:
 
     def init_wordnet(self):
         """ Initializes the SUMO mapping to WordNet. """
-        if self.wordnet is None:
-            self.wordnet = WordNet()
+        self.wordnet = WordNet()
 
     def update_index(self, ast):
         """ Updates the index with all new AST nodes in ast. """
         self.root = ast
-        self.index = dict()
         self._build_index()
 
     def _build_index(self):
@@ -73,12 +74,7 @@ class IndexAbstractor:
             ret = StringIO()
             with open(ontology.path) as o:
                 ret.write(o.read())
-                ret.seek(0)
             return ret
-
-    def get_completions(self):
-        """ Returns a list of possible completions for the currently loaded ontologies. """
-        return [x[0].children[0].name for x in self.index.values()]
 
     def search(self, term):
         """ Search for term in the in-memory Ontology. Returns all objects that
@@ -156,7 +152,9 @@ class IndexAbstractor:
             results = self.wordnet.locate_term(term)
         return [' '.join([x[0], ''.join(['(', x[1].value, '):']), x[2]]) for x in results]
 
-class DotGraph:
+
+class DotGraph():
+
     """ A utility class that handles layouting AbstractGraph objects.  This
     class returns a layouted version of an AbstractGraph and provides a mapping
     between the image and nodes in the AbstractGraph.
@@ -190,7 +188,9 @@ class DotGraph:
     def get_pic(self):
         """ Returns a layouted version of self.graph. """
 
-class AbstractGraph:
+
+class AbstractGraph():
+
     """ An abstract representation of a subset of an Ontology as a collection
     of nodes and relations. This class can be used together with a DotGraph to
     create a graphical representation of an Ontology, or passed to the
@@ -253,7 +253,8 @@ class AbstractGraph:
         return rel
 
 
-class AbstractGraphNode:
+class AbstractGraphNode():
+
     """ A node in an AbstractGraph. Contains information necessary to recreate
     an AbstractSyntaxTree from an AbstractGraph.
 

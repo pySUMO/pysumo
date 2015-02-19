@@ -6,6 +6,12 @@ This module contains:
 - HelpDialog: The dialog that displays help in pySUMO GUI.
 
 """
+
+from functools import partial
+from signal import signal, SIGINT
+import os
+import sys
+
 from PySide.QtCore import QCoreApplication, Qt, Slot, QObject, SIGNAL
 from PySide.QtCore import QEvent, Signal
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QPixmap
@@ -13,19 +19,15 @@ from PySide.QtGui import QIcon, QDockWidget, QFileDialog, QPrintDialog
 from PySide.QtGui import QAction, QMenu, QAbstractPrintDialog
 from PySide.QtGui import QDialog, QPrintPreviewDialog
 
+from pysumo.syntaxcontroller import Ontology
 from pySUMOQt.Designer.MainWindow import Ui_mainwindow
 from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
 from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
-from pysumo.syntaxcontroller import Ontology
 from pySUMOQt.Widget.Widget import RWWidget
 from pySUMOQt.Settings import LayoutManager
-from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog
-
-from functools import partial
-from signal import signal, SIGINT
-import os
-import sys
+from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog,\
+    OptionDialog
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -78,10 +80,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
         self.setupUi(self)
-        self.menuTextEditorWidgets.setEnabled(False)
-        self.menuDocumentationWidgets.setEnabled(False)
-        self.menuHierarchyWidgets.setEnabled(False)
-        self.setWindowTitle("pySUMO")
         self.setCentralWidget(None)
         callback = partial(self.addWidget, "TextEditorWidget", self.menuTextEditorWidgets)
         self.actionTextEditorWidget.triggered.connect(callback)
@@ -89,6 +87,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionDocumentationWidget.triggered.connect(callback)
         callback = partial(self.addWidget, "HierarchyWidget", self.menuHierarchyWidgets)
         self.actionHierarchyWidget.triggered.connect(callback)
+        callback = partial(self.addWidget, "GraphWidget", self.menuGraphWidgets)
+        self.actionGraphWidget.triggered.connect(callback)
         self.newOntologyAction.triggered.connect(self.onNewOntology)
         self.openLocalOntologyAction.triggered.connect(self.onOpenLocalOntology)
         self.openRemoteOntologyAction.triggered.connect(self.onOpenRemoteOntology)
@@ -100,6 +100,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.fileChooser = QFileDialog(self)  
         self.dialog = QPrintDialog()
         self.userLayout = LayoutManager(self)
+        optionDialog = OptionDialog(self)
+        self.actionSettings.triggered.connect(optionDialog.show)
         # restore and show the view.
         self.userLayout.restoreLayout()
         self.show()
@@ -120,6 +122,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             wrappedWidget = DocumentationWidget(widget)
         elif widgetType == "HierarchyWidget" :
             wrappedWidget = HierarchyWidget(widget)
+        elif widgetType == "GraphWidget":
+            wrappedWidget = GraphWidget(widget)
         if wrappedWidget is None :
             print("can not create widget with type " + widgetType)
             return
@@ -329,6 +333,15 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         for widget in self.widgets:
             if type(widget) == TextEditor:
                 widget._updateOntologySelector()
+                
+        # update graph widget
+        for x in self.widgets :
+            if type(x) == GraphWidget :
+                x.createGV()
+                x.plot()
+                x.initRelationBox()
+                
+        # print(gv)
 
     def onClearRecentOntologiesHistory(self):
         '''Handles the clear recent ontologies action when it is triggered.'''
