@@ -46,6 +46,9 @@ class LayoutManager(QSettings):
         actions = self.mainwindow.menuHierarchyWidgets.actions()
         count = len(actions)
         self.setValue("HierarchyWidgets/count", count)
+        actions = self.mainwindow.menuGraphWidgets.actions()
+        count = len(actions)
+        self.setValue("GraphWidgets/count", count)
         self.saveRecentOntologyHistory()
     
     def restoreLayout(self):
@@ -59,6 +62,8 @@ class LayoutManager(QSettings):
         self.restoreDocumentationWidgets()
         # restore Hierarchy Widgets
         self.restoreHierarchyWidgets()
+        # restore graph widgets
+        self.restoreGraphWidgets()
         self.restoreRecentOntologyHistory()
         
     def saveRecentOntologyHistory(self):
@@ -67,6 +72,17 @@ class LayoutManager(QSettings):
     def restoreRecentOntologyHistory(self):
         pass
     
+    def restoreGraphWidgets(self):
+        graphWidgetsCount = self.value("GraphWidgets/count")
+        if graphWidgetsCount is None :
+            graphWidgetsCount = 0
+        graphWidgetsCount = int(graphWidgetsCount)
+        count = 0
+        while count < graphWidgetsCount :
+            widget = self.mainwindow.createPySumoWidget("GraphWidget", self.mainwindow.menuGraphWidgets)
+            self.mainwindow.addOrRestoreWidget(widget, self.mainwindow.menuGraphWidgets)
+            count = count + 1
+        
     def restoreTextEditorWidgets(self):
         textEditorWidgetsCount = self.value("TextEditorWidgets/count")
         if textEditorWidgetsCount == None:
