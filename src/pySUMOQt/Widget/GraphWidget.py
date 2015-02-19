@@ -75,13 +75,13 @@ class GraphWidget(RWWidget, Ui_Form):
             qnode1 = self.nodesToQNodes[edge[0]]
             qnode2 = self.nodesToQNodes[edge[1]]
             line = QLineF(qnode1.pos(), qnode2.pos())
+            line.setLength(line.length() - 25)
             item = scene.addLine(line, self.qpens[edge.attr['color']])
             self.qLines.append(item)
 
-    def plot(self, layoutedgraph):
-        if layoutedgraph is None:
-            return
-        self.layoutedGraph = layoutedgraph
+        scene.changed.connect(self.renewplot)
+
+    def plot(self):
         scene = QGraphicsScene()
         self.nodesToQNodes = {}
         for node in gv.nodes_iter():
