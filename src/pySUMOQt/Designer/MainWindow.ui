@@ -512,7 +512,10 @@
      <normaloff>:/actions/gfx/actions/edit-delete.png</normaloff>:/actions/gfx/actions/edit-delete.png</iconset>
    </property>
    <property name="text">
-    <string>Delete</string>
+    <string>Clear</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear</string>
    </property>
    <property name="shortcut">
     <string>Del</string>

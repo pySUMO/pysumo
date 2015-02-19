@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'TextEditor.ui'
 #
-# Created: Tue Feb 10 15:05:14 2015
+# Created: Thu Feb 19 10:13:39 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,6 +30,7 @@ class Ui_Form(object):
         self.gridLayout.addWidget(self.number_bar, 1, 0, 1, 1)
         self.plainTextEdit = QtGui.QPlainTextEdit(self.widget)
         self.plainTextEdit.setMinimumSize(QtCore.QSize(500, 0))
+        self.plainTextEdit.setLineWrapMode(QtGui.QPlainTextEdit.NoWrap)
         self.plainTextEdit.setObjectName("plainTextEdit")
         self.gridLayout.addWidget(self.plainTextEdit, 1, 1, 1, 2)
 

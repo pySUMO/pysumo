@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DocumentationWidget.ui'
 #
-# Created: Fri Feb  6 15:12:48 2015
+# Created: Thu Feb 19 10:27:51 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,17 +12,21 @@ from PySide import QtCore, QtGui
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(557, 300)
-        self.gridLayout = QtGui.QGridLayout(Form)
+        Form.resize(507, 290)
+        self.widget = QtGui.QWidget(Form)
+        self.widget.setGeometry(QtCore.QRect(10, 10, 491, 271))
+        self.widget.setObjectName("widget")
+        self.gridLayout = QtGui.QGridLayout(self.widget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
-        self.lineEdit = QtGui.QLineEdit(Form)
+        self.lineEdit = QtGui.QLineEdit(self.widget)
         self.lineEdit.setText("")
         self.lineEdit.setObjectName("lineEdit")
         self.gridLayout.addWidget(self.lineEdit, 1, 1, 1, 1)
-        self.tabWidget = QtGui.QTabWidget(Form)
+        self.tabWidget = QtGui.QTabWidget(self.widget)
         self.tabWidget.setObjectName("tabWidget")
         self.Ontology = QtGui.QWidget()
         self.Ontology.setObjectName("Ontology")

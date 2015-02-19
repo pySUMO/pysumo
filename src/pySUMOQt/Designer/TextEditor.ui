@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="widget">
    <property name="geometry">
     <rect>
      <x>4</x>
@@ -56,6 +56,9 @@
         <width>500</width>
         <height>0</height>
        </size>
+      </property>
+      <property name="lineWrapMode">
+       <enum>QPlainTextEdit::NoWrap</enum>
       </property>
       <property name="plainText">
        <string>;; Ontology of Communication Concepts used in the CIA World Fact Book 2002
