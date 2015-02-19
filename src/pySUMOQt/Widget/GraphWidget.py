@@ -75,8 +75,11 @@ class GraphWidget(RWWidget, Ui_Form):
             qnode1 = self.nodesToQNodes[edge[0]]
             qnode2 = self.nodesToQNodes[edge[1]]
             line = QLineF(qnode1.pos(), qnode2.pos())
+            line.setLength(line.length() - 25)
             item = scene.addLine(line, self.qpens[edge.attr['color']])
             self.qLines.append(item)
+
+        scene.changed.connect(self.renewplot)
 
     def plot(self):
         scene = QGraphicsScene()
