@@ -20,6 +20,19 @@ import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
 
 
+class QtNode(QGraphicsEllipseItem):
+    callback = None
+
+    def setCallBack(self, f):
+        self.callback = f
+
+    def itemChange(self, itemChange, val):
+        if (itemChange == QGraphicsItem.ItemPositionHasChanged):
+            if self.callback is not None:
+                self.callback()
+        return super().itemChange(itemChange, val)
+
+
 class GraphWidget(RWWidget, Ui_Form):
 
     """ Displays a graph of the Ontology and passes all modifications to the
@@ -64,7 +77,7 @@ class GraphWidget(RWWidget, Ui_Form):
     @Slot()
     def renewplot(self):
         scene = self.graphicsView.scene()
-        scene.changed.disconnect(self.renewplot)
+        # scene.changed.disconnect(self.renewplot)
         for i in self.qLines:
             scene.removeItem(i)
 
@@ -76,19 +89,38 @@ class GraphWidget(RWWidget, Ui_Form):
             qnode2 = self.nodesToQNodes[edge[1]]
             line = QLineF(qnode1.pos(), qnode2.pos())
             line.setLength(line.length() - 25)
-            item = scene.addLine(line, self.qpens[edge.attr['color']])
-            self.qLines.append(item)
+            end = line.p2()
 
-        scene.changed.connect(self.renewplot)
+            arrowLine1 = QLineF()
+            arrowLine1.setP1(end)
+            arrowLine1.setLength(10)
+            arrowLine1.setAngle(line.angle() + 210)
+
+            arrowLine2 = QLineF()
+            arrowLine2.setP1(end)
+            arrowLine2.setLength(10)
+            arrowLine2.setAngle(line.angle() - 210)
+
+            item = scene.addLine(line, self.qpens[edge.attr['color']])
+            item.setZValue(-1)
+            self.qLines.append(item)
+            item = scene.addLine(arrowLine1, self.qpens[edge.attr['color']])
+            self.qLines.append(item)
+            item = scene.addLine(arrowLine2, self.qpens[edge.attr['color']])
+            self.qLines.append(item)
+        # scene.changed.connect(self.renewplot)
 
     def plot(self):
         scene = QGraphicsScene()
+        self.graphicsView.setScene(scene)
         self.nodesToQNodes = {}
         for node in gv.nodes_iter():
             (x, y) = node.attr['pos'].split(',')
-            qnode = QGraphicsEllipseItem(-25, -25, 50, 50)
+            qnode = QtNode(-25, -25, 50, 50)
+            qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
             qnode.setPos(float(x) * 4, float(y) * 4)
             qnode.setFlag(QGraphicsItem.ItemIsMovable)
+            qnode.setCallBack(self.renewplot)
             qnode.setBrush(QColor(255, 150, 150))
             txt = QGraphicsSimpleTextItem(qnode)
             txt.setPos(-25, 0)
@@ -110,11 +142,11 @@ class GraphWidget(RWWidget, Ui_Form):
                 self.qpens[edge.attr['color']] = QPen(
                     QColor(edge.attr['color']))
             item = scene.addLine(line, self.qpens[edge.attr['color']])
-
             self.qLines.append(item)
-            # break
-        scene.changed.connect(self.renewplot)
-        self.graphicsView.setScene(scene)
+        self.renewplot()
+        # break
+
+#        scene.changed.connect(self.renewplot)
 
     def createGV(self):
         gv = pygraphviz.AGraph(strict=False)
