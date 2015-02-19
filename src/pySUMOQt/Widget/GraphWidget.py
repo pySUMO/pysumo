@@ -8,16 +8,14 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 """
 
 from PySide.QtCore import QLineF, Slot
-from PySide.QtGui import QApplication, QMainWindow, QColor, QPen, QStandardItem
+from PySide.QtGui import QColor, QPen, QStandardItem
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
 import pygraphviz
 import random
-import sys
+
 
 from pySUMOQt.Designer.GraphWidget import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
-import pysumo.parser as parser
-from pysumo.syntaxcontroller import Ontology
 
 
 class QtNode(QGraphicsEllipseItem):
@@ -159,20 +157,3 @@ class GraphWidget(RWWidget, Ui_Form):
         gv.layout("sfdp")
 
         self.gv = gv
-if __name__ == "__main__":
-
-    application = QApplication(sys.argv)
-    mainwindow = QMainWindow()
-    x = GraphWidget(mainwindow)
-    sumo = Ontology('../data/Merge.kif', name='SUMO')
-    with open(sumo.path) as f:
-        kif = parser.kifparse(f, sumo)
-
-    x.getIndexAbstractor().update_index(kif)
-
-    x.createGV()
-    x.plot()
-    x.initRelationBox()
-    mainwindow.show()
-
-    sys.exit(application.exec_())
