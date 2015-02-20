@@ -60,6 +60,9 @@ class GraphWidget(RWWidget, Ui_Form):
         self.initMenu()
         self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
         self.lineEdit.textChanged.connect(self.searchNode)
+        self.rootSelector.insertItem(0,"---")
+        self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
+        
 
     def initRelationBox(self):
         m = self.relations.model()
@@ -128,7 +131,8 @@ class GraphWidget(RWWidget, Ui_Form):
         scene = QGraphicsScene()
         self.graphicsView.setScene(scene)
         self.nodesToQNodes = {}
-        for node in gv.nodes_iter():
+        self.qLines = []
+        for node in self.gv.nodes_iter():
             (x, y) = node.attr['pos'].split(',')
             qnode = QtNode(-25, -25, 50, 50)
             qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
@@ -147,6 +151,9 @@ class GraphWidget(RWWidget, Ui_Form):
             self.nodesToQNodes[node] = qnode
 
         self.renewplot()
+        self.rootSelector.currentIndexChanged[str].disconnect(self.newRoot)
+        self.rootSelector.insertItems(0,list(self.nodesToQNodes.keys()))
+        self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
 
     def initMenu(self):
         self.graphicsView.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -166,10 +173,21 @@ class GraphWidget(RWWidget, Ui_Form):
             if ok:
                 #User clicked on ok. Otherwise do nothing
                 pass
-
-    def createGV(self):
+    @Slot(str)
+    def newRoot(self, newRoot):
+        if newRoot == "---":
+            return
+        print(type(newRoot))
+        print(newRoot)
+        depth = None
+        if self.depth.value() != "---":
+            depth = self.depth.value()
+        self.createGV(newRoot, depth)
+        self.plot()
+        
+    def createGV(self,variant='instance',root=None,depth=None):
         gv = pygraphviz.AGraph(strict=False)
-        y = self.getIndexAbstractor().get_graph('instance')
+        y = self.getIndexAbstractor().get_graph('instance',root, depth)
         colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
                   "yellow", "turquoise", "sienna", "darkgreen"]
         for k in y.relations.keys():

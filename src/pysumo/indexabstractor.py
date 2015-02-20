@@ -244,6 +244,9 @@ class AbstractGraph:
                 return set()
         except TypeError:
             pass
+        print("bla" + root)
+        
+        print(self.relations[root])
         rel = set(self.relations[root])
         for minor in self.relations[root]:
             try:
