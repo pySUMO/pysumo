@@ -7,8 +7,8 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 
 """
 
-from PySide.QtCore import QLineF, Slot
-from PySide.QtGui import QColor, QPen, QStandardItem
+from PySide.QtCore import QLineF, Slot, Qt
+from PySide.QtGui import QColor, QPen, QStandardItem, QMenu, QInputDialog
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
 import pygraphviz
 import random
@@ -19,9 +19,11 @@ from pySUMOQt.Widget.Widget import RWWidget
 
 
 class QtNode(QGraphicsEllipseItem):
+    """ A Node representation in Qt"""
     callback = None
 
     def setCallBack(self, f):
+        """ Sets a callback function to call after the position has changed"""
         self.callback = f
 
     def itemChange(self, itemChange, val):
@@ -58,6 +60,7 @@ class GraphWidget(RWWidget, Ui_Form):
         self.qLines = []
         self.qpens = {}
         self.lastScale = 1
+        self.initMenu()
         #self.graphicsView.scale(0.33, 0.33)
         self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
 
@@ -98,9 +101,13 @@ class GraphWidget(RWWidget, Ui_Form):
             arrowLine2.setP1(end)
             arrowLine2.setLength(10)
             arrowLine2.setAngle(line.angle() - 210)
+            if edge.attr['color'] not in self.qpens:
+                self.qpens[edge.attr['color']] = QPen(
+                    QColor(edge.attr['color']))
 
             item = scene.addLine(line, self.qpens[edge.attr['color']])
             item.setZValue(-1)
+            item.setFlag(QGraphicsItem.ItemIsSelectable,True)
             self.qLines.append(item)
             item = scene.addLine(arrowLine1, self.qpens[edge.attr['color']])
             self.qLines.append(item)
@@ -109,6 +116,10 @@ class GraphWidget(RWWidget, Ui_Form):
         # scene.changed.connect(self.renewplot)
 
     def plot(self):
+        """
+        Creates a QGraphicScene for the layouted graph in self.gv
+        This function has to be called every time, a node change happened.
+        """
         scene = QGraphicsScene()
         self.graphicsView.setScene(scene)
         self.nodesToQNodes = {}
@@ -130,21 +141,26 @@ class GraphWidget(RWWidget, Ui_Form):
 
             self.nodesToQNodes[node] = qnode
 
-        for edge in gv.edges_iter():
-
-            qnode1 = self.nodesToQNodes[edge[0]]
-            qnode2 = self.nodesToQNodes[edge[1]]
-            line = QLineF(
-                qnode1.pos(), qnode2.pos())
-            if edge.attr['color'] not in self.qpens:
-                self.qpens[edge.attr['color']] = QPen(
-                    QColor(edge.attr['color']))
-            item = scene.addLine(line, self.qpens[edge.attr['color']])
-            self.qLines.append(item)
         self.renewplot()
-        # break
 
-#        scene.changed.connect(self.renewplot)
+    def initMenu(self):
+        self.graphicsView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.graphicsView.customContextMenuRequested.connect(self.showContextMenu)
+    
+    def showContextMenu(self, pos):
+        """
+        Shows a context menu to add a node in the graph widget
+        """
+        gpos = self.graphicsView.mapToGlobal(pos)
+        menu = QMenu()
+        actionAddNode = menu.addAction("Add Node") 
+        QAction = menu.exec_(gpos)
+        
+        if (actionAddNode == QAction):
+            (text,ok) = QInputDialog.getText(self.graphicsView, "Insert Node Name", "Please insert a name for the node")
+            if ok:
+                #User clicked on ok. Otherwise do nothing
+                pass
 
     def createGV(self):
         gv = pygraphviz.AGraph(strict=False)
