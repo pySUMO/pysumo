@@ -41,8 +41,7 @@ class GraphWidget(RWWidget, Ui_Form):
     Variables:
 
     - abstractGraph: The currently displayed AbstractGraph.
-    - dotGraph: The DotGraph for the current AbstractGraph.
-    - layout: The layouted version of the current DotGraph.
+    - gv: The layouted version of the current DotGraph.
 
     """
 
@@ -52,16 +51,13 @@ class GraphWidget(RWWidget, Ui_Form):
         self.setupUi(self.mw)
 
         self.abstractGraph = None
-        self.dotGraph = None
-        self.layout = None
-        self.layoutedGraph = None
+        self.gv = None
 
         self.nodesToQNodes = None
         self.qLines = []
         self.qpens = {}
         self.lastScale = 1
         self.initMenu()
-        #self.graphicsView.scale(0.33, 0.33)
         self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
 
     def initRelationBox(self):
