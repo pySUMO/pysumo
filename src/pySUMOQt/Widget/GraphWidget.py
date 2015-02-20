@@ -52,19 +52,28 @@ class GraphWidget(RWWidget, Ui_Form):
 
         self.abstractGraph = None
         self.gv = None
-
+        self.widget = self.layoutWidget
         self.nodesToQNodes = None
         self.qLines = []
         self.qpens = {}
         self.lastScale = 1
         self.initMenu()
         self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
+        self.lineEdit.textChanged.connect(self.searchNode)
 
     def initRelationBox(self):
         m = self.relations.model()
         for i in self.getIndexAbstractor().get_graph('instance').relations.keys():
             m.appendRow(QStandardItem(i))
 
+    def searchNode(self,search):
+        try:
+            node = self.nodesToQNodes[search]
+            self.graphicsView.centerOn(node)
+        except KeyError:
+            pass # TODO: Mach hier einen Log
+        
+        
     @Slot(float)
     def changeScale(self, val):
         toScale = val / self.lastScale
