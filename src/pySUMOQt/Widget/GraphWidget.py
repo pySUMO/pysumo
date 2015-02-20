@@ -17,6 +17,9 @@ import random
 from pySUMOQt.Designer.GraphWidget import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 
+def insert_newlines(string, every=64):
+    return '\n'.join(string[i:i+every] for i in range(0, len(string), every))
+
 
 class QtNode(QGraphicsEllipseItem):
     """ A Node representation in Qt"""
@@ -141,11 +144,11 @@ class GraphWidget(RWWidget, Ui_Form):
             qnode.setCallBack(self.renewplot)
             qnode.setBrush(QColor(255, 150, 150))
             txt = QGraphicsSimpleTextItem(qnode)
-            txt.setPos(-25, 0)
+            txt.setPos(-20, -15)
             font = txt.font()
             font.setPointSize(7)
             txt.setFont(font)
-            txt.setText(node)
+            txt.setText(insert_newlines(node, 8))
             scene.addItem(qnode)
 
             self.nodesToQNodes[node] = qnode
