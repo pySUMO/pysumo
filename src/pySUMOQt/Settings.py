@@ -8,8 +8,10 @@ This module contains:
 
 """
 
-from PySide.QtCore import QSettings
-from PySide.QtGui import QDialog
+from PySide.QtCore import QSettings, Qt
+from PySide.QtGui import QApplication, QColor
+from pysumo import logger
+from os import environ
 
 class WSettings(QSettings):
     """ This class represents the settings of the widgets in pySUMO's GUI.  The
@@ -180,6 +182,50 @@ class LayoutManager(QSettings):
     def restoreStatusBarState(self):
         self.restoreVisibilityState(self.mainwindow.statusBar, self.mainwindow.actionStatusbar)
 
+class PySumoSettings(QSettings):
+    
+    def __init__(self, MainWindow, filepath):
+        super(PySumoSettings, self).__init__(filepath, QSettings.IniFormat)
+        
+    def loadDefaults(self):
+        self.setValue("configPath", environ['HOME'] + "/pySUMO")
+        self.setValue("maxQueueSize", 10)
+        self.setValue("maxUndoRedoQueueSize", 10)
+        self.setValue("flushWriteQueuesTimeout", 10)
+        self.setValue("logOutputPath", logger.CONFIG_PATH)
+        self.setValue("socketOutputPath", logger.CONFIG_PATH)
+        self.setValue("logLevel", 10)
+        defFont = QApplication.font().family()
+        defSize = QApplication.font().pointSize()
+        self.setValue("keywordsFontFamily", defFont)
+        self.setValue("keywordsFontSize", defSize)
+        self.setValue("keywordsFontColor", QColor(Qt.darkGreen).name())
+        self.setValue("keywordsBoldStyle", True)
+        self.setValue("keywordsItalicStyle", False)
+        self.setValue("keywordsUnderlinedStyle", False)
+        self.setValue("logicExprFontFamily", defFont)
+        self.setValue("logicExprFontSize", defSize)
+        self.setValue("logicExprFontColor", QColor(Qt.black).name())
+        self.setValue("logicExprBoldStyle", True)
+        self.setValue("logicExprItalicStyle", False)
+        self.setValue("logicExprUnderlinedStyle", False)
+        self.setValue("commentFontFamily", defFont)
+        self.setValue("commentFontSize", defSize)
+        self.setValue("commentFontColor", QColor(Qt.darkMagenta).name())
+        self.setValue("commentBoldStyle", False)
+        self.setValue("commentItalicStyle", True)
+        self.setValue("commentUnderlinedStyle", False)
+        self.setValue("stringsFontFamily", defFont)
+        self.setValue("stringsFontSize", defSize)
+        self.setValue("stringsFontColor", QColor(Qt.red).name())
+        self.setValue("stringsBoldStyle", False)
+        self.setValue("stringsItalicStyle", False)
+        self.setValue("stringsUnderlinedStyle", False)
+        self.setValue("maxTextEditorWidgets", 10)
+        self.setValue("maxDocumentationWidgets", 10)
+        self.setValue("maxHierarchyWidgets", 10)
+        self.setValue("maxGraphWidgets", 10)
+    
 class PluginManager():
     """ The PluginManager handles all loadabel plugins. At startup it loads all
     plugins and restores their settings from the persistence file.  It also

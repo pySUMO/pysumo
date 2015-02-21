@@ -29,10 +29,11 @@ from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
 from pySUMOQt.Widget.Widget import RWWidget
 
-from pySUMOQt.Settings import LayoutManager
+from pySUMOQt.Settings import LayoutManager, PySumoSettings
 from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog, OptionDialog
 from pySUMOQt.Widget.GraphWidget import GraphWidget
 from pysumo.syntaxcontroller import Ontology
+from pysumo import logger
 from pysumo.logger.infolog import InfoLog
 
 QCoreApplication.setApplicationName("pySUMO")
@@ -108,7 +109,18 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.fileChooser = QFileDialog(self)  
         self.dialog = QPrintDialog()
         self.userLayout = LayoutManager(self)
-        optionDialog = OptionDialog(self)
+        filepath = logger.CONFIG_PATH + "/settings.ini"
+        exist = False
+        try :
+            with open(filepath) as f :
+                f.close()
+                exist = True
+        except IOError :
+            pass
+        settings = PySumoSettings(self, filepath)
+        if not exist :
+            settings.loadDefaults()
+        optionDialog = OptionDialog(self, settings)
         self.actionSettings.triggered.connect(optionDialog.show)
         # restore and show the view.
         self.userLayout.restoreLayout()
