@@ -1,5 +1,5 @@
 from PySide.QtGui import QDialog, QFileDialog, QDialogButtonBox, QColorDialog
-from PySide.QtGui import QColor
+from PySide.QtGui import QColor, QFont
 from pySUMOQt.Designer.NewOntologyDialog import Ui_NewOntologyDialog
 import os
 from pysumo.syntaxcontroller import Ontology
@@ -257,6 +257,8 @@ class OptionDialog(QDialog, Ui_Dialog):
         
     def onOptionChanged(self, qItem, newValue):
         optionName = qItem.objectName()
+        if type(newValue) is QFont :
+            newValue = newValue.family()
         oldValue = None
         try :
             oldValue = self.changes.pop(optionName)
