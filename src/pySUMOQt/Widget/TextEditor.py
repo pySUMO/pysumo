@@ -47,6 +47,8 @@ class TextEditor(RWWidget, Ui_Form):
         """ Initializes the text editor widget. """
         super(TextEditor, self).__init__(mainwindow)
         self.setupUi(self.mw)
+        self.plainTextEdit.clear()
+        self.plainTextEdit.setEnabled(False)
         self.plainTextEdit.show()
         self.highlighter = SyntaxHighlighter(self.plainTextEdit.document())
         self.initAutocomplete()
@@ -111,6 +113,7 @@ class TextEditor(RWWidget, Ui_Form):
         ontologyname = self.ontologySelector.currentText()
         for i in self.getIndexAbstractor().ontologies:
             if i.name == ontologyname:
+                self.plainTextEdit.setEnabled(True)
                 self.getWidget().setPlainText(
                     self.getIndexAbstractor().get_ontology_file(i).getvalue())
                 return
