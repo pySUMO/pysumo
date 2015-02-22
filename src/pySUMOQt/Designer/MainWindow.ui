@@ -198,8 +198,6 @@
     <addaction name="actionAddTerms"/>
     <addaction name="actionRemoveTerms"/>
     <addaction name="separator"/>
-    <addaction name="actionUpdate"/>
-    <addaction name="separator"/>
     <addaction name="actionActive_Ontologies"/>
    </widget>
    <addaction name="menuFile"/>
@@ -255,8 +253,6 @@
    </attribute>
    <addaction name="actionAddTerms"/>
    <addaction name="actionRemoveTerms"/>
-   <addaction name="separator"/>
-   <addaction name="actionUpdate"/>
   </widget>
   <widget class="QToolBar" name="toolBarTools">
    <property name="windowTitle">
@@ -778,18 +774,6 @@
    </property>
    <property name="text">
     <string>Remove Terms</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
-  </action>
-  <action name="actionUpdate">
-   <property name="icon">
-    <iconset resource="gfx.qrc">
-     <normaloff>:/actions/gfx/actions/update-product.png</normaloff>:/actions/gfx/actions/update-product.png</iconset>
-   </property>
-   <property name="text">
-    <string>Update </string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
