@@ -361,6 +361,10 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         # Update action
         actionUpdate = ontologyMenu.addAction("Update")
         actionUpdate.setData(ontology)
+        icon = QIcon()
+        icon.addPixmap(QPixmap(":/actions/gfx/actions/update-product.png"), QIcon.Normal, QIcon.Off)
+        actionUpdate.setIcon(icon)
+        actionUpdate.setIconVisibleInMenu(True)
         actionRevert = ontologyMenu.addAction("Revert")
         actionRevert.setData(ontology)
         icon = QIcon()

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Thu Feb 19 10:59:41 2015
+# Created: Sun Feb 22 02:11:16 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -287,16 +287,10 @@ class Ui_mainwindow(object):
         self.actionRemoveTerms.setIcon(icon24)
         self.actionRemoveTerms.setIconVisibleInMenu(True)
         self.actionRemoveTerms.setObjectName("actionRemoveTerms")
-        self.actionUpdate = QtGui.QAction(mainwindow)
-        icon25 = QtGui.QIcon()
-        icon25.addPixmap(QtGui.QPixmap(":/actions/gfx/actions/update-product.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionUpdate.setIcon(icon25)
-        self.actionUpdate.setIconVisibleInMenu(True)
-        self.actionUpdate.setObjectName("actionUpdate")
         self.actionFind = QtGui.QAction(mainwindow)
-        icon26 = QtGui.QIcon()
-        icon26.addPixmap(QtGui.QPixmap(":/actions/gfx/actions/edit-find.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionFind.setIcon(icon26)
+        icon25 = QtGui.QIcon()
+        icon25.addPixmap(QtGui.QPixmap(":/actions/gfx/actions/edit-find.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionFind.setIcon(icon25)
         self.actionFind.setIconVisibleInMenu(True)
         self.actionFind.setObjectName("actionFind")
         self.actionOntology = QtGui.QAction(mainwindow)
@@ -315,9 +309,9 @@ class Ui_mainwindow(object):
         self.actionActive_Ontologies.setEnabled(False)
         self.actionActive_Ontologies.setObjectName("actionActive_Ontologies")
         self.actionPrintPreview = QtGui.QAction(mainwindow)
-        icon27 = QtGui.QIcon()
-        icon27.addPixmap(QtGui.QPixmap(":/actions/gfx/document-print-preview.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionPrintPreview.setIcon(icon27)
+        icon26 = QtGui.QIcon()
+        icon26.addPixmap(QtGui.QPixmap(":/actions/gfx/document-print-preview.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionPrintPreview.setIcon(icon26)
         self.actionPrintPreview.setIconVisibleInMenu(True)
         self.actionPrintPreview.setObjectName("actionPrintPreview")
         self.openOntology.addAction(self.openLocalOntologyAction)
@@ -386,8 +380,6 @@ class Ui_mainwindow(object):
         self.menuOntology.addAction(self.actionAddTerms)
         self.menuOntology.addAction(self.actionRemoveTerms)
         self.menuOntology.addSeparator()
-        self.menuOntology.addAction(self.actionUpdate)
-        self.menuOntology.addSeparator()
         self.menuOntology.addAction(self.actionActive_Ontologies)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -409,8 +401,6 @@ class Ui_mainwindow(object):
         self.toolBarEdit.addAction(self.actionPaste)
         self.toolBarOntology.addAction(self.actionAddTerms)
         self.toolBarOntology.addAction(self.actionRemoveTerms)
-        self.toolBarOntology.addSeparator()
-        self.toolBarOntology.addAction(self.actionUpdate)
         self.toolBarTools.addAction(self.actionSettings)
         self.toolBarHelp.addAction(self.actionPySUMOHelp)
         self.toolBarHelp.addAction(self.actionPySUMOTutorials)
@@ -497,7 +487,6 @@ class Ui_mainwindow(object):
         self.actionConfigureToollbars.setText(QtGui.QApplication.translate("mainwindow", "Configure Toolbars...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAddTerms.setText(QtGui.QApplication.translate("mainwindow", "Add Terms", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRemoveTerms.setText(QtGui.QApplication.translate("mainwindow", "Remove Terms", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionUpdate.setText(QtGui.QApplication.translate("mainwindow", "Update ", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFind.setText(QtGui.QApplication.translate("mainwindow", "Find", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOntology.setText(QtGui.QApplication.translate("mainwindow", "Ontology", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStatusbar.setText(QtGui.QApplication.translate("mainwindow", "Statusbar", None, QtGui.QApplication.UnicodeUTF8))
