@@ -175,6 +175,12 @@ class OptionDialog(QDialog, Ui_Dialog):
         self.maxDocumentationWidgets.valueChanged.connect(partial(self.onOptionChanged, self.maxDocumentationWidgets))
         self.maxHierarchyWidgets.valueChanged.connect(partial(self.onOptionChanged, self.maxHierarchyWidgets))
         self.maxGraphWidgets.valueChanged.connect(partial(self.onOptionChanged, self.maxGraphWidgets))
+        button = self.buttonBox.button(QDialogButtonBox.Apply)
+        button.clicked.connect(self.onApplyClicked)
+        button = self.buttonBox.button(QDialogButtonBox.Reset)
+        button.clicked.connect(self.onResetClicked)
+        button = self.buttonBox.button(QDialogButtonBox.RestoreDefaults)
+        button.clicked.connect(self.onRestoreDefaultsClicked)
         
     def initialize(self):
         self.loadTextSetting(self.configPath)
@@ -213,8 +219,18 @@ class OptionDialog(QDialog, Ui_Dialog):
         self.loadIntSetting(self.maxHierarchyWidgets)
         self.loadIntSetting(self.maxGraphWidgets)
         
-    def actiontriggered(self, action):
-        pass
+        
+    def onApplyClicked(self):
+        self.save()
+        
+    def onResetClicked(self):
+        self.changes.clear()
+        self.initialize()
+        
+    def onRestoreDefaultsClicked(self):
+        self.changes.clear()
+        self.settings.loadDefaults()
+        self.initialize()
     
     def loadBoolSetting(self, checkbox):
         checkbox.setChecked(str_to_bool(self.settings.value(checkbox.objectName())))
@@ -271,9 +287,7 @@ class OptionDialog(QDialog, Ui_Dialog):
         
     def accept(self, *args, **kwargs):
         # Save the options.
-        for key in self.changes.keys() :
-            self.settings.setValue(key, self.changes.get(key))
-        self.changes.clear()
+        self.save()
         return QDialog.accept(self, *args, **kwargs)
         
     def setSelectedPage(self, pageIndex):
@@ -287,7 +301,7 @@ class OptionDialog(QDialog, Ui_Dialog):
         """ Initializes the view of the OptionDialog. """
         pass
 
-    def save(self, path):
+    def save(self):
         """ Saves the settings to the given path.
 
         Arguments:
@@ -299,7 +313,9 @@ class OptionDialog(QDialog, Ui_Dialog):
         - IOError
 
         """
-        pass
+        for key in self.changes.keys() :
+            self.settings.setValue(key, self.changes.get(key))
+        self.changes.clear()
 
     def load(self, path):
         """ Reads the settings from the given path.

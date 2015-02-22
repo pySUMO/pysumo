@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'OptionDialog.ui'
 #
-# Created: Sat Feb 21 18:19:22 2015
+# Created: Sun Feb 22 01:13:13 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -142,6 +142,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.logOutputPath = QtGui.QLineEdit(self.widget_3)
+        self.logOutputPath.setReadOnly(True)
         self.logOutputPath.setObjectName("logOutputPath")
         self.horizontalLayout_6.addWidget(self.logOutputPath)
         self.logOutputPathChooser = QtGui.QToolButton(self.widget_3)
@@ -158,6 +159,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_7.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.socketOutputPath = QtGui.QLineEdit(self.widget_4)
+        self.socketOutputPath.setReadOnly(True)
         self.socketOutputPath.setObjectName("socketOutputPath")
         self.horizontalLayout_7.addWidget(self.socketOutputPath)
         self.socketOutputPathChooser = QtGui.QToolButton(self.widget_4)
@@ -209,7 +211,7 @@ class Ui_Dialog(object):
         self.toolBox = QtGui.QToolBox(self.tab_6)
         self.toolBox.setObjectName("toolBox")
         self.page_6 = QtGui.QWidget()
-        self.page_6.setGeometry(QtCore.QRect(0, 0, 353, 159))
+        self.page_6.setGeometry(QtCore.QRect(0, 0, 501, 278))
         self.page_6.setObjectName("page_6")
         self.gridLayout_9 = QtGui.QGridLayout(self.page_6)
         self.gridLayout_9.setObjectName("gridLayout_9")
@@ -281,7 +283,7 @@ class Ui_Dialog(object):
         self.gridLayout_9.addLayout(self.formLayout_2, 0, 0, 1, 1)
         self.toolBox.addItem(self.page_6, "")
         self.page_7 = QtGui.QWidget()
-        self.page_7.setGeometry(QtCore.QRect(0, 0, 353, 159))
+        self.page_7.setGeometry(QtCore.QRect(0, 0, 501, 278))
         self.page_7.setObjectName("page_7")
         self.gridLayout_10 = QtGui.QGridLayout(self.page_7)
         self.gridLayout_10.setObjectName("gridLayout_10")
@@ -584,8 +586,8 @@ class Ui_Dialog(object):
         self.listWidget.setCurrentRow(0)
         self.stackedWidget.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
-        self.tabWidget_2.setCurrentIndex(1)
-        self.toolBox.setCurrentIndex(3)
+        self.tabWidget_2.setCurrentIndex(0)
+        self.toolBox.setCurrentIndex(0)
         self.tabWidget_5.setCurrentIndex(0)
         self.tabWidget_3.setCurrentIndex(0)
         self.tabWidget_4.setCurrentIndex(0)
@@ -593,7 +595,6 @@ class Ui_Dialog(object):
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), Dialog.reject)
         QtCore.QObject.connect(self.listWidget, QtCore.SIGNAL("currentItemChanged(QListWidgetItem*,QListWidgetItem*)"), Dialog.changePage)
         QtCore.QObject.connect(self.stackedWidget, QtCore.SIGNAL("currentChanged(int)"), Dialog.setSelectedPage)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("clicked(QAbstractButton*)"), Dialog.actiontriggered)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
