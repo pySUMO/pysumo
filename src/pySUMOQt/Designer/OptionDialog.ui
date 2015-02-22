@@ -332,7 +332,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabWidget_2">
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="tab_3">
              <attribute name="title">
@@ -379,15 +379,15 @@
               <item row="0" column="0">
                <widget class="QToolBox" name="toolBox">
                 <property name="currentIndex">
-                 <number>3</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="page_6">
                  <property name="geometry">
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>353</width>
-                   <height>159</height>
+                   <width>501</width>
+                   <height>278</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -522,8 +522,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>353</width>
-                   <height>159</height>
+                   <width>501</width>
+                   <height>278</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -1134,22 +1134,6 @@
     <hint type="destinationlabel">
      <x>298</x>
      <y>174</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>clicked(QAbstractButton*)</signal>
-   <receiver>Dialog</receiver>
-   <slot>actiontriggered(QAbstractButton*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>339</x>
-     <y>517</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>339</x>
-     <y>269</y>
     </hint>
    </hints>
   </connection>
