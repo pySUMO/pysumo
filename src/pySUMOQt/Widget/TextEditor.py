@@ -77,8 +77,8 @@ class TextEditor(RWWidget, Ui_Form):
 
     def _updateOntologySelector(self):
         self.ontologySelector.clear()
-        self.ontologySelector.addItems(
-            [i.name for i in self.getIndexAbstractor().ontologies])
+        for i in self.getIndexAbstractor().ontologies :
+            self.ontologySelector.addItem(i.name, i)
 
     @Slot(str)
     def showOtherOntology(self, ontologyname):
