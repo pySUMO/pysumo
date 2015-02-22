@@ -188,6 +188,8 @@ class Ontology:
         else:
             self.name = name
         self.action_log = actionlog.ActionLog(self.name, lpath)
+        with open(path, 'r+b') as f:
+            self.action_log.current = BytesIO(f.read())
         self.path = path
         self.url = url
         self.active = False

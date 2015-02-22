@@ -71,9 +71,8 @@ class IndexAbstractor:
         """ Returns an in-memory file object for the Kif representation of ontology. """
         if ontology in self.ontologies:
             ret = StringIO()
-            with open(ontology.path) as o:
-                ret.write(o.read())
-                ret.seek(0)
+            ret.write(ontology.action_log.current.read().decode('utf8'))
+            ret.seek(0)
             return ret
 
     def get_completions(self):
