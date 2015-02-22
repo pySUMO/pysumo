@@ -5,8 +5,8 @@ highlighting and autocompletion.
 """
 from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint, QSize
 from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QPainter
-from PySide.QtGui import QFont, QSyntaxHighlighter, QShortcut, QKeySequence
-from PySide.QtGui import QTextCharFormat
+from PySide.QtGui import QFont, QSyntaxHighlighter, QShortcut, QKeySequence, QPrintDialog
+from PySide.QtGui import QTextCharFormat, QDialog, QPrinter, QPrinterInfo, QPrintPreviewDialog
 from collections import OrderedDict
 import re
 import string
@@ -16,7 +16,6 @@ from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
-from PySide import QtGui
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -56,7 +55,7 @@ class TextEditor(RWWidget, Ui_Form):
 
         self._initNumberBar()
         self.hidden = {}
-
+        self.printer = QPrinter(QPrinterInfo.defaultPrinter())
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
@@ -64,6 +63,33 @@ class TextEditor(RWWidget, Ui_Form):
         self.ontologySelector.currentIndexChanged[str].connect(
             self.showOtherOntology)
         self._updateOntologySelector()
+        
+    def _print_(self):
+        dialog = QPrintDialog()
+        if dialog.exec_() == QDialog.Accepted :
+            doc = self.plainTextEdit.document()
+            doc.print_(dialog.printer())
+            
+    def _quickPrint_(self):
+        if self.printer is None :
+            return
+        doc = self.plainTextEdit.document()
+        doc.print_(self.printer)
+        
+    def _printPreview_(self):
+        dialog = QPrintPreviewDialog()
+        dialog.paintRequested.connect(self.plainTextEdit.print_)
+        dialog.exec_()
+        
+    def _save_(self):
+        idx = self.ontologySelector.currentIndex()
+        ontology = self.ontologySelector.itemData(idx)
+        if ontology is None :
+            return 
+        if type(ontology) is Ontology :
+            with open(ontology.path, mode='w') as f :
+                f.write(self.plainTextEdit.toPlainText())
+                f.close
 
     def _initNumberBar(self):
         self.number_bar = NumberBar(self)

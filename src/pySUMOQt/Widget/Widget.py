@@ -37,6 +37,17 @@ class Widget(QObject):
     def getWidget(self):
         pass
 
+    def _print_(self):
+        pass
+    
+    def _quickPrint_(self):
+        pass
+    
+    def _printPreview_(self):
+        pass
+    
+    def _save_(self):
+        pass
 
 class RWidget(Widget):
 
