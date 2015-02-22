@@ -13,6 +13,8 @@ from os import environ, listdir
 from os.path import basename, isdir, join
 from .logger import actionlog
 from . import parser
+from tempfile import mkstemp
+from subprocess import call
 
 def get_ontologies(packaged='/usr/local/share/pysumo', user='/'.join([environ['HOME'], '.pysumo'])):
     """ Returns a set of all ontologies provided by pysumo as well as local ontologies. """
@@ -79,48 +81,60 @@ class SyntaxController:
         - ParseError
 
         """
-        pass
-
-    def parse_graph(self, graph):
-        """ Tells self.parser to modify the current Ontology according to graph.
-
-        Arguments:
-
-        - graph: the AbstractGraph to check for modified nodes
-
-        Raises:
-
-        - ParseError
-
-        """
-        pass
-
-    def add_ontology(self, ontology):
+        (tempfile, tempfilepath) = mkstemp(text=True)
+        o = self.index.get_ontology_file(ontology)
+        for l in o:
+            print(l, end='', file=tempfile)
+        tempfile.close()
+        call(["patch", tempfilepath], stdin=patch)
+        with open(tempfilepath) as f:
+            pos = f.tell()
+            num = ontology.action_log.queue_log(StringIO(f.read()))
+            f.seek(pos)
+            newast = parser.kifparse(f, ontology, ast=self.index.root)
+        try:
+            self.remove_ontology(ontology)
+            newast = parser.astmerge(self.index.root, newast)
+        except AttributeError:
+            pass
+        newast.ontology = None
+        self.index.update_index(newast)
+        self.index.ontologies.add(ontology)
+        ontology.action_log.ok_log_item(num)
+        
+    def add_ontology(self, ontology, newversion=None):
         """ Adds ontology to the current in-memory Ontology.
 
         Arguments:
 
         - ontology: the ontology that will be added
+        - newversion: a string witch represent the new verison of the ontology
 
         Raises:
 
         - ParseError
 
         """
-        with open(ontology.path) as f:
-            newast = parser.kifparse(f, ontology, ast=self.index.root)
-        # Not sure if reopening the file is faster than encoding to binary
-        with open(ontology.path, 'r+b') as f:
-            num = ontology.action_log.queue_log(BytesIO(f.read()))
+
+        if memfile == None:
+            with open(ontology.path) as f:
+                pos = f.tell()
+                num = ontology.action_log.queue_log(StringIO(f.read()))
+                f.seek(pos)
+                newast = parser.kifparse(f, ontology, ast=self.index.root)
+        else:
+            num = ontology.action_log.queue_log(StringIO(newversion))
+            f = StringIO(newversion)
+            newast = parse.kifparse(memfile, ontology, ast=self.index.root)
         try:
             self.remove_ontology(ontology)
             newast = parser.astmerge((self.index.root, newast))
         except AttributeError:
             pass
-        ontology.action_log.ok_log_item(num)
         newast.ontology = None
         self.index.update_index(newast)
         self.index.ontologies.add(ontology)
+        ontology.action_log.ok_log_item(num)
 
     def remove_ontology(self, ontology):
         """ Removes ontology from the current in-memory Ontology.
