@@ -66,27 +66,20 @@ class SyntaxController:
         f.close()
         return ast
 
-    def parse_add(self, code_block, ontology):
-        """ Tells self.parser to check code_block for syntactical correctness and add it to the
-        Ontology if it is correct.
+    def parse_patch(self, ontology, patch):
+        """ Apply a patch to the last version of the ontology and parse this new version
 
         Arguments:
 
-        - code_block: the code block that will be checked and added to the Ontology
+        - ontology: the ontlogy which is patched
+        - patch: the patch to add to the ontology
 
         Raises:
 
         - ParseError
 
         """
-        f = StringIO(code_block)
-        parsed = parser.kifparse(f, ontology)
-        # code_block needs to be the complete new kif file
-        num = ontology.action_log.queue_log(BytesIO(code_block.encode()))
-        newast = parser.astmerge((self.index.root, parsed))
-        self.index.update_index(newast)
-        ontology.action_log.ok_log_item(num)
-        f.close()
+        pass
 
     def parse_graph(self, graph):
         """ Tells self.parser to modify the current Ontology according to graph.
