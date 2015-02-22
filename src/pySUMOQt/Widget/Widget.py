@@ -48,6 +48,12 @@ class Widget(QObject):
     
     def _save_(self):
         pass
+    
+    def _zoomIn_(self):
+        pass
+    
+    def _zoomOut_(self):
+        pass
 
 class RWidget(Widget):
 

@@ -133,6 +133,9 @@ class TextEditor(RWWidget, Ui_Form):
         font.setPointSize(font.pointSize() + 1)
         font = QFont(font)
         doc.setDefaultFont(font)
+        
+    def _zoomIn_(self):
+        self.increaseSize()
 
     @Slot()
     def decreaseSize(self):
@@ -141,6 +144,9 @@ class TextEditor(RWWidget, Ui_Form):
         font.setPointSize(font.pointSize() - 1)
         font = QFont(font)
         doc.setDefaultFont(font)
+        
+    def _zoomOut_(self):
+        self.decreaseSize()
 
     @Slot()
     def expandAll(self):

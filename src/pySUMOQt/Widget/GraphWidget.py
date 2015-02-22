@@ -129,6 +129,14 @@ class GraphWidget(RWWidget, Ui_Form):
         painter.setRenderHint(QPainter.Antialiasing)
         self.graphicsView.render(painter)
         
+    def _zoomIn_(self):
+        val = self.doubleSpinBox.value() + 0.10
+        self.doubleSpinBox.setValue(val)
+        
+    def _zoomOut_(self):
+        val = self.doubleSpinBox.value() - 0.10
+        self.doubleSpinBox.setValue(val)
+        
     @Slot(float)
     def changeScale(self, val):
         toScale = val / self.lastScale
