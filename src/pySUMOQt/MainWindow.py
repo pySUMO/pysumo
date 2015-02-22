@@ -19,8 +19,7 @@ from PySide.QtCore import QCoreApplication, Qt, Slot, QObject, SIGNAL
 from PySide.QtCore import QEvent, Signal
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QPixmap
 from PySide.QtGui import QIcon, QDockWidget, QFileDialog, QPrintDialog
-from PySide.QtGui import QAction, QMenu, QAbstractPrintDialog
-from PySide.QtGui import QDialog, QPrintPreviewDialog
+from PySide.QtGui import QAction, QMenu
 from PySide.QtNetwork import QLocalServer, QAbstractSocket
 
 from pySUMOQt.Designer.MainWindow import Ui_mainwindow
@@ -62,9 +61,9 @@ class PySUMOWidget(QDockWidget):
 
     def eventFilter(self, source, event):
         if event.type() == QEvent.FocusIn:
-            self.callback, self.callback2, self.callback3, self.callback4, self.callback5 = self.mainWindow.connectTextEditor(self.wrappedWidget)
+            self.callback = self.mainWindow.connectWidget(self.wrappedWidget)
         elif event.type() == QEvent.FocusOut:
-            self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback, self.callback2, self.callback3, self.callback4, self.callback5)
+            self.mainWindow.disconnectWidget(self.wrappedWidget, self.callback)
         return super(PySUMOWidget, self).eventFilter(source, event)
 
 class MainWindow(Ui_mainwindow, QMainWindow):
@@ -142,6 +141,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             wrappedWidget = HierarchyWidget(widget)
         elif widgetType == "GraphWidget":
             wrappedWidget = GraphWidget(widget)
+            wrappedWidget.graphicsView.installEventFilter(widget)
         if wrappedWidget is None :
             print("can not create widget with type " + widgetType)
             return
@@ -210,13 +210,18 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         logrecord = logging.makeLogRecord(loads(data))
         self.statusBar.showMessage(logrecord.getMessage())
 
-    def updateStatusbar(self, wrappedWidget, arg1, arg2):
+    def updateStatusbar(self, wrappedWidget = None):
         '''Update the status bar.'''
         # arg1 and arg2 are used to resolve an argument number error.
         plainTextEdit = None
-        if not wrappedWidget is None and type(wrappedWidget) == TextEditor :
+        if wrappedWidget is None :
+            self.lineColNumber.setVisible(False)
+            return
+        else : 
+            self.lineColNumber.setVisible(True)
+        if type(wrappedWidget) == TextEditor :
             plainTextEdit = wrappedWidget.plainTextEdit 
-        if plainTextEdit is None :
+        else :
             return
         textCursor = plainTextEdit.textCursor()
         document = plainTextEdit.document()
@@ -249,58 +254,48 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         if len(self.menuDelete.actions()) == 1:
             self.menuDelete.setEnabled(False)
 
-    def connectTextEditor(self, widget):
-        callback = partial(self.updateStatusbar, widget)
-        widget.getWidget().updateRequest.connect(callback)
-        self.actionExpand.triggered.connect(widget.expandAll)
-        self.actionCollapse.triggered.connect(widget.hideAll)
-        self.actionZoomIn.triggered.connect(widget.increaseSize)
-        self.actionZoomOut.triggered.connect(widget.decreaseSize)
-        self.actionUndo.triggered.connect(widget.plainTextEdit.undo)
-        self.actionRedo.triggered.connect(widget.plainTextEdit.redo)
-        self.actionCut.triggered.connect(widget.plainTextEdit.cut)
-        self.actionCopy.triggered.connect(widget.plainTextEdit.copy)
-        self.actionPaste.triggered.connect(widget.plainTextEdit.paste)
-        self.actionDelete.triggered.connect(widget.plainTextEdit.clear)
-        self.actionSelectAll.triggered.connect(widget.plainTextEdit.selectAll)
-        callback2 = partial(self.onPrint, widget)
-        self.actionPrint.triggered.connect(callback2)
-        callback3 = partial(self.onQuickPrint, widget)
-        self.actionQuickPrint.triggered.connect(callback3)
-        callback4 = partial(self.onPrintPreview, widget)
-        self.actionPrintPreview.triggered.connect(callback4)
-        callback5 = partial(self.onSave, widget)
-        self.actionSave.triggered.connect(callback5)
-        return callback, callback2, callback3, callback4, callback5
+    def connectWidget(self, widget):
+        widgetType = type(widget)
+        self.actionPrint.triggered.connect(widget._print_)
+        self.actionPrintPreview.triggered.connect(widget._printPreview_)
+        self.actionQuickPrint.triggered.connect(widget._quickPrint_)
+        self.actionSave.triggered.connect(widget._save_)
+        if widgetType == TextEditor :
+            callback = partial(self.updateStatusbar, widget)
+            widget.getWidget().cursorPositionChanged.connect(callback)
+            self.actionExpand.triggered.connect(widget.expandAll)
+            self.actionCollapse.triggered.connect(widget.hideAll)
+            self.actionZoomIn.triggered.connect(widget.increaseSize)
+            self.actionZoomOut.triggered.connect(widget.decreaseSize)
+            self.actionUndo.triggered.connect(widget.plainTextEdit.undo)
+            self.actionRedo.triggered.connect(widget.plainTextEdit.redo)
+            self.actionCut.triggered.connect(widget.plainTextEdit.cut)
+            self.actionCopy.triggered.connect(widget.plainTextEdit.copy)
+            self.actionPaste.triggered.connect(widget.plainTextEdit.paste)
+            self.actionDelete.triggered.connect(widget.plainTextEdit.clear)
+            self.actionSelectAll.triggered.connect(widget.plainTextEdit.selectAll)
+            return callback
 
-    def disconnectTextEditor(self, widget, callback, callback2, callback3, callback4, callback5):
-        widget.getWidget().updateRequest.disconnect(callback)
-        self.actionExpand.triggered.disconnect(widget.expandAll)
-        self.actionCollapse.triggered.disconnect(widget.hideAll)
-        self.actionZoomIn.triggered.disconnect(widget.increaseSize)
-        self.actionZoomOut.triggered.disconnect(widget.decreaseSize)
-        self.actionPrint.triggered.disconnect(callback2)
-        self.actionQuickPrint.triggered.disconnect(callback3)
-        self.actionPrintPreview.triggered.disconnect(callback4)
-        self.actionUndo.triggered.disconnect(widget.plainTextEdit.undo)
-        self.actionRedo.triggered.disconnect(widget.plainTextEdit.redo)
-        self.actionCut.triggered.disconnect(widget.plainTextEdit.cut)
-        self.actionCopy.triggered.disconnect(widget.plainTextEdit.copy)
-        self.actionPaste.triggered.disconnect(widget.plainTextEdit.paste)
-        self.actionDelete.triggered.disconnect(widget.plainTextEdit.clear)
-        self.actionSelectAll.triggered.disconnect(widget.plainTextEdit.selectAll)
-        self.actionSave.triggered.disconnect(callback5)
-        
-    def onSave(self, widget):
-        idx = widget.ontologySelector.currentIndex()
-        ontology = widget.ontologySelector.itemData(idx)
-        if ontology is None :
-            return 
-        
-        if type(ontology) is Ontology :
-            with open(ontology.path, mode='w') as f :
-                f.write(widget.plainTextEdit.toPlainText())
-                f.close
+    def disconnectWidget(self, widget, callback=None):
+        widgetType = type(widget)
+        self.actionPrint.triggered.disconnect(widget._print_)
+        self.actionQuickPrint.triggered.disconnect(widget._quickPrint_)
+        self.actionPrintPreview.triggered.disconnect(widget._printPreview_)
+        self.actionSave.triggered.disconnect(widget._save_)
+        if widgetType == TextEditor :
+            self.updateStatusbar()
+            widget.getWidget().cursorPositionChanged.disconnect(callback)
+            self.actionExpand.triggered.disconnect(widget.expandAll)
+            self.actionCollapse.triggered.disconnect(widget.hideAll)
+            self.actionZoomIn.triggered.disconnect(widget.increaseSize)
+            self.actionZoomOut.triggered.disconnect(widget.decreaseSize)
+            self.actionUndo.triggered.disconnect(widget.plainTextEdit.undo)
+            self.actionRedo.triggered.disconnect(widget.plainTextEdit.redo)
+            self.actionCut.triggered.disconnect(widget.plainTextEdit.cut)
+            self.actionCopy.triggered.disconnect(widget.plainTextEdit.copy)
+            self.actionPaste.triggered.disconnect(widget.plainTextEdit.paste)
+            self.actionDelete.triggered.disconnect(widget.plainTextEdit.clear)
+            self.actionSelectAll.triggered.disconnect(widget.plainTextEdit.selectAll)
 
     def onNewOntology(self):
         '''Handles the new ontology action when it is triggered.'''
@@ -405,26 +400,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.menuRecent_Ontologies.clear()
         self.menuRecent_Ontologies.addSeparator()
         self.menuRecent_Ontologies.addAction(self.clearHistoryAction)
-        
-    def onPrint(self, wrappedWidget):
-        '''Handles the print action when it is triggered.'''
-        self.dialog.setOption(QAbstractPrintDialog.PrintToFile)
-        if self.dialog.exec_() == QDialog.Accepted :
-            doc = wrappedWidget.plainTextEdit.document()
-            doc.print_(self.dialog.printer())
-            
-    def onQuickPrint(self, wrappedWidget):
-        '''Handles the quick print action when it is triggered.'''
-        doc = wrappedWidget.plainTextEdit.document()
-        printer = self.dialog.printer()
-        if not printer is None :
-            doc.print_(printer)
-            
-    def onPrintPreview(self, wrappedWidget):
-        '''Handles the print preview action when it is triggered.'''
-        dialog = QPrintPreviewDialog()
-        dialog.paintRequested.connect(wrappedWidget.plainTextEdit.print_)
-        dialog.exec_()
         
 def main():
     app = QApplication(sys.argv)

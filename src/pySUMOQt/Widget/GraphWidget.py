@@ -10,6 +10,7 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 from PySide.QtCore import QLineF, Slot, Qt
 from PySide.QtGui import QColor, QPen, QStandardItem, QMenu, QInputDialog, QMessageBox
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
+from PySide.QtGui import QPrintPreviewDialog, QPainter
 import pygraphviz
 import random
 import logging
@@ -117,6 +118,16 @@ class GraphWidget(RWWidget, Ui_Form):
         else:
             logging.info("Starting node is " + qnode.node)
             self.startRelation = qnode
+
+    def _printPreview_(self):
+        dialog = QPrintPreviewDialog()
+        dialog.paintRequested.connect(self.print_)
+        dialog.exec_()
+        
+    def print_(self, printer):
+        painter = QPainter(printer)
+        painter.setRenderHint(QPainter.Antialiasing)
+        self.graphicsView.render(painter)
         
     @Slot(float)
     def changeScale(self, val):
