@@ -89,7 +89,7 @@ class SyntaxController:
         call(["patch", tempfilepath], stdin=patch)
         with open(tempfilepath) as f:
             pos = f.tell()
-            num = ontology.action_log.queue_log(StringIO(f.read()))
+            num = ontology.action_log.queue_log(BytesIO(f.read().encode()))
             f.seek(pos)
             newast = parser.kifparse(f, ontology, ast=self.index.root)
         try:
@@ -116,16 +116,16 @@ class SyntaxController:
 
         """
 
-        if memfile == None:
+        if newversion == None:
             with open(ontology.path) as f:
                 pos = f.tell()
-                num = ontology.action_log.queue_log(StringIO(f.read()))
+                num = ontology.action_log.queue_log(BytesIO(f.read().encode()))
                 f.seek(pos)
                 newast = parser.kifparse(f, ontology, ast=self.index.root)
         else:
-            num = ontology.action_log.queue_log(StringIO(newversion))
+            num = ontology.action_log.queue_log(BytesIO(newversion.encode()))
             f = StringIO(newversion)
-            newast = parse.kifparse(memfile, ontology, ast=self.index.root)
+            newast = parser.kifparse(StringIO(newversion), ontology, ast=self.index.root)
         try:
             self.remove_ontology(ontology)
             newast = parser.astmerge((self.index.root, newast))

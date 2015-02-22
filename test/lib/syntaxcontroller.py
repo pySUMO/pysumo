@@ -87,7 +87,7 @@ class syntaxTestCase(unittest.TestCase):
         with open(self.sumo.path) as code:
             code_block.write(code.read())
         code_block.write('(instance foo Entity)\n(documentation foo EnglishLanguage "&%foo is an object of type foo")\n')
-        self.syntaxcontroller.parse_add(code_block.getvalue(), self.sumo)
+        self.syntaxcontroller.add_ontology(self.sumo, code_block.getvalue())
         sterm = self.syntaxcontroller.index.search('foo')
         self.assertListEqual(sterm[self.sumo], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
         sio = StringIO('(instance foo Entity)\n(documentation foo EnglishLanguage "&%foo is an object of type foo")\n')
