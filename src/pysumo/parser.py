@@ -53,7 +53,7 @@ def atom(token):
         except ValueError:
             return Symbol(token)
 
-def kifparse(infile, ontology, graph=None, ast=None):
+def kifparse(infile, ontology, ast=None):
     """ Parse an ontology and return an AbstractSyntaxTree.
 
     Args:
