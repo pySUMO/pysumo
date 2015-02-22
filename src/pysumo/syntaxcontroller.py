@@ -83,14 +83,7 @@ class SyntaxController:
         - ParseError
 
         """
-        f = StringIO(code_block)
-        parsed = parser.kifparse(f, ontology)
-        # code_block needs to be the complete new kif file
-        num = ontology.action_log.queue_log(BytesIO(code_block.encode()))
-        newast = parser.astmerge((self.index.root, parsed))
-        self.index.update_index(newast)
-        ontology.action_log.ok_log_item(num)
-        f.close()
+        pass
 
     def parse_graph(self, graph):
         """ Tells self.parser to modify the current Ontology according to graph.
