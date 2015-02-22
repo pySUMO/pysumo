@@ -62,11 +62,9 @@ class PySUMOWidget(QDockWidget):
 
     def eventFilter(self, source, event):
         if event.type() == QEvent.FocusIn:
-            if type(self.wrappedWidget) == TextEditor:
-                self.callback, self.callback2, self.callback3, self.callback4 = self.mainWindow.connectTextEditor(self.wrappedWidget)
+            self.callback, self.callback2, self.callback3, self.callback4, self.callback5 = self.mainWindow.connectTextEditor(self.wrappedWidget)
         elif event.type() == QEvent.FocusOut:
-            if type(self.wrappedWidget) == TextEditor:
-                self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback, self.callback2, self.callback3, self.callback4)
+            self.mainWindow.disconnectTextEditor(self.wrappedWidget, self.callback, self.callback2, self.callback3, self.callback4, self.callback5)
         return super(PySUMOWidget, self).eventFilter(source, event)
 
 class MainWindow(Ui_mainwindow, QMainWindow):
@@ -271,9 +269,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionQuickPrint.triggered.connect(callback3)
         callback4 = partial(self.onPrintPreview, widget)
         self.actionPrintPreview.triggered.connect(callback4)
-        return callback, callback2, callback3, callback4
+        callback5 = partial(self.onSave, widget)
+        self.actionSave.triggered.connect(callback5)
+        return callback, callback2, callback3, callback4, callback5
 
-    def disconnectTextEditor(self, widget, callback, callback2, callback3, callback4):
+    def disconnectTextEditor(self, widget, callback, callback2, callback3, callback4, callback5):
         widget.getWidget().updateRequest.disconnect(callback)
         self.actionExpand.triggered.disconnect(widget.expandAll)
         self.actionCollapse.triggered.disconnect(widget.hideAll)
@@ -289,6 +289,18 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionPaste.triggered.disconnect(widget.plainTextEdit.paste)
         self.actionDelete.triggered.disconnect(widget.plainTextEdit.clear)
         self.actionSelectAll.triggered.disconnect(widget.plainTextEdit.selectAll)
+        self.actionSave.triggered.disconnect(callback5)
+        
+    def onSave(self, widget):
+        idx = widget.ontologySelector.currentIndex()
+        ontology = widget.ontologySelector.itemData(idx)
+        if ontology is None :
+            return 
+        
+        if type(ontology) is Ontology :
+            with open(ontology.path, mode='w') as f :
+                f.write(widget.plainTextEdit.toPlainText())
+                f.close
 
     def onNewOntology(self):
         '''Handles the new ontology action when it is triggered.'''
