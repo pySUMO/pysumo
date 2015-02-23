@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GraphWidget.ui'
 #
-# Created: Fri Feb 20 20:40:12 2015
+# Created: Mon Feb 23 01:21:42 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,12 +44,23 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.rootSelector.sizePolicy().hasHeightForWidth())
         self.rootSelector.setSizePolicy(sizePolicy)
         self.rootSelector.setObjectName("rootSelector")
+        self.rootSelector.addItem("")
         self.gridLayout.addWidget(self.rootSelector, 0, 10, 1, 1)
         self.label = QtGui.QLabel(self.layoutWidget)
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 3, 1, 1)
         self.relations = QtGui.QComboBox(self.layoutWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.relations.sizePolicy().hasHeightForWidth())
+        self.relations.setSizePolicy(sizePolicy)
+        self.relations.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToMinimumContentsLength)
         self.relations.setObjectName("relations")
+        self.relations.addItem("")
+        self.relations.addItem("")
+        self.relations.addItem("")
+        self.relations.addItem("")
         self.gridLayout.addWidget(self.relations, 0, 2, 1, 1)
         self.pushButton = QtGui.QPushButton(self.layoutWidget)
         self.pushButton.setObjectName("pushButton")
@@ -72,7 +83,12 @@ class Ui_Form(object):
         Form.setWindowTitle(QtGui.QApplication.translate("Form", "Form", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Form", "Depth", None, QtGui.QApplication.UnicodeUTF8))
         self.rootSelector.setWhatsThis(QtGui.QApplication.translate("Form", "Root selector", None, QtGui.QApplication.UnicodeUTF8))
+        self.rootSelector.setItemText(0, QtGui.QApplication.translate("Form", "---", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Form", "Search for node:", None, QtGui.QApplication.UnicodeUTF8))
+        self.relations.setItemText(0, QtGui.QApplication.translate("Form", "---", None, QtGui.QApplication.UnicodeUTF8))
+        self.relations.setItemText(1, QtGui.QApplication.translate("Form", "instance", None, QtGui.QApplication.UnicodeUTF8))
+        self.relations.setItemText(2, QtGui.QApplication.translate("Form", "subclass", None, QtGui.QApplication.UnicodeUTF8))
+        self.relations.setItemText(3, QtGui.QApplication.translate("Form", "domain", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("Form", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.label2.setText(QtGui.QApplication.translate("Form", "Select root node", None, QtGui.QApplication.UnicodeUTF8))
         self.depth.setStatusTip(QtGui.QApplication.translate("Form", "-1 for infinity depth", None, QtGui.QApplication.UnicodeUTF8))
