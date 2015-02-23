@@ -370,9 +370,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         # update graph widget
         for x in self.widgets :
             if type(x) == GraphWidget :
-                x.createGV()
-                x.plot()
-                x.initRelationBox()
+                x.newVariant()
+#                 x.initRelationBox()
                 
         # print(gv)
 
