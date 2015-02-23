@@ -61,16 +61,17 @@ class GraphWidget(RWWidget, Ui_Form):
         self.qpens = {}
         self.lastScale = 1
         self.initMenu()
+        self.roots = set()
         self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
         self.lineEdit.textChanged.connect(self.searchNode)
         self.rootSelector.insertItem(0,"---")
         self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
-        
-
-    def initRelationBox(self):
-        m = self.relations.model()
-        for i in self.getIndexAbstractor().get_graph('instance').relations.keys():
-            m.appendRow(QStandardItem(i))
+        self.relations.currentIndexChanged[str].connect(self.newVariant)
+        self.depth.valueChanged.connect(self.newRoot)
+#     def initRelationBox(self):
+#         m = self.relations.model()
+#         for i in self.getIndexAbstractor().get_graph('instance').relations.keys():
+#             m.appendRow(QStandardItem(i))
 
     def searchNode(self,search):
         try:
@@ -89,6 +90,7 @@ class GraphWidget(RWWidget, Ui_Form):
     @Slot()
     def renewplot(self):
         scene = self.graphicsView.scene()
+        self.roots = set()
         # scene.changed.disconnect(self.renewplot)
         for i in self.qLines:
             scene.removeItem(i)
@@ -100,7 +102,7 @@ class GraphWidget(RWWidget, Ui_Form):
             qnode1 = self.nodesToQNodes[edge[0]]
             qnode2 = self.nodesToQNodes[edge[1]]
             line = QLineF(qnode1.pos(), qnode2.pos())
-            line.setLength(line.length() - 25)
+            line.setLength(line.length() - 40)
             end = line.p2()
 
             arrowLine1 = QLineF()
@@ -124,6 +126,8 @@ class GraphWidget(RWWidget, Ui_Form):
             self.qLines.append(item)
             item = scene.addLine(arrowLine2, self.qpens[edge.attr['color']])
             self.qLines.append(item)
+            
+            self.roots.add(edge[0])
         # scene.changed.connect(self.renewplot)
 
     def plot(self):
@@ -137,16 +141,16 @@ class GraphWidget(RWWidget, Ui_Form):
         self.qLines = []
         for node in self.gv.nodes_iter():
             (x, y) = node.attr['pos'].split(',')
-            qnode = QtNode(-25, -25, 50, 50)
+            qnode = QtNode(-40, -40, 80, 80)
             qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
             qnode.setPos(float(x) * 4, float(y) * 4)
             qnode.setFlag(QGraphicsItem.ItemIsMovable)
             qnode.setCallBack(self.renewplot)
             qnode.setBrush(QColor(255, 150, 150))
             txt = QGraphicsSimpleTextItem(qnode)
-            txt.setPos(-20, -15)
+            txt.setPos(-35, -25)
             font = txt.font()
-            font.setPointSize(7)
+            font.setPointSize(14)
             txt.setFont(font)
             txt.setText(insert_newlines(node, 8))
             scene.addItem(qnode)
@@ -154,9 +158,6 @@ class GraphWidget(RWWidget, Ui_Form):
             self.nodesToQNodes[node] = qnode
 
         self.renewplot()
-        self.rootSelector.currentIndexChanged[str].disconnect(self.newRoot)
-        self.rootSelector.insertItems(0,list(self.nodesToQNodes.keys()))
-        self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
 
     def initMenu(self):
         self.graphicsView.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -176,21 +177,33 @@ class GraphWidget(RWWidget, Ui_Form):
             if ok:
                 #User clicked on ok. Otherwise do nothing
                 pass
-    @Slot(str)
-    def newRoot(self, newRoot):
-        if newRoot == "---":
-            return
-        print(type(newRoot))
-        print(newRoot)
+    @Slot()
+    def newRoot(self):
+        root = self.rootSelector.currentText()
+        variant = self.relations.currentText()
+        if root == "---":
+            root = None
+
         depth = None
-        if self.depth.value() != "---":
+        if self.depth.value() != -1:
             depth = self.depth.value()
-        self.createGV(newRoot, depth)
+        if variant == "---":
+            variant = ''
+        
+        self.createGV(variant, root, depth)
         self.plot()
         
-    def createGV(self,variant='instance',root=None,depth=None):
+    def newVariant(self):
+        self.rootSelector.currentIndexChanged[str].disconnect(self.newRoot)
+        self.rootSelector.clear()
+        self.rootSelector.insertItem(0, "---")
+        self.newRoot()
+        self.rootSelector.insertItems(1,list(self.roots))
+        self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
+    
+    def createGV(self,variant='instance',r=None,d=None):
         gv = pygraphviz.AGraph(strict=False)
-        y = self.getIndexAbstractor().get_graph('instance',root, depth)
+        y = self.getIndexAbstractor().get_graph(variant,root=r, depth=d)
         colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
                   "yellow", "turquoise", "sienna", "darkgreen"]
         for k in y.relations.keys():
