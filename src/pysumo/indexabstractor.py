@@ -156,40 +156,6 @@ class IndexAbstractor:
             results = self.wordnet.locate_term(term)
         return [' '.join([x[0], ''.join(['(', x[1].value, '):']), x[2]]) for x in results]
 
-class DotGraph:
-    """ A utility class that handles layouting AbstractGraph objects.  This
-    class returns a layouted version of an AbstractGraph and provides a mapping
-    between the image and nodes in the AbstractGraph.
-
-    Variables:
-
-    - graph: AbstractGraph
-
-    Methods:
-
-    - get_node_from_position: receives an xy coordinate and returns the node at that position
-    - get_edge_from_position: receives an xy coordinate and returns the edge at that position
-    - get_position_from_node: receives a node and returns its layouted position
-    - get_pic: returns the layouted graph
-
-    """
-
-    def __init__(self, graph):
-        """ Initializes the DotGraph and instantiates variables. """
-        self.graph = graph
-
-    def get_node_from_position(self, xcoord, ycoord):
-        """ Returns the AbstractGraphNode nearest to the given x y coordinate. """
-
-    def get_edge_from_position(self, xcoord, ycoord):
-        """ Returns the edge nearest to the given x y coordinate. """
-
-    def get_position_from_node(self, node):
-        """ Returns the x y coordinate of the given node. """
-
-    def get_pic(self):
-        """ Returns a layouted version of self.graph. """
-
 class AbstractGraph:
     """ An abstract representation of a subset of an Ontology as a collection
     of nodes and relations. This class can be used together with a DotGraph to
@@ -244,9 +210,7 @@ class AbstractGraph:
                 return set()
         except TypeError:
             pass
-        print("bla" + root)
         
-        print(self.relations[root])
         rel = set(self.relations[root])
         for minor in self.relations[root]:
             try:
