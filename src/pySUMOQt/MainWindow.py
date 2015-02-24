@@ -368,9 +368,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
                 widget._updateOntologySelector()
                 
         # update graph widget
-        for x in self.widgets :
-            if type(x) == GraphWidget :
-                x.newVariant()
+            if type(widget) == GraphWidget :
+                widget.newVariant()
+                widget._updateActiveOntology()
 #                 x.initRelationBox()
                 
         # print(gv)
