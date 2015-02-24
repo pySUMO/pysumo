@@ -92,6 +92,8 @@ class HierarchyWidget(RWWidget, Ui_Form):
                 self.treeWidget.setItemExpanded(node, True)
                 self.treeWidget.setItemSelected(node, True)
                 self.treeWidget.scrollToItem(node, QAbstractItemView.PositionAtCenter)
+                self.relationSelector.clearFocus()
+                self.treeWidget.setFocus()
 
     def _expandAll_(self):
         self.treeWidget.expandAll()
