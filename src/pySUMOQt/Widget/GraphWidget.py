@@ -8,7 +8,7 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 """
 
 from PySide.QtCore import QLineF, Slot, Qt
-from PySide.QtGui import QColor, QPen, QStandardItem, QMenu, QInputDialog
+from PySide.QtGui import QColor, QPen, QStandardItem, QMenu, QInputDialog, QMessageBox
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
 import pygraphviz
 import random
@@ -177,25 +177,30 @@ class GraphWidget(RWWidget, Ui_Form):
         self.qLines = []
         for node in self.gv.nodes_iter():
             (x, y) = node.attr['pos'].split(',')
+            qnode = self.createQtNode(node, float(x) * 4, float(y) * 4)
+            scene.addItem(qnode)
+
+            self.nodesToQNodes[node] = qnode
+
+        self.renewplot()
+
+    def createQtNode(self, node, posx, posy, color = QColor(255,150,150)):
             qnode = QtNode(-40, -40, 80, 80)
             qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
-            qnode.setPos(float(x) * 4, float(y) * 4)
+            qnode.setPos(posx, posy)
             qnode.setFlag(QGraphicsItem.ItemIsMovable)
             qnode.setCallBackItemChange(self.renewplot)
             qnode.setCallBackAddRelation(self.addRelation)
             qnode.setNode(node)
-            qnode.setBrush(QColor(255, 150, 150))
+            qnode.setBrush(color)
             txt = QGraphicsSimpleTextItem(qnode)
             txt.setPos(-35, -25)
             font = txt.font()
             font.setPointSize(14)
             txt.setFont(font)
             txt.setText(insert_newlines(node, 8))
-            scene.addItem(qnode)
-
-            self.nodesToQNodes[node] = qnode
-
-        self.renewplot()
+            
+            return qnode
 
     def initMenu(self):
         self.graphicsView.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -213,28 +218,19 @@ class GraphWidget(RWWidget, Ui_Form):
         if (actionAddNode == QAction):
             (text,ok) = QInputDialog.getText(self.graphicsView, "Insert Node Name", "Please insert a name for the node")
             if ok:
-                #User clicked on ok. Otherwise do nothing
-                self.gv.add_node(text)
-                node = self.gv.get_node(text)
-                qnode = QtNode(-40, -40, 80, 80)
-                qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
-                qnode.setPos(pos)
-                qnode.setFlag(QGraphicsItem.ItemIsMovable)
-                qnode.setCallBackItemChange(self.renewplot)
-                qnode.setBrush(QColor(204, 255, 255))
-                qnode.setCallBackItemChange(self.renewplot)
-                qnode.setCallBackAddRelation(self.addRelation)
-                qnode.setNode(node)
-                txt = QGraphicsSimpleTextItem(qnode)
-                txt.setPos(-35, -25)
-                font = txt.font()
-                font.setPointSize(14)
-                txt.setFont(font)
-                txt.setText(insert_newlines(node, 8))
-                self.graphicsView.scene().addItem(qnode)
-
-            self.nodesToQNodes[node] = qnode
-            self.searchNode(node)
+                if text not in self.nodesToQNodes:
+                    #User clicked on ok. Otherwise do nothing
+                    self.gv.add_node(text)
+                    node = self.gv.get_node(text)
+                    qnode = self.createQtNode(node, pos.x(), pos.y(),QColor(204,255,255))
+                    self.graphicsView.scene().addItem(qnode)
+    
+                    self.nodesToQNodes[node] = qnode
+                else:
+                    msg = QMessageBox()
+                    msg.setText("The node already exists.")
+                    msg.exec_()
+                self.searchNode(text)
     @Slot()
     def newRoot(self):
         root = self.rootSelector.currentText()
