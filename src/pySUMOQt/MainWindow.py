@@ -9,6 +9,7 @@ This module contains:
 from PySide import QtGui, QtCore
 from PySide.QtCore import QSettings, QCoreApplication, Qt, Slot, QObject, SIGNAL
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QWidget, QPixmap
+from PySide.QtNetwork import QLocalServer, QAbstractSocket
 import sys
 
 from pySUMOQt.Designer.MainWindow import Ui_mainwindow
@@ -22,8 +23,12 @@ import os
 from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDialog
 import urllib
 from pySUMOQt.Widget.Widget import Widget, RWWidget
+from pysumo.logger.infolog import InfoLog
 from pysumo import updater
 from signal import signal, SIGINT
+from pickle import loads
+from struct import unpack
+import logging
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -147,6 +152,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
         self.setupUi(self)
+        self.infolog = InfoLog()
+        self.log = logging.getLogger('.' + __name__)
         self.menuTextEditorWidgets.setEnabled(False)
         self.menuDocumentationWidgets.setEnabled(False)
         self.menuHierarchyWidgets.setEnabled(False)
@@ -428,6 +435,26 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         statusBarLayout.addWidget(internetState)
 #         self.setStatusBar(statusbar)
         statusbar.addPermanentWidget(statusbarWrapperWidget)
+
+        statusbar.socketServer = QLocalServer()
+        statusbar.socketServer.removeServer(self.infolog.socket)
+        statusbar.socketServer.listen(self.infolog.socket)
+        statusbar.socketServer.newConnection.connect(self.setupStatusConnection)
+        self.log.info('Ready')
+
+    @Slot()
+    def setupStatusConnection(self):
+        socket = self.statusBar.socketServer.nextPendingConnection()
+        socket.readyRead.connect(partial(self.displayLog, socket))
+
+    @Slot()
+    def displayLog(self, socket):
+        data = socket.readAll().data()
+        slen = unpack(">L", data[:4])[0]
+        data = data[4:]
+        assert len(data) == slen
+        logrecord = logging.makeLogRecord(loads(data))
+        self.statusBar.showMessage(logrecord.getMessage())
 
     def loadOptions(self):
         """ Loads the options of the main window and all its widgets. """
