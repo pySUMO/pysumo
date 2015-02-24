@@ -7,28 +7,37 @@ This module contains:
 
 """
 
-from functools import partial
-from signal import signal, SIGINT
-import os
-import sys
-
 from PySide.QtCore import QCoreApplication, Qt, Slot, QObject, SIGNAL
 from PySide.QtCore import QEvent, Signal
+
+from PySide.QtNetwork import QLocalServer
+
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QPixmap
 from PySide.QtGui import QIcon, QDockWidget, QFileDialog, QPrintDialog
 from PySide.QtGui import QAction, QMenu
 
-from pysumo.syntaxcontroller import Ontology
 from pySUMOQt.Designer.MainWindow import Ui_mainwindow
 from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
 from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
 from pySUMOQt.Widget.Widget import RWWidget
+from pySUMOQt.Widget.GraphWidget import GraphWidget
 from pySUMOQt.Settings import LayoutManager, PySumoSettings
 from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog,\
     OptionDialog
-from pySUMOQt.Widget.GraphWidget import GraphWidget
+
 from pysumo import logger
+from pysumo.syntaxcontroller import Ontology
+from pysumo.logger.infolog import InfoLog
+
+from functools import partial
+from signal import signal, SIGINT
+from pickle import loads
+from struct import unpack
+
+import os
+import sys
+import logging
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -106,6 +115,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
         self.setupUi(self)
+        self.infolog = InfoLog()
+        self.log = logging.getLogger('.' + __name__)
         self.setCentralWidget(None)
         callback = partial(self._addWidget_, "TextEditorWidget", self.menuTextEditorWidgets)
         self.actionTextEditorWidget.triggered.connect(callback)
@@ -218,6 +229,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.lineColNumber = QLabel(statusbar)
         self.lineColNumber.setText("")
         statusbar.addPermanentWidget(self.lineColNumber)
+        statusbar.socketServer = QLocalServer()
+        statusbar.socketServer.removeServer(self.infolog.socket)
+        statusbar.socketServer.listen(self.infolog.socket)
+        statusbar.socketServer.newConnection.connect(self.setupStatusConnection)
+        self.log.info('Ready')
 
     def _updateStatusbar_(self, wrappedWidget = None):
         '''Update the status bar.'''
@@ -237,6 +253,21 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         lineNbr = document.findBlock(textCursor.position()).blockNumber()
         cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
         self.lineColNumber.setText(cursorPos)
+
+
+    @Slot()
+    def setupStatusConnection(self):
+        socket = self.statusBar.socketServer.nextPendingConnection()
+        socket.readyRead.connect(partial(self.displayLog, socket))
+
+    @Slot()
+    def displayLog(self, socket):
+        data = socket.readAll().data()
+        slen = unpack(">L", data[:4])[0]
+        data = data[4:]
+        assert len(data) == slen
+        logrecord = logging.makeLogRecord(loads(data))
+        self.statusBar.showMessage(logrecord.getMessage())
 
     def synchronize(self):
         """ Performs synchronization of the main window by reporting changes in

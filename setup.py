@@ -18,7 +18,6 @@ setup(
     package_dir={'':'src'},
     packages=['pysumo', 'pysumo.logger', 'pySUMOQt', 'pySUMOQt.Designer', 'pySUMOQt.Widget'],
     install_requires=['pyside'],
-    extras_require={'test' : ['pytest']},
     data_files=[('data', ['data/Merge.kif', 'data/MILO.kif']),
                 ('data/wordnet', [''.join(['data/wordnet/sdata.', x]) for x in
                                   ['adj', 'adv', 'noun', 'verb']]),],

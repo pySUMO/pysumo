@@ -35,7 +35,7 @@ class indexTestCase(unittest.TestCase):
         result = self.indexabstractor.search(' ContentbearingObJect')
         self.assertIn(self.sumo, result)
         definition = result[self.sumo]
-        self.assertEqual(sorted(definition),
+        self.assertListEqual(sorted(definition),
                 sorted(['( relatedInternalConcept ContentBearingObject containsInformation )',
                  '( subclass ContentBearingObject CorpuscularObject )',
                  '( subclass ContentBearingObject ContentBearingPhysical )',
@@ -56,8 +56,12 @@ class indexTestCase(unittest.TestCase):
         self.assertEqual(len(graph.nodes), 660)
         self.assertEqual(len(graph.relations), 266)
         graph = self.indexabstractor.get_graph('subclass', 'entity', 3)
-        self.assertEqual(len(graph.nodes), 186)
-        self.assertEqual(len(graph.relations), 122)
+        self.assertEqual(len(graph.nodes), 65)
+        self.assertEqual(len(graph.relations), 46)
+        graph = self.indexabstractor.get_graph('subclass', 'entity', 0)
+        self.assertEqual(len(graph.nodes), 1)
+        self.assertEqual(len(graph.relations), 1)
+        self.assertEqual(len(graph.relations['Entity']), 2)
 
     def test5GetOntology(self):
         of = self.indexabstractor.get_ontology_file(self.sumo)

@@ -9,12 +9,12 @@ This module contains:
 """
 
 from io import StringIO, BytesIO
-from os import environ, listdir
+from os import environ, listdir, fdopen, remove
 from os.path import basename, isdir, join
 from .logger import actionlog
 from . import parser
 from tempfile import mkstemp
-from subprocess import call
+from subprocess import Popen, PIPE, DEVNULL
 
 def get_ontologies(packaged='/usr/local/share/pysumo', user='/'.join([environ['HOME'], '.pysumo'])):
     """ Returns a set of all ontologies provided by pysumo as well as local ontologies. """
@@ -83,10 +83,12 @@ class SyntaxController:
         """
         (tempfile, tempfilepath) = mkstemp(text=True)
         o = self.index.get_ontology_file(ontology)
+        tempfile = fdopen(tempfile, 'wt')
         for l in o:
             print(l, end='', file=tempfile)
         tempfile.close()
-        call(["patch", tempfilepath], stdin=patch)
+        p = Popen(["patch", "-u", tempfilepath], stdin=PIPE, stdout=DEVNULL)
+        p.communicate(patch.encode())
         with open(tempfilepath) as f:
             pos = f.tell()
             num = ontology.action_log.queue_log(BytesIO(f.read().encode()))
@@ -94,13 +96,14 @@ class SyntaxController:
             newast = parser.kifparse(f, ontology, ast=self.index.root)
         try:
             self.remove_ontology(ontology)
-            newast = parser.astmerge(self.index.root, newast)
+            newast = parser.astmerge((self.index.root, newast))
         except AttributeError:
             pass
         newast.ontology = None
         self.index.update_index(newast)
         self.index.ontologies.add(ontology)
         ontology.action_log.ok_log_item(num)
+        remove(tempfilepath)
         
     def add_ontology(self, ontology, newversion=None):
         """ Adds ontology to the current in-memory Ontology.

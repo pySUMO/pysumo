@@ -95,7 +95,23 @@ class syntaxTestCase(unittest.TestCase):
         old_ast.children.extend(ast.children)
         self.assertEqual(len(self.syntaxcontroller.index.root.children), len(old_ast.children))
 
-    def test6UndoRedo(self):
+    def test6ParseDiff(self):
+        self.syntaxcontroller.add_ontology(self.sumo)
+        old_ast = deepcopy(self.syntaxcontroller.index.root)
+        code_block = StringIO(_DIFF_ADD)
+        self.syntaxcontroller.parse_patch(self.sumo, _DIFF_ADD)
+        sterm = self.syntaxcontroller.index.search('foo')
+        self.assertListEqual(sterm[self.sumo], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
+        sio = StringIO('(instance foo Entity)\n(documentation foo EnglishLanguage "&%foo is an object of type foo")\n')
+        ast = kifparse(sio, self.sumo)
+        old_ast.children.extend(ast.children)
+        self.assertEqual(len(self.syntaxcontroller.index.root.children), len(old_ast.children))
+        self.syntaxcontroller.parse_patch(self.sumo, _DIFF_SUB)
+        sterm = self.syntaxcontroller.index.search('foo')
+        self.assertListEqual(sterm[self.sumo], list())
+        self.assertRaises(KeyError, self.syntaxcontroller.index._find_term, 'foo')
+
+    def test7UndoRedo(self):
         self.test5ParseAdd()
         self.syntaxcontroller.undo(self.sumo)
         sterm = self.syntaxcontroller.index.search('foo')
@@ -104,6 +120,28 @@ class syntaxTestCase(unittest.TestCase):
         self.syntaxcontroller.redo(self.sumo)
         sterm = self.syntaxcontroller.index.search('foo')
         self.assertListEqual(sterm[self.sumo], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
+
+_DIFF_ADD = """
+--- dev/kit/pse/pysumo/data/Merge.kif   2015-02-12 17:07:26.991461485 +0100
++++ test        2015-02-24 14:39:56.609460898 +0100
+@@ -15672,3 +15672,5 @@
+ ;;    (not
+ ;;       (exists (?ITEM1 ?ITEM2 ?ITEM3 ?ITEM4 ?ITEM5 ?ITEM6 @ROW)
+ ;;          (?REL ?ITEM1 ?ITEM2 ?ITEM3 ?ITEM4 ?ITEM5 ?ITEM6 @ROW))))
++(instance foo Entity)
++(documentation foo EnglishLanguage "&%foo is an object of type foo")
+"""
+
+_DIFF_SUB = """
+--- dev/kit/pse/pysumo/data/Merge.kif   2015-02-12 17:07:26.991461485 +0100
++++ test        2015-02-24 14:39:56.609460898 +0100
+@@ -15672,5 +15672,3 @@
+ ;;    (not
+ ;;       (exists (?ITEM1 ?ITEM2 ?ITEM3 ?ITEM4 ?ITEM5 ?ITEM6 @ROW)
+ ;;          (?REL ?ITEM1 ?ITEM2 ?ITEM3 ?ITEM4 ?ITEM5 ?ITEM6 @ROW))))
+-(instance foo Entity)
+-(documentation foo EnglishLanguage "&%foo is an object of type foo")
+"""
 
 syntaxTestSuit = unittest.makeSuite(syntaxTestCase, 'test')
 
