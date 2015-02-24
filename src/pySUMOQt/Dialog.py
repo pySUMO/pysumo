@@ -4,6 +4,7 @@ import os
 from pysumo.syntaxcontroller import Ontology
 from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDialog
 from pysumo import updater
+from pySUMOQt.Designer.OptionDialog import Ui_Dialog
 
 
 class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
@@ -95,4 +96,68 @@ class HelpDialog(QDialog):
 
     def initView(self):
         """ Initializes the view of the help dialog. """
+        pass
+
+class OptionDialog(QDialog, Ui_Dialog):
+    """ The option dialog is the displays and allows modification of settings
+    for pySUMO. It displays options for the GUI, Widgets and library. The
+    settings are organized by type and owner for ease of use. It also
+    contains a plugin manager which enables loading and unloading of
+    plugins.  The class also provides settings persistence by writing
+    storing them in a file and reading from it on init.
+
+    Attributes:
+
+    - options: The options dictionary to manage in the option's dialog.
+
+    Methods:
+
+    - createView: Creates the view of the options dialog.
+    - save: Saves the options.
+    - load: Loads the options.
+
+    """
+
+    def __init__(self, parent):
+        """ Initializes the OptionDialog. """
+        super(OptionDialog, self).__init__(parent)
+        self.setupUi(self)
+        
+    def setSelectedPage(self, pageIndex):
+        self.listWidget.setCurrentRow(pageIndex)
+        
+    def changePage(self, current, previous):
+        if not current is None :
+            self.stackedWidget.setCurrentIndex(self.listWidget.row(current))
+
+    def createView(self):
+        """ Initializes the view of the OptionDialog. """
+        pass
+
+    def save(self, path):
+        """ Saves the settings to the given path.
+
+        Arguments:
+
+        - path: The path to which the settings will be written.
+
+        Raises:
+
+        - IOError
+
+        """
+        pass
+
+    def load(self, path):
+        """ Reads the settingns from the given path.
+
+        Arguments:
+
+        - path: The path from which the settings will be read.
+
+        Raises:
+
+        - IOError
+
+        """
         pass

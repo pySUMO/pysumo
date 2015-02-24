@@ -89,10 +89,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.setupUi(self)
         self.infolog = InfoLog()
         self.log = logging.getLogger('.' + __name__)
-        self.menuTextEditorWidgets.setEnabled(False)
-        self.menuDocumentationWidgets.setEnabled(False)
-        self.menuHierarchyWidgets.setEnabled(False)
-        self.setWindowTitle("pySUMO")
         self.setCentralWidget(None)
         callback = partial(self.addWidget, "TextEditorWidget", self.menuTextEditorWidgets)
         self.actionTextEditorWidget.triggered.connect(callback)
@@ -113,6 +109,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.fileChooser = QFileDialog(self)  
         self.dialog = QPrintDialog()
         self.userLayout = LayoutManager(self)
+        optionDialog = OptionDialog(self)
+        self.actionSettings.triggered.connect(optionDialog.show)
         # restore and show the view.
         self.userLayout.restoreLayout()
         self.show()
@@ -414,4 +412,3 @@ def quit_handler(signum, frame):
 
 if __name__ == '__main__':
     main()
-    

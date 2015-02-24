@@ -133,7 +133,7 @@ class GraphWidget(RWWidget, Ui_Form):
 
         self.qLines = []
 
-        for edge in gv.edges_iter():
+        for edge in self.gv.edges_iter():
 
             qnode1 = self.nodesToQNodes[edge[0]]
             qnode2 = self.nodesToQNodes[edge[1]]

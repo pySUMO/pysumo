@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Thu Feb 19 10:03:50 2015
+# Created: Thu Feb 19 10:59:41 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,14 +43,20 @@ class Ui_mainwindow(object):
         self.menuAdd = QtGui.QMenu(self.menuView)
         self.menuAdd.setObjectName("menuAdd")
         self.menuTextEditorWidgets = QtGui.QMenu(self.menuView)
+        self.menuTextEditorWidgets.setEnabled(False)
         self.menuTextEditorWidgets.setObjectName("menuTextEditorWidgets")
         self.menuDocumentationWidgets = QtGui.QMenu(self.menuView)
+        self.menuDocumentationWidgets.setEnabled(False)
         self.menuDocumentationWidgets.setObjectName("menuDocumentationWidgets")
         self.menuHierarchyWidgets = QtGui.QMenu(self.menuView)
+        self.menuHierarchyWidgets.setEnabled(False)
         self.menuHierarchyWidgets.setObjectName("menuHierarchyWidgets")
         self.menuDelete = QtGui.QMenu(self.menuView)
         self.menuDelete.setEnabled(False)
         self.menuDelete.setObjectName("menuDelete")
+        self.menuGraphWidgets = QtGui.QMenu(self.menuView)
+        self.menuGraphWidgets.setEnabled(False)
+        self.menuGraphWidgets.setObjectName("menuGraphWidgets")
         self.menuTools = QtGui.QMenu(self.menubar)
         self.menuTools.setObjectName("menuTools")
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -357,6 +363,7 @@ class Ui_mainwindow(object):
         self.menuView.addAction(self.menuTextEditorWidgets.menuAction())
         self.menuView.addAction(self.menuDocumentationWidgets.menuAction())
         self.menuView.addAction(self.menuHierarchyWidgets.menuAction())
+        self.menuView.addAction(self.menuGraphWidgets.menuAction())
         self.menuView.addAction(self.menuDelete.menuAction())
         self.menuView.addSeparator()
         self.menuView.addAction(self.actionExpand)
@@ -430,6 +437,7 @@ class Ui_mainwindow(object):
         self.menuDocumentationWidgets.setTitle(QtGui.QApplication.translate("mainwindow", "Documentation Widgets", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHierarchyWidgets.setTitle(QtGui.QApplication.translate("mainwindow", "Hierarchy Widgets", None, QtGui.QApplication.UnicodeUTF8))
         self.menuDelete.setTitle(QtGui.QApplication.translate("mainwindow", "Delete", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuGraphWidgets.setTitle(QtGui.QApplication.translate("mainwindow", "Graph Widgets", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("mainwindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("mainwindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuOntology.setTitle(QtGui.QApplication.translate("mainwindow", "Ontology", None, QtGui.QApplication.UnicodeUTF8))
