@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Tue Feb 17 15:42:33 2015
+# Created: Thu Feb 19 10:03:50 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -461,7 +461,8 @@ class Ui_mainwindow(object):
         self.actionCopy.setShortcut(QtGui.QApplication.translate("mainwindow", "Ctrl+C", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPaste.setText(QtGui.QApplication.translate("mainwindow", "Paste", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPaste.setShortcut(QtGui.QApplication.translate("mainwindow", "Ctrl+V", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionDelete.setText(QtGui.QApplication.translate("mainwindow", "Delete", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDelete.setText(QtGui.QApplication.translate("mainwindow", "Clear", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDelete.setToolTip(QtGui.QApplication.translate("mainwindow", "Clear", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDelete.setShortcut(QtGui.QApplication.translate("mainwindow", "Del", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSelectAll.setText(QtGui.QApplication.translate("mainwindow", "Select All", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSelectAll.setShortcut(QtGui.QApplication.translate("mainwindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
