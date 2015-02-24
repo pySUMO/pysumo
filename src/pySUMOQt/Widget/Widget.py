@@ -39,19 +39,16 @@ class Widget(QObject):
 
     def _print_(self):
         pass
-    
+
     def _quickPrint_(self):
         pass
-    
+
     def _printPreview_(self):
-        pass
-    
-    def _save_(self):
         pass
     
     def _zoomIn_(self):
         pass
-    
+
     def _zoomOut_(self):
         pass
 
@@ -64,7 +61,6 @@ class RWidget(Widget):
     def __init__(self, mainwindow):
         """ Initializes the RWidget. """
         super(RWidget, self).__init__(mainwindow)
-
 
 class RWWidget(Widget):
 
@@ -86,3 +82,6 @@ class RWWidget(Widget):
         """ Commits modifications to the ontology to the SyntaxController, and
         if successful updates the IndexAbstractor and notifies all other
         widgets that the Ontology has been modified. """
+
+    def _save_(self):
+        pass

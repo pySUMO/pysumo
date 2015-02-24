@@ -16,6 +16,7 @@ from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
+from pysumo.parser import kifserialize
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -89,9 +90,7 @@ class TextEditor(RWWidget, Ui_Form):
         if ontology is None :
             return 
         if type(ontology) is Ontology :
-            with open(ontology.path, mode='w') as f :
-                f.write(self.plainTextEdit.toPlainText())
-                f.close
+            ontology.save()
 
     def _initNumberBar(self):
         self.number_bar = NumberBar(self)

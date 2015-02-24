@@ -36,10 +36,6 @@ class SyntaxController:
     ensuring that all requests are correct, that higher objects never gain direct access to
     internal objects and that all changes to the Ontology are atomic.
 
-    Variables:
-
-    - actionlog: The ActionLog for this object.
-
     Methods:
 
     - parse_partial: Checks a code block for syntax errors.
@@ -78,7 +74,7 @@ class SyntaxController:
         Arguments:
 
         - ontology: the ontlogy which is patched
-        - patch: the patch which be added to the ontology
+        - patch: the patch to add to the ontology
 
         Raises:
 
@@ -195,9 +191,16 @@ class Ontology:
         else:
             self.name = name
         self.action_log = actionlog.ActionLog(self.name, lpath)
+        with open(path, 'r+b') as f:
+            self.action_log.current = BytesIO(f.read())
         self.path = path
         self.url = url
         self.active = False
+
+    def save(self):
+        """ Saves all pending changes in self to self.path. """
+        with open(self.path, 'w+b') as f:
+            f.write(self.action_log.current.getbuffer())
 
     def __eq__(self, other):
         return self.name == other.name
