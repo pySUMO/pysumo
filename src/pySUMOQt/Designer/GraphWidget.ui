@@ -23,10 +23,10 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="4">
+    <item row="0" column="5">
      <widget class="QLineEdit" name="lineEdit"/>
     </item>
-    <item row="0" column="7">
+    <item row="0" column="8">
      <spacer name="horizontalSpacer_2">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -39,7 +39,7 @@
       </property>
      </spacer>
     </item>
-    <item row="0" column="8">
+    <item row="0" column="9">
      <widget class="QDoubleSpinBox" name="doubleSpinBox">
       <property name="minimum">
        <double>0.010000000000000</double>
@@ -55,17 +55,17 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="5">
+    <item row="0" column="6">
      <widget class="QLabel" name="label_2">
       <property name="text">
        <string>Depth</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="11">
+    <item row="1" column="0" colspan="12">
      <widget class="QGraphicsView" name="graphicsView"/>
     </item>
-    <item row="0" column="10">
+    <item row="0" column="11">
      <widget class="QComboBox" name="rootSelector">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -83,14 +83,14 @@
       </item>
      </widget>
     </item>
-    <item row="0" column="3">
+    <item row="0" column="4">
      <widget class="QLabel" name="label">
       <property name="text">
        <string>Search for node:</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
+    <item row="0" column="3">
      <widget class="QComboBox" name="relations">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -130,7 +130,7 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
+    <item row="0" column="2">
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -143,14 +143,14 @@
       </property>
      </spacer>
     </item>
-    <item row="0" column="9">
+    <item row="0" column="10">
      <widget class="QLabel" name="label2">
       <property name="text">
        <string>Select root node</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="6">
+    <item row="0" column="7">
      <widget class="QSpinBox" name="depth">
       <property name="statusTip">
        <string>-1 for infinity depth</string>
@@ -162,6 +162,9 @@
        <number>-1</number>
       </property>
      </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="activeOntology"/>
     </item>
    </layout>
   </widget>

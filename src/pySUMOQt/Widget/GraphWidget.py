@@ -12,6 +12,7 @@ from PySide.QtGui import QColor, QPen, QStandardItem, QMenu, QInputDialog
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
 import pygraphviz
 import random
+import logging
 
 
 from pySUMOQt.Designer.GraphWidget import Ui_Form
@@ -24,17 +25,26 @@ def insert_newlines(string, every=64):
 class QtNode(QGraphicsEllipseItem):
     """ A Node representation in Qt"""
     callback = None
-
-    def setCallBack(self, f):
+    def setCallBackItemChange(self, f):
         """ Sets a callback function to call after the position has changed"""
         self.callback = f
-
+        
+    def setCallBackAddRelation(self, f):
+        self.callbackR = f
+    
+    def setNode(self,node):
+        self.node = node
+        
     def itemChange(self, itemChange, val):
         if (itemChange == QGraphicsItem.ItemPositionHasChanged):
             if self.callback is not None:
                 self.callback()
         return super().itemChange(itemChange, val)
-
+    
+    def mouseDoubleClickEvent(self, event):
+        if self.callbackR is not None:
+            self.callbackR(self)
+        #super(QtNode, self).mouseDoubleClickEvent(event)
 
 class GraphWidget(RWWidget, Ui_Form):
 
@@ -52,7 +62,7 @@ class GraphWidget(RWWidget, Ui_Form):
         """ Initializes the GraphWidget. """
         super(GraphWidget, self).__init__(mainwindow)
         self.setupUi(self.mw)
-
+        self.startRelation = None
         self.abstractGraph = None
         self.gv = None
         self.widget = self.layoutWidget
@@ -68,10 +78,17 @@ class GraphWidget(RWWidget, Ui_Form):
         self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
         self.relations.currentIndexChanged[str].connect(self.newVariant)
         self.depth.valueChanged.connect(self.newRoot)
+        self._updateActiveOntology()
+        
 #     def initRelationBox(self):
 #         m = self.relations.model()
 #         for i in self.getIndexAbstractor().get_graph('instance').relations.keys():
 #             m.appendRow(QStandardItem(i))
+    
+    def _updateActiveOntology(self):
+        self.activeOntology.clear()
+        self.activeOntology.addItems(
+            [i.name for i in self.getIndexAbstractor().ontologies])
 
     def searchNode(self,search):
         try:
@@ -80,6 +97,30 @@ class GraphWidget(RWWidget, Ui_Form):
         except KeyError:
             pass # TODO: Mach hier einen Log
         
+    def addRelation(self, qnode):
+        if self.startRelation != None: # yeah a new relation
+            logging.info("Add relation from " + self.startRelation.node + " to " + qnode.node )
+            addstr = "\n(" + self.relations.currentText() + " " + self.startRelation.node + " " + qnode.node + ")\n"
+            self.startRelation = None
+            ontology = None
+            for i in self.getIndexAbstractor().ontologies:
+                if i.name == self.activeOntology.currentText():
+                    ontology = i
+                    
+            assert ontology is not None
+            print("here")
+            x = self.getIndexAbstractor().get_ontology_file(ontology)
+            x.write(addstr)
+            self.SyntaxController.add_ontology(ontology, newversion=x.getvalue())
+            print("here1")
+            self.commit()
+            print("here2")
+            #TODO: please delete next line if commit is implemented
+            self.newRoot()
+            print("here3")
+        else:
+            logging.info("Starting node is " + qnode.node)
+            self.startRelation = qnode
         
     @Slot(float)
     def changeScale(self, val):
@@ -145,7 +186,9 @@ class GraphWidget(RWWidget, Ui_Form):
             qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
             qnode.setPos(float(x) * 4, float(y) * 4)
             qnode.setFlag(QGraphicsItem.ItemIsMovable)
-            qnode.setCallBack(self.renewplot)
+            qnode.setCallBackItemChange(self.renewplot)
+            qnode.setCallBackAddRelation(self.addRelation)
+            qnode.setNode(node)
             qnode.setBrush(QColor(255, 150, 150))
             txt = QGraphicsSimpleTextItem(qnode)
             txt.setPos(-35, -25)
@@ -176,7 +219,24 @@ class GraphWidget(RWWidget, Ui_Form):
             (text,ok) = QInputDialog.getText(self.graphicsView, "Insert Node Name", "Please insert a name for the node")
             if ok:
                 #User clicked on ok. Otherwise do nothing
-                pass
+                self.gv.add_node(text)
+                node = self.gv.get_node(text)
+                qnode = QtNode(-40, -40, 80, 80)
+                qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
+                qnode.setPos(pos)
+                qnode.setFlag(QGraphicsItem.ItemIsMovable)
+                qnode.setCallBack(self.renewplot)
+                qnode.setBrush(QColor(204, 255, 255))
+                txt = QGraphicsSimpleTextItem(qnode)
+                txt.setPos(-35, -25)
+                font = txt.font()
+                font.setPointSize(14)
+                txt.setFont(font)
+                txt.setText(insert_newlines(node, 8))
+                self.graphicsView.scene().addItem(qnode)
+
+            self.nodesToQNodes[node] = qnode
+            self.searchNode(node)
     @Slot()
     def newRoot(self):
         root = self.rootSelector.currentText()
