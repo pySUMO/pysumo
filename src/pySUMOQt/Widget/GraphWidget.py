@@ -108,16 +108,11 @@ class GraphWidget(RWWidget, Ui_Form):
                     ontology = i
                     
             assert ontology is not None
-            print("here")
+            
             x = self.getIndexAbstractor().get_ontology_file(ontology)
             x.write(addstr)
             self.SyntaxController.add_ontology(ontology, newversion=x.getvalue())
-            print("here1")
             self.commit()
-            print("here2")
-            #TODO: please delete next line if commit is implemented
-            self.newRoot()
-            print("here3")
         else:
             logging.info("Starting node is " + qnode.node)
             self.startRelation = qnode
@@ -225,8 +220,11 @@ class GraphWidget(RWWidget, Ui_Form):
                 qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
                 qnode.setPos(pos)
                 qnode.setFlag(QGraphicsItem.ItemIsMovable)
-                qnode.setCallBack(self.renewplot)
+                qnode.setCallBackItemChange(self.renewplot)
                 qnode.setBrush(QColor(204, 255, 255))
+                qnode.setCallBackItemChange(self.renewplot)
+                qnode.setCallBackAddRelation(self.addRelation)
+                qnode.setNode(node)
                 txt = QGraphicsSimpleTextItem(qnode)
                 txt.setPos(-35, -25)
                 font = txt.font()
