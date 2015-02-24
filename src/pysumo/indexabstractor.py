@@ -239,7 +239,7 @@ class AbstractGraph:
     def _filter_root(self, root, depth):
         """ Filters the AbstractGraph so only children of root are kept up to a maximum depth. """
         try:
-            if depth > self._settings[2]:
+            if depth >= self._settings[2]:
                 return set()
         except TypeError:
             pass
