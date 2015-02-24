@@ -108,7 +108,7 @@ class syntaxTestCase(unittest.TestCase):
         self.assertEqual(len(self.syntaxcontroller.index.root.children), len(old_ast.children))
         self.syntaxcontroller.parse_patch(self.sumo, _DIFF_SUB)
         sterm = self.syntaxcontroller.index.search('foo')
-        self.assertDictEqual(sterm, dict())
+        self.assertListEqual(sterm[self.sumo], list())
         self.assertRaises(KeyError, self.syntaxcontroller.index._find_term, 'foo')
 
     def test7UndoRedo(self):
