@@ -79,7 +79,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     """
     
     ontologyAdded = Signal(Ontology)
-
+    synchronizeRequested = Signal()
     def __init__(self):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
@@ -135,6 +135,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         if widgetType == "TextEditorWidget" :
             wrappedWidget = TextEditor(widget)
             wrappedWidget.plainTextEdit.installEventFilter(widget)
+            wrappedWidget.ontologyChanged.connect(self.synchronize)
         elif widgetType == "DocumentationWidget" :
             wrappedWidget = DocumentationWidget(widget)
         elif widgetType == "HierarchyWidget" :
@@ -142,9 +143,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         elif widgetType == "GraphWidget":
             wrappedWidget = GraphWidget(widget)
             wrappedWidget.graphicsView.installEventFilter(widget)
+            wrappedWidget.ontologyChanged.connect(self.synchronize)
         if wrappedWidget is None :
             print("can not create widget with type " + widgetType)
             return
+        self.synchronizeRequested.connect(wrappedWidget.refresh)
         objName = widgetType
         objName += str(len(widgetMenu.actions()))
         widget.setObjectName(objName)
@@ -232,6 +235,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def synchronize(self):
         """ Performs synchronization of the main window by reporting changes in
         all the others widgets. """
+        print("synchronizing ...")
+        self.synchronizeRequested.emit()
 
     def deleteWidget(self, widget):
         '''Delete a widget from the layout.'''

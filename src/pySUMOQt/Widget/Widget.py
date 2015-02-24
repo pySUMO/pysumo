@@ -7,7 +7,7 @@ This module contains:
 - RWWidget: The class of widgets which have access to the SyntaxController and the IndexAbstractor.
 
 """
-from PySide.QtCore import QObject
+from PySide.QtCore import QObject, Signal
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.syntaxcontroller import SyntaxController
 
@@ -23,7 +23,7 @@ class Widget(QObject):
     IA = IndexAbstractor()
 
     def __init__(self, mainwindow):
-        super(Widget, self).__init__()
+        super(Widget, self).__init__(mainwindow)
         self.mw = mainwindow
         """ Initializes the Widget object. """
 
@@ -33,6 +33,7 @@ class Widget(QObject):
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """
+        print("refreshing " + self.parent().windowTitle())
 
     def getWidget(self):
         pass
@@ -77,6 +78,7 @@ class RWWidget(Widget):
 
     """
     SyntaxController = SyntaxController(Widget.getIndexAbstractor())
+    ontologyChanged = Signal()
 
     def __init__(self, mainwindow):
         """ Initializes the read/write widget """
@@ -86,3 +88,4 @@ class RWWidget(Widget):
         """ Commits modifications to the ontology to the SyntaxController, and
         if successful updates the IndexAbstractor and notifies all other
         widgets that the Ontology has been modified. """
+        self.ontologyChanged.emit()
