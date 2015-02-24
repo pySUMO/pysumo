@@ -1,5 +1,5 @@
 from PySide.QtGui import QDialog, QFileDialog, QDialogButtonBox, QColorDialog
-from PySide.QtGui import QColor, QFont
+from PySide.QtGui import QColor, QFont, QMessageBox
 from pySUMOQt.Designer.NewOntologyDialog import Ui_NewOntologyDialog
 import os
 from pysumo.syntaxcontroller import Ontology
@@ -40,8 +40,14 @@ class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
             with open(path, 'x') as f:
                 f.close()
         except FileExistsError:
-            pass
-
+            ret = QMessageBox.warning(self, "The ontology file already exists.", "Do you want to override the existing ontology file?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if ret == QMessageBox.Yes :
+                with open(path, 'w') as f:
+                    f.close()
+            elif ret == QMessageBox.No :
+                return
+            else :
+                raise RuntimeError
         ontology = Ontology(path, self.ontologyName.text())
         self.parent().addOntology(ontology)
         super(NewOntologyDialog, self).accept()
@@ -75,12 +81,21 @@ class OpenRemoteOntologyDialog(QDialog, Ui_OpenRemoteOntologyDialog):
         path = os.path.normpath(path)
 
         # create the ontology file.
+        try:
+            with open(path, 'x') as f:
+                f.close()
+        except FileExistsError:
+            ret = QMessageBox.warning(self, "The ontology file already exists.", "Do you want to override the existing ontology file?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if ret == QMessageBox.Yes :
+                with open(path, 'w') as f:
+                    f.close()
+            elif ret == QMessageBox.No :
+                return
+            else :
+                raise RuntimeError
         ontology = Ontology(path, self.name.text(), self.url.text())
-        with open(path, 'wb+') as f:
-            # download the ontology and fill the file,
-            updater.update(ontology)
-            f.close()
-
+        # download the ontology and fill the file,
+        updater.update(ontology)
         self.parent().addOntology(ontology)
         super(OpenRemoteOntologyDialog, self).accept()
         
