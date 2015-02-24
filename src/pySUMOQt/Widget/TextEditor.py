@@ -16,7 +16,6 @@ from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
-from pysumo.parser import kifserialize
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -63,9 +62,11 @@ class TextEditor(RWWidget, Ui_Form):
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
 
+        self._updateOntologySelector()
         self.ontologySelector.currentIndexChanged[str].connect(
             self.showOtherOntology)
-        self._updateOntologySelector()
+        self.plainTextEdit.textChanged.connect(self.commit)
+        self.ontologySelector.setCurrentIndex(-1)
         
     def _print_(self):
         dialog = QPrintDialog()
@@ -320,7 +321,14 @@ class TextEditor(RWWidget, Ui_Form):
 
     def commit(self):
         """ Overrides commit from RWWidget. """
-
+        idx = self.ontologySelector.currentIndex()
+        if idx == -1 :
+            return
+        ontology = self.ontologySelector.itemData(idx)
+        if ontology is None :
+            return
+        self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
+        RWWidget.commit(self)
 
 class SyntaxHighlightSetting():
 
