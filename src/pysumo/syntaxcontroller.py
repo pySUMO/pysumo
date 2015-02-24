@@ -13,6 +13,8 @@ from os import environ, listdir
 from os.path import basename, isdir, join
 from .logger import actionlog
 from . import parser
+from tempfile import mkstemp
+from subprocess import call
 
 def get_ontologies(packaged='/usr/local/share/pysumo', user='/'.join([environ['HOME'], '.pysumo'])):
     """ Returns a set of all ontologies provided by pysumo as well as local ontologies. """
@@ -33,10 +35,6 @@ class SyntaxController:
     The SyntaxController acts as a moderator between user-side widgets and the low-level API
     ensuring that all requests are correct, that higher objects never gain direct access to
     internal objects and that all changes to the Ontology are atomic.
-
-    Variables:
-
-    - actionlog: The ActionLog for this object.
 
     Methods:
 
@@ -70,68 +68,73 @@ class SyntaxController:
         f.close()
         return ast
 
-    def parse_add(self, code_block, ontology):
-        """ Tells self.parser to check code_block for syntactical correctness and add it to the
-        Ontology if it is correct.
+    def parse_patch(self, ontology, patch):
+        """ Apply a patch to the last version of the ontology and parse this new version
 
         Arguments:
 
-        - code_block: the code block that will be checked and added to the Ontology
+        - ontology: the ontlogy which is patched
+        - patch: the patch to add to the ontology
 
         Raises:
 
         - ParseError
 
         """
-        f = StringIO(code_block)
-        parsed = parser.kifparse(f, ontology)
-        # code_block needs to be the complete new kif file
-        num = ontology.action_log.queue_log(BytesIO(code_block.encode()))
-        newast = parser.astmerge((self.index.root, parsed))
+        (tempfile, tempfilepath) = mkstemp(text=True)
+        o = self.index.get_ontology_file(ontology)
+        for l in o:
+            print(l, end='', file=tempfile)
+        tempfile.close()
+        call(["patch", tempfilepath], stdin=patch)
+        with open(tempfilepath) as f:
+            pos = f.tell()
+            num = ontology.action_log.queue_log(BytesIO(f.read().encode()))
+            f.seek(pos)
+            newast = parser.kifparse(f, ontology, ast=self.index.root)
+        try:
+            self.remove_ontology(ontology)
+            newast = parser.astmerge(self.index.root, newast)
+        except AttributeError:
+            pass
+        newast.ontology = None
         self.index.update_index(newast)
+        self.index.ontologies.add(ontology)
         ontology.action_log.ok_log_item(num)
-        f.close()
-
-    def parse_graph(self, graph):
-        """ Tells self.parser to modify the current Ontology according to graph.
-
-        Arguments:
-
-        - graph: the AbstractGraph to check for modified nodes
-
-        Raises:
-
-        - ParseError
-
-        """
-        pass
-
-    def add_ontology(self, ontology):
+        
+    def add_ontology(self, ontology, newversion=None):
         """ Adds ontology to the current in-memory Ontology.
 
         Arguments:
 
         - ontology: the ontology that will be added
+        - newversion: a string witch represent the new verison of the ontology
 
         Raises:
 
         - ParseError
 
         """
-        with open(ontology.path) as f:
-            newast = parser.kifparse(f, ontology, ast=self.index.root)
-        # Not sure if reopening the file is faster than encoding to binary
-        with open(ontology.path, 'r+b') as f:
-            num = ontology.action_log.queue_log(BytesIO(f.read()))
+
+        if newversion == None:
+            with open(ontology.path) as f:
+                pos = f.tell()
+                num = ontology.action_log.queue_log(BytesIO(f.read().encode()))
+                f.seek(pos)
+                newast = parser.kifparse(f, ontology, ast=self.index.root)
+        else:
+            num = ontology.action_log.queue_log(BytesIO(newversion.encode()))
+            f = StringIO(newversion)
+            newast = parser.kifparse(StringIO(newversion), ontology, ast=self.index.root)
         try:
             self.remove_ontology(ontology)
             newast = parser.astmerge((self.index.root, newast))
         except AttributeError:
             pass
-        ontology.action_log.ok_log_item(num)
         newast.ontology = None
         self.index.update_index(newast)
         self.index.ontologies.add(ontology)
+        ontology.action_log.ok_log_item(num)
 
     def remove_ontology(self, ontology):
         """ Removes ontology from the current in-memory Ontology.
@@ -188,9 +191,16 @@ class Ontology:
         else:
             self.name = name
         self.action_log = actionlog.ActionLog(self.name, lpath)
+        with open(path, 'r+b') as f:
+            self.action_log.current = BytesIO(f.read())
         self.path = path
         self.url = url
         self.active = False
+
+    def save(self):
+        """ Saves all pending changes in self to self.path. """
+        with open(self.path, 'w+b') as f:
+            f.write(self.action_log.current.getbuffer())
 
     def __eq__(self, other):
         return self.name == other.name

@@ -140,7 +140,7 @@ class actionLogTestCase(unittest.TestCase):
             self.add_and_ok(new)
         for i in range(0, 10):
             self.al.undo()
-        assert self.al.undo().getvalue() == SUMO.getvalue()
+        self.assertEqual(self.al.undo().getvalue(), SUMO.getvalue())
 
     def test8ExcessiveRedo(self):
         self.add_and_ok(SUMO)
