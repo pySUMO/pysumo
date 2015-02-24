@@ -1,47 +1,52 @@
 """ HierarchyWidget modul from pySUMO
 """
 
-from PySide.QtCore import Slot, SIGNAL, Qt
-from PySide.QtGui import QApplication, QMainWindow, QFileSystemModel
+from PySide.QtCore import SIGNAL, Qt
+from PySide.QtGui import QApplication, QMainWindow, QTreeWidgetItem, QAbstractItemView
 import os
 import sys
 
 from pySUMOQt.Designer.HierarchyWidget import Ui_Form
-from .Widget import RWWidget
+from pySUMOQt.Widget.Widget import RWWidget
 
 
-class CheckableDirModel(QFileSystemModel):
+class OntologyHierarchyNode(QTreeWidgetItem):
 
-    def __init__(self, parent=None):
-        QFileSystemModel.__init__(self, None)
-        self.checks = {}
-
-    def data(self, index, role=Qt.DisplayRole):
-        if role != Qt.CheckStateRole:
-            return QFileSystemModel.data(self, index, role)
-        else:
-            if index.column() == 0:
-                return self.checkState(index)
-
-    def flags(self, index):
-        return QFileSystemModel.flags(self, index) | Qt.ItemIsUserCheckable
-
-    def checkState(self, index):
-        if index in self.checks:
-            return self.checks[index]
-        else:
-            return Qt.Unchecked
-
-    def setData(self, index, value, role):
-        if (role == Qt.CheckStateRole and index.column() == 0):
-            self.checks[index] = value
-            self.emit(
-                SIGNAL("dataChanged(QModelIndex,QModelIndex)"), index, index)
-            return True
-
-        return QFileSystemModel.setData(self, index, value, role)
-
-
+    def __init__(self, data=None):
+        super(OntologyHierarchyNode, self).__init__()
+        if data is not None :
+            self.setText(0, data)
+        self.dataObj = data
+        
+def buildRootNode(relations, treeview):
+    """ Build the Qtreeitem from the abstract graph and it's children."""
+    items = []
+    createdNodes = []
+    for i in relations.keys() :
+        node = None
+        foundNode = False
+        for k in createdNodes :
+            if k.dataObj == i :
+                node = k
+                foundNode = True
+                break
+        if node is None :
+            node = OntologyHierarchyNode(data=i)
+            createdNodes.append(node)
+        for j in relations[i] :
+            subNode = None
+            for k in createdNodes :
+                if k.dataObj == j :
+                    subNode = k
+                    break
+            if subNode is None :
+                subNode = OntologyHierarchyNode(data=j)
+                createdNodes.append(node)
+            node.addChild(subNode)
+        if not foundNode :
+            items.append(node)
+    treeview.addTopLevelItems(items)
+        
 class HierarchyWidget(RWWidget, Ui_Form):
 
     """ The hierarchy widget displays the ontology in a tree form conformly to
@@ -59,13 +64,40 @@ class HierarchyWidget(RWWidget, Ui_Form):
         """ Initializes the hierarchy widget. """
         super(HierarchyWidget, self).__init__(mainwindow)
         self.setupUi(self.mw)
+        self.refresh()
+        self.relationSelector.setCurrentIndex(-1)
+        self.relationSelector.currentIndexChanged[int].connect(self._selectionChanged_)
+#         node = QTreeWidgetItem()
+#         node.setText(0, "Ontology")
+#         self.treeWidget.addTopLevelItem(node)
+        
+    def refresh(self):
+        RWWidget.refresh(self)
+        abstractGraph= self.IA.get_graph("instance")
+        if abstractGraph is None or len(abstractGraph.relations) == 0:
+            return
+        self.treeWidget.clear()
+        buildRootNode(abstractGraph.relations, treeview=self.treeWidget)
+        self.relationSelector.setModel(self.treeWidget.model())
+        
+    def _selectionChanged_(self, val):
+        self.treeWidget.clearSelection()
+        if val == -1 :
+            return
+        else :
+            textVal = self.relationSelector.itemText(val)
+            objs = self.treeWidget.findItems(textVal, Qt.MatchCaseSensitive)
+            if objs is not None and len(objs) == 1 :
+                node = objs[0]
+                self.treeWidget.setItemExpanded(node, True)
+                self.treeWidget.setItemSelected(node, True)
+                self.treeWidget.scrollToItem(node, QAbstractItemView.PositionAtCenter)
 
-        self.model = CheckableDirModel()
-        self.treeView.setModel(self.model)
-        # self.treeView.setRootIndex(os.getcwd())
-        # self.treeView.setRootIndex(self.model.index(os.getcwd()))
-        self.model.index(os.getcwd())
-        # self.treeView.setRootIndex(self.model.index(os.getcwd()))
+    def _expandAll_(self):
+        self.treeWidget.expandAll()
+
+    def _collapseAll_(self):
+        self.treeWidget.collapseAll()
 
     def hide(self, entry):
         """ Hides the part the user selected of the Ontology. This function is called as a slot.

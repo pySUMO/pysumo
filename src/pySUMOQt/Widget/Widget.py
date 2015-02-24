@@ -55,6 +55,12 @@ class Widget(QObject):
     
     def _zoomOut_(self):
         pass
+    
+    def _expandAll_(self):
+        pass
+    
+    def _collapseAll_(self):
+        pass
 
 class RWidget(Widget):
 

@@ -155,6 +155,9 @@ class TextEditor(RWWidget, Ui_Form):
         for see in list(self.hidden.keys()):
             self.toggleVisibility(see)
 
+    def _expandAll_(self):
+        self.expandAll()
+
     @Slot()
     def hideAll(self):
         block = self.getWidget().document().firstBlock()
@@ -163,6 +166,9 @@ class TextEditor(RWWidget, Ui_Form):
                 if block.text().count("(") > block.text().count(")"):
                     self.toggleVisibility(block.blockNumber() + 1)
             block = block.next()
+            
+    def _collapseAll_(self):
+        self.hideAll()
 
     def _hideLines(self, lines):
         for line in lines:

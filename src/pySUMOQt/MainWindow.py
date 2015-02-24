@@ -140,6 +140,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             wrappedWidget = DocumentationWidget(widget)
         elif widgetType == "HierarchyWidget" :
             wrappedWidget = HierarchyWidget(widget)
+            widget.setPrefixName("Hierarchy Widget")
+            wrappedWidget.treeWidget.installEventFilter(widget)
         elif widgetType == "GraphWidget":
             wrappedWidget = GraphWidget(widget)
             wrappedWidget.graphicsView.installEventFilter(widget)
@@ -267,11 +269,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionSave.triggered.connect(widget._save_)
         self.actionZoomIn.triggered.connect(widget._zoomIn_)
         self.actionZoomOut.triggered.connect(widget._zoomOut_)
+        self.actionExpand.triggered.connect(widget._expandAll_)
+        self.actionCollapse.triggered.connect(widget._collapseAll_)
         if widgetType == TextEditor :
             callback = partial(self.updateStatusbar, widget)
             widget.getWidget().cursorPositionChanged.connect(callback)
-            self.actionExpand.triggered.connect(widget.expandAll)
-            self.actionCollapse.triggered.connect(widget.hideAll)
             self.actionUndo.triggered.connect(widget.plainTextEdit.undo)
             self.actionRedo.triggered.connect(widget.plainTextEdit.redo)
             self.actionCut.triggered.connect(widget.plainTextEdit.cut)
@@ -289,11 +291,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.actionSave.triggered.disconnect(widget._save_)
         self.actionZoomIn.triggered.disconnect(widget._zoomIn_)
         self.actionZoomOut.triggered.disconnect(widget._zoomOut_)
+        self.actionExpand.triggered.disconnect(widget._expandAll_)
+        self.actionCollapse.triggered.disconnect(widget._collapseAll_)
         if widgetType == TextEditor :
             self.updateStatusbar()
             widget.getWidget().cursorPositionChanged.disconnect(callback)
-            self.actionExpand.triggered.disconnect(widget.expandAll)
-            self.actionCollapse.triggered.disconnect(widget.hideAll)
             self.actionUndo.triggered.disconnect(widget.plainTextEdit.undo)
             self.actionRedo.triggered.disconnect(widget.plainTextEdit.redo)
             self.actionCut.triggered.disconnect(widget.plainTextEdit.cut)
