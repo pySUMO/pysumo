@@ -6,44 +6,207 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>621</width>
-    <height>336</height>
+    <width>624</width>
+    <height>509</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="gfx.qrc">
+    <normaloff>:/actions/gfx/actions/configure.png</normaloff>:/actions/gfx/actions/configure.png</iconset>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="1">
+   <item row="1" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
-     </property>
-     <property name="centerButtons">
-      <bool>false</bool>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QTabWidget" name="tabWidget">
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Tab 1</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Tab 2</string>
-      </attribute>
-     </widget>
+   <item row="0" column="0">
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QListWidget" name="listWidget">
+        <property name="maximumSize">
+         <size>
+          <width>96</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>64</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="movement">
+         <enum>QListView::Static</enum>
+        </property>
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <property name="viewMode">
+         <enum>QListView::IconMode</enum>
+        </property>
+        <property name="currentRow">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="toolTip">
+          <string>Global Settings</string>
+         </property>
+         <property name="icon">
+          <iconset resource="gfx.qrc">
+           <normaloff>:/actions/gfx/globulation.png</normaloff>:/actions/gfx/globulation.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="toolTip">
+          <string>Text Editor Widget Settings</string>
+         </property>
+         <property name="icon">
+          <iconset resource="gfx.qrc">
+           <normaloff>:/actions/gfx/accessories-text-editor.png</normaloff>:/actions/gfx/accessories-text-editor.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="toolTip">
+          <string>Documentation Widget Settings</string>
+         </property>
+         <property name="icon">
+          <iconset resource="gfx.qrc">
+           <normaloff>:/actions/gfx/x-office-document.png</normaloff>:/actions/gfx/x-office-document.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="toolTip">
+          <string>Hierarchy Widget Settings</string>
+         </property>
+         <property name="icon">
+          <iconset resource="gfx.qrc">
+           <normaloff>:/actions/gfx/view-sidetree.png</normaloff>:/actions/gfx/view-sidetree.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item>
+         <property name="toolTip">
+          <string>Graph Widget Settings</string>
+         </property>
+         <property name="icon">
+          <iconset resource="gfx.qrc">
+           <normaloff>:/actions/gfx/graphics.png</normaloff>:/actions/gfx/graphics.png</iconset>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEnabled</set>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QStackedWidget" name="stackedWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page">
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QTabWidget" name="tabWidget">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="tab">
+             <attribute name="title">
+              <string>Misc.</string>
+             </attribute>
+            </widget>
+            <widget class="QWidget" name="tab_2">
+             <attribute name="title">
+              <string>Network</string>
+             </attribute>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_2">
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QTabWidget" name="tabWidget_2">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="tab_3">
+             <attribute name="title">
+              <string>Misc.</string>
+             </attribute>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_3"/>
+        <widget class="QWidget" name="page_4">
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QTabWidget" name="tabWidget_3">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="tab_4">
+             <attribute name="title">
+              <string>Misc.</string>
+             </attribute>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_5">
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <widget class="QTabWidget" name="tabWidget_4">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="tab_5">
+             <attribute name="title">
+              <string>Misc.</string>
+             </attribute>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="gfx.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
@@ -77,5 +240,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>listWidget</sender>
+   <signal>currentItemChanged(QListWidgetItem*,QListWidgetItem*)</signal>
+   <receiver>Dialog</receiver>
+   <slot>changePage(QListWidgetItem*,QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>65</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>174</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stackedWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>Dialog</receiver>
+   <slot>setSelectedPage(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>174</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>changePage(QListWidgetItem*,QListWidgetItem*)</slot>
+  <slot>setSelectedPage(int)</slot>
+ </slots>
 </ui>
