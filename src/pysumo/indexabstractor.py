@@ -72,7 +72,9 @@ class IndexAbstractor:
         """ Returns an in-memory file object for the Kif representation of ontology. """
         if ontology in self.ontologies:
             ret = StringIO()
+            ontology.action_log.current.seek(0)
             ret.write(ontology.action_log.current.read().decode('utf8'))
+            ontology.action_log.current.seek(0)
             ret.seek(0)
             return ret
 
