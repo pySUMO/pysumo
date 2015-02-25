@@ -73,7 +73,7 @@ class HierarchyWidget(RWWidget, Ui_Form):
         
     def refresh(self):
         RWWidget.refresh(self)
-        abstractGraph= self.IA.get_graph("instance")
+        abstractGraph= self.IA.get_graph([(0, "instance")])
         if abstractGraph is None or len(abstractGraph.relations) == 0:
             return
         self.treeWidget.clear()
