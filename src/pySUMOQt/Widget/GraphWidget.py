@@ -110,6 +110,7 @@ class GraphWidget(RWWidget, Ui_Form):
             assert ontology is not None
             
             x = self.getIndexAbstractor().get_ontology_file(ontology)
+            x.seek(0, 2)
             x.write(addstr)
             self.SyntaxController.add_ontology(ontology, newversion=x.getvalue())
             self.commit()
