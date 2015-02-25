@@ -345,4 +345,4 @@ class ParseError(Exception):
         self.linnumber = linenumber
 
     def __str__(self):
-        return "".join(["Parse error in line", str(self.linnumber), "\n", line])
+        return "".join(["Parse error in line", str(self.linnumber), "\n", self.line])

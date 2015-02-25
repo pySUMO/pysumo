@@ -137,7 +137,7 @@ class SyntaxController:
         newast.ontology = None
         self.index.update_index(newast)
         self.index.ontologies.add(ontology)
-        ontology.action_log.ok_log_item(num)
+        #ontology.action_log.ok_log_item(num)
 
     def remove_ontology(self, ontology):
         """ Removes ontology from the current in-memory Ontology.

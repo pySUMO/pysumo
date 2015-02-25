@@ -63,7 +63,12 @@ class GraphWidget(RWWidget, Ui_Form):
         self.lineEdit.textChanged.connect(self.searchNode)
         self.rootSelector.insertItem(0,"---")
         self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
-        
+
+    def refresh(self):
+        RWWidget.refresh(self)
+        self.createGV()
+        self.plot()
+        self.initRelationBox()
 
     def initRelationBox(self):
         m = self.relations.model()

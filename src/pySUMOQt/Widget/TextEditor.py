@@ -16,6 +16,8 @@ from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
+from parser import ParserError
+from pysumo.parser import ParseError
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -67,6 +69,9 @@ class TextEditor(RWWidget, Ui_Form):
             self.showOtherOntology)
         self.plainTextEdit.textChanged.connect(self.commit)
         self.ontologySelector.setCurrentIndex(-1)
+        shortcut = QShortcut(
+            QKeySequence("Ctrl+Enter"), self.getWidget())
+        shortcut.activated.connect(self.insertCompletion)
         
     def _print_(self):
         dialog = QPrintDialog()
@@ -267,8 +272,6 @@ class TextEditor(RWWidget, Ui_Form):
         if len(beginning) >= 3:
             self.completer.setCompletionPrefix(beginning)
             self.completer.complete()
-        shortcut = QShortcut(
-            QKeySequence("Ctrl+Enter"), self.getWidget(), self.insertCompletion)
 
     def toggleVisibility(self, line):
         if line in self.hidden:
@@ -327,13 +330,20 @@ class TextEditor(RWWidget, Ui_Form):
 
     def commit(self):
         """ Overrides commit from RWWidget. """
+        print("committing changes from text editor")
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
+            print("commit cancelled because no ontology selected")
             return
         ontology = self.ontologySelector.itemData(idx)
         if ontology is None :
+            print("commit cancelled because no ontology selected")
             return
-        self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
+        try :
+            self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
+        except (IndexError, ParseError, NameError) as err :
+            print("commit cancelled because of parsing errors")
+            return
         RWWidget.commit(self)
 
 class SyntaxHighlightSetting():
@@ -382,7 +392,7 @@ class SyntaxHighlighter(QSyntaxHighlighter):
         self.singleline.append(SyntaxHighlightSetting(
             "(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W'\n']", QFont.Bold, Qt.darkGreen))
         self.singleline.append(
-            SyntaxHighlightSetting(";.*$", QFont.StyleItalic, Qt.darkMagenta))
+            SyntaxHighlightSetting("^;;.*$", QFont.StyleItalic, Qt.darkMagenta))
 
         self.multiline = []
         self.multiline.append(

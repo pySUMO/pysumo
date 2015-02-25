@@ -8,13 +8,13 @@ This module contains:
 """
 
 from PySide.QtCore import QCoreApplication, Qt, Slot, QObject, SIGNAL
-from PySide.QtCore import QEvent, Signal
+from PySide.QtCore import QEvent, Signal, QThread
 
 from PySide.QtNetwork import QLocalServer
 
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QPixmap
 from PySide.QtGui import QIcon, QDockWidget, QFileDialog, QPrintDialog
-from PySide.QtGui import QAction, QMenu
+from PySide.QtGui import QAction, QMenu, QProgressBar
 
 from pySUMOQt.Designer.MainWindow import Ui_mainwindow
 from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
@@ -38,6 +38,7 @@ from struct import unpack
 import os
 import sys
 import logging
+import threading
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -96,6 +97,27 @@ class PySUMOWidget(QDockWidget):
         elif event.type() == QEvent.FocusOut:
             self.mainWindow.disconnectWidget(self.wrappedWidget, self.callback)
         return super(PySUMOWidget, self).eventFilter(source, event)
+    
+class IndexUpdaterWorker(QThread):
+    
+    def __init__(self, syntaxController, mainwindow):
+        super(IndexUpdaterWorker, self).__init__()
+        self.syntaxController = syntaxController
+        self.mainwindow = mainwindow
+        
+    def __del__(self):
+        self.wait()
+        
+    def addOntologyAsync(self, ontology):
+        self.ontology = ontology
+        self.start()
+        
+    def run(self, *args, **kwargs):
+        self.mainwindow.log.info("Adding ontology " + self.ontology.name)
+        print(threading.current_thread().name)
+        self.syntaxController.add_ontology(self.ontology)
+        print("Ontology added")
+        self.mainwindow.ontologyAdded.emit(self.ontology)
 
 class MainWindow(Ui_mainwindow, QMainWindow):
     """ This class is the entry point of the application. It creates the main
@@ -115,6 +137,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
         self.setupUi(self)
+        print(threading.current_thread().name)
         self.infolog = InfoLog()
         self.log = logging.getLogger('.' + __name__)
         self.setCentralWidget(None)
@@ -150,6 +173,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             settings.loadDefaults()
         optionDialog = OptionDialog(self, settings)
         self.actionSettings.triggered.connect(optionDialog.show)
+        self.worker = IndexUpdaterWorker(RWWidget.SyntaxController, self)
         # restore and show the view.
         self.userLayout.restoreLayout()
         self.show()
@@ -168,6 +192,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             widget.setPrefixName("Text Editor")
             wrappedWidget.ontologySelector.currentIndexChanged[str].connect(widget._setSuffixName_)
             wrappedWidget.plainTextEdit.installEventFilter(widget)
+            self.ontologyAdded.connect(wrappedWidget._updateOntologySelector)
             wrappedWidget.ontologyChanged.connect(self.synchronize)
         elif widgetType == "DocumentationWidget" :
             wrappedWidget = DocumentationWidget(widget)
@@ -184,7 +209,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         if wrappedWidget is None :
             print("can not create widget with type " + widgetType)
             return
-        self.synchronizeRequested.connect(wrappedWidget.refresh)
+        self.synchronizeRequested.connect(wrappedWidget._refresh_)
         objName = widgetType
         objName += str(len(widgetMenu.actions()))
         widget.setObjectName(objName)
@@ -228,6 +253,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         # line and column number
         self.lineColNumber = QLabel(statusbar)
         self.lineColNumber.setText("")
+        self.progressbar = QProgressBar(statusbar)
+        self.progressbar.setVisible(False)
+        statusbar.addPermanentWidget(self.progressbar)
         statusbar.addPermanentWidget(self.lineColNumber)
         statusbar.socketServer = QLocalServer()
         statusbar.socketServer.removeServer(self.infolog.socket)
@@ -363,11 +391,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def addOntology(self, ontology):
         '''Adds an ontology to index and notify all components required.'''
-        RWWidget.SyntaxController.add_ontology(ontology)
-        self.ontologyAdded.emit(ontology)
+        print(threading.current_thread().name)
+        self.worker.addOntologyAsync(ontology)
 
     def notifyOntologyAdded(self, ontology):
         '''Notify that an ontology was added to index.'''
+        print("notifying that the ontology was added")
+        print(threading.current_thread().name)
         if ontology is None:
             return
         count = len(self.menuRecent_Ontologies.actions())
@@ -394,7 +424,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             self.menuRecent_Ontologies.insertAction(befAction, action)
         ontologyMenu = QMenu(self)
         ontologyMenu.setTitle(ontology.name)
-        
         # Update action
         icon = QIcon()
         icon.addPixmap(QPixmap(":/actions/gfx/actions/update-product.png"), QIcon.Normal, QIcon.Off)
@@ -427,18 +456,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         actionClose.setData(ontology)
         actionClose.triggered.connect(partial(self._closeOntology, ontology))
         ontologyMenu.addSeparator()
-        
+        # Add ontology menu to active ontologies menu.
         self.menuOntology.addMenu(ontologyMenu)
-        for widget in self.widgets:
-            if type(widget) == TextEditor:
-                widget._updateOntologySelector()
-                
-        # update graph widget
-        for x in self.widgets :
-            if type(x) == GraphWidget :
-                x.createGV()
-                x.plot()
-                x.initRelationBox()
+        print("notify finished")
 
     def _ClearRecentOntologiesHistory_(self):
         '''Handles the clear recent ontologies action when it is triggered.'''

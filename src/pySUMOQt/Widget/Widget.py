@@ -7,10 +7,27 @@ This module contains:
 - RWWidget: The class of widgets which have access to the SyntaxController and the IndexAbstractor.
 
 """
-from PySide.QtCore import QObject, Signal
+from PySide.QtCore import QObject, Signal, QThread
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.syntaxcontroller import SyntaxController
+import threading
 
+class RefreshWorker(QThread):
+    
+    def __init__(self, widget):
+        super(RefreshWorker, self).__init__()
+        self.widget = widget
+        
+    def __del__(self):
+        self.wait()
+        
+    def refreshAsync(self):
+        print("refreshing " + self.widget.parent().windowTitle())
+        self.start()
+        
+    def run(self):
+        print(threading.current_thread().name)
+        self.widget.refresh()
 
 class Widget(QObject):
     """ The main class representing a widget in the pySUMO GUI.
@@ -23,17 +40,21 @@ class Widget(QObject):
     IA = IndexAbstractor()
 
     def __init__(self, mainwindow):
+        """ Initializes the Widget object. """
         super(Widget, self).__init__(mainwindow)
         self.mw = mainwindow
-        """ Initializes the Widget object. """
+        self.worker = RefreshWorker(self)
 
     @classmethod
     def getIndexAbstractor(cls):
         return cls.IA
+    
+    def _refresh_(self):
+        self.worker.refreshAsync()
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """
-        print("refreshing " + self.parent().windowTitle())
+        pass
 
     def getWidget(self):
         pass
