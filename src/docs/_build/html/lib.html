@@ -1,0 +1,667 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib package &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="index.html" />
+    <link rel="next" title="lib.logger package" href="lib.logger.html" />
+    <link rel="prev" title="blaKonstantinistSooooTool&lt;3" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.logger.html" title="lib.logger package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="blaKonstantinistSooooTool&lt;3"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="lib-package">
+<h1>lib package<a class="headerlink" href="#lib-package" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the backing library of pySUMO. It contains listings and
+descriptions of all the modules and classes in the pySUMO core. The lib
+conforms to PEP 008.</p>
+<p class="plantuml">
+<object data="_images/plantuml-86c0997053a52356fc2c522d56cfe4286020139e.svg" type="image/svg+xml" style="width:2745px;height:1165px;">
+<img src="_images/plantuml-86c0997053a52356fc2c522d56cfe4286020139e.png" alt="!include ./UML/lib/package_lib.iuml" />
+
+</object></p>
+<div class="section" id="module-lib">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-lib" title="Permalink to this headline">¶</a></h2>
+<p>The pySUMO library package. This package contains the core functionality of
+pySUMO.  It not only provides the GUI with a feature-rich API, but also
+validates input and keeps the Ontologies in a consistent state.</p>
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lib.logger.html">lib.logger package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.logger.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.logger.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.logger.html#lib-logger-actionlog-module">lib.logger.actionlog module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.logger.html#lib-logger-infolog-module">lib.logger.infolog module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="lib-indexabstractor-module">
+<h2>lib.indexabstractor module<a class="headerlink" href="#lib-indexabstractor-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-3eae83c4b09987a44ffd97d86c139729cce9ab34.svg" type="image/svg+xml" style="width:753px;height:484px;">
+<img src="_images/plantuml-3eae83c4b09987a44ffd97d86c139729cce9ab34.png" alt="!include ./UML/lib/IndexAbstractor.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-lib.indexabstractor"></span><p>This module abstracts all operations on the Ontology index.  It is used for
+every read operation on the Ontology. It eases access to the Ontology and
+protects the data structures from direct user access.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>IndexAbstractor: The interface to the Ontology index.</li>
+<li>AbstractGraph: An object containing selected graph nodes and relations.</li>
+<li>AbstractGraphNode: A node in a AbstractGraph</li>
+<li>DotGraph: A Graphical representation of an AbstractGraph with DOT</li>
+</ul>
+<dl class="class">
+<dt id="lib.indexabstractor.AbstractGraph">
+<em class="property">class </em><tt class="descclassname">lib.indexabstractor.</tt><tt class="descname">AbstractGraph</tt><big>(</big><em>variant</em>, <em>root</em>, <em>depth</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#AbstractGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.AbstractGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>An abstract representation of a subset of an Ontology as a collection
+of nodes and relations. This class can be used together with a DotGraph to
+create a graphical representation of an Ontology, or passed to the
+SyntaxController to modify the Ontology.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>nodes: The list of graph nodes.</li>
+<li>relations: An adjacency matrix of all the paths in the graph.</li>
+</ul>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.indexabstractor.AbstractGraphNode">
+<em class="property">class </em><tt class="descclassname">lib.indexabstractor.</tt><tt class="descname">AbstractGraphNode</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#AbstractGraphNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.AbstractGraphNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>A node in an AbstractGraph. Contains information necessary to recreate
+an AbstractSyntaxTree from an AbstractGraph.</p>
+<p>Varibles:</p>
+<ul class="simple">
+<li>name: The name of the AbstractGraphNode.</li>
+</ul>
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.indexabstractor.DotGraph">
+<em class="property">class </em><tt class="descclassname">lib.indexabstractor.</tt><tt class="descname">DotGraph</tt><big>(</big><em>graph</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#DotGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.DotGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>A utility class that handles layouting AbstractGraph objects.  This
+class returns a layouted version of an AbstractGraph and provides a mapping
+between the image and nodes in the AbstractGraph.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>graph: AbstractGraph</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>get_node_from_position: receives an xy coordinate and returns the node at that position</li>
+<li>get_edge_from_position: receives an xy coordinate and returns the edge at that position</li>
+<li>get_position_from_node: receives a node and returns its layouted position</li>
+<li>get_pic: returns the layouted graph</li>
+</ul>
+<dl class="method">
+<dt id="lib.indexabstractor.DotGraph.get_edge_from_position">
+<tt class="descname">get_edge_from_position</tt><big>(</big><em>xcoord</em>, <em>ycoord</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#DotGraph.get_edge_from_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.DotGraph.get_edge_from_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the edge nearest to the given x y coordinate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.indexabstractor.DotGraph.get_node_from_position">
+<tt class="descname">get_node_from_position</tt><big>(</big><em>xcoord</em>, <em>ycoord</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#DotGraph.get_node_from_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.DotGraph.get_node_from_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the AbstractGraphNode nearest to the given x y coordinate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.indexabstractor.DotGraph.get_pic">
+<tt class="descname">get_pic</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#DotGraph.get_pic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.DotGraph.get_pic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a layouted version of self.graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.indexabstractor.DotGraph.get_position_from_node">
+<tt class="descname">get_position_from_node</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#DotGraph.get_position_from_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.DotGraph.get_position_from_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the x y coordinate of the given node.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.indexabstractor.IndexAbstractor">
+<em class="property">class </em><tt class="descclassname">lib.indexabstractor.</tt><tt class="descname">IndexAbstractor</tt><a class="reference internal" href="_modules/lib/indexabstractor.html#IndexAbstractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.IndexAbstractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The IndexAbstractor provides a high-level index of the
+AbstractSyntaxTree.  Each Ontology is represented by a hashmap, the list of
+these hashmaps is the index.  Average access time is in O(n) where n is the
+number of loaded Ontologies.</p>
+<p>Methods:</p>
+<ul class="simple">
+<li>search: searches for a term in the Ontology</li>
+<li>get_graph: creates an abstract graph containing a view of the Ontology</li>
+<li>wordnet_locate: returns information about a term from WordNet</li>
+</ul>
+<dl class="method">
+<dt id="lib.indexabstractor.IndexAbstractor.get_graph">
+<tt class="descname">get_graph</tt><big>(</big><em>variant</em>, <em>root</em>, <em>depth</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#IndexAbstractor.get_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.IndexAbstractor.get_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a hierarchical view of the Ontology.</p>
+<p>Arguments:</p>
+<ul class="simple">
+<li>variant: the hierarchical variant to return</li>
+<li>root: the root node from which the graph will be created</li>
+<li>depth: the maximum depth of the graph</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li>AbstractGraph</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.indexabstractor.IndexAbstractor.search">
+<tt class="descname">search</tt><big>(</big><em>term</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#IndexAbstractor.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.IndexAbstractor.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for term in the in-memory Ontology. Returns all objects that
+match the search.</p>
+<p>Returns:</p>
+<ul class="simple">
+<li>AbstractSyntaxTree[]</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.indexabstractor.IndexAbstractor.wordnet_locate">
+<tt class="descname">wordnet_locate</tt><big>(</big><em>term</em><big>)</big><a class="reference internal" href="_modules/lib/indexabstractor.html#IndexAbstractor.wordnet_locate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.indexabstractor.IndexAbstractor.wordnet_locate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the mapping from SUMO to WordNet to retrieve information about a term.</p>
+<p>Arguments:</p>
+<ul class="simple">
+<li>term: the term to locate</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li>String</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lib-nltoolkit-module">
+<h2>lib.nltoolkit module<a class="headerlink" href="#lib-nltoolkit-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-3eedd45f10839a67b63e941e9dbfe41a71c7f5dc.svg" type="image/svg+xml" style="width:215px;height:90px;">
+<img src="_images/plantuml-3eedd45f10839a67b63e941e9dbfe41a71c7f5dc.png" alt="!include ./UML/lib/NLToolkit.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-lib.nltoolkit"></span><p>The interface to the Natural Language Toolkit.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>WordNet: An interface to the WordNet online English lexical database.</li>
+</ul>
+<dl class="class">
+<dt id="lib.nltoolkit.WordNet">
+<em class="property">class </em><tt class="descclassname">lib.nltoolkit.</tt><tt class="descname">WordNet</tt><a class="reference internal" href="_modules/lib/nltoolkit.html#WordNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.nltoolkit.WordNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>An interface to locate and search for items in WordNet. Uses NLTK to
+search WordNet for information about terms in the Ontology, to find
+colloquial variations of term names and to find terms that are synonyms of
+a word.</p>
+<p>Methods:</p>
+<ul class="simple">
+<li>locate_term: Locates a term in WordNet.</li>
+<li>find_synonym: Finds possibly synonyms for a word.</li>
+</ul>
+<dl class="method">
+<dt id="lib.nltoolkit.WordNet.find_synonym">
+<tt class="descname">find_synonym</tt><big>(</big><em>word</em><big>)</big><a class="reference internal" href="_modules/lib/nltoolkit.html#WordNet.find_synonym"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.nltoolkit.WordNet.find_synonym" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches WordNet for possible synonyms for word.</p>
+<p>Returns:</p>
+<ul class="simple">
+<li>String[]</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.nltoolkit.WordNet.locate_term">
+<tt class="descname">locate_term</tt><big>(</big><em>term</em><big>)</big><a class="reference internal" href="_modules/lib/nltoolkit.html#WordNet.locate_term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.nltoolkit.WordNet.locate_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the mapping from SUMO to WordNet to retrieve information about a term.</p>
+<p>Kwargs:</p>
+<ul class="simple">
+<li>term: the term to locate</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li>String</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lib-parser-module">
+<h2>lib.parser module<a class="headerlink" href="#lib-parser-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-19ccdf1374e4756a350773511f8d07753f831683.svg" type="image/svg+xml" style="width:556px;height:546px;">
+<img src="_images/plantuml-19ccdf1374e4756a350773511f8d07753f831683.png" alt="!include ./UML/lib/Parser.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-lib.parser"></span><p>The pySUMO parsing module. It contains functions to parse and serialize
+kif-files. It also handles the Ontology&#8217;s data structure and parses the mapping
+of SUMO terms to WordNet.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>AbstractSyntaxTree: The in-memory representation of an Ontology.</li>
+<li>Ontology: Contains basic information about an Ontology.</li>
+</ul>
+<dl class="class">
+<dt id="lib.parser.AbstractSyntaxTree">
+<em class="property">class </em><tt class="descclassname">lib.parser.</tt><tt class="descname">AbstractSyntaxTree</tt><big>(</big><em>ontology</em>, <em>parent=None</em><big>)</big><a class="reference internal" href="_modules/lib/parser.html#AbstractSyntaxTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.AbstractSyntaxTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The AbstractSyntaxTree is a node in the abstract syntax tree. The
+abstract syntax tree is defined by a root node and its children. The
+AbstractSyntaxTree is the in-memory representation of the loaded Ontologies
+for internal purposes only and should never be passed outside of the lib.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>parent: The parent node</li>
+<li>children: A list of child nodes.</li>
+<li>name: The name of the AbstractSyntaxTree object.</li>
+<li>element_type: The type of the node element.</li>
+<li>ontology: The Ontology object to which this node corresponds.</li>
+<li>is_indexed: Whether or not this node is indexed.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>get_children: Returns all child nodes.</li>
+<li>add_child: Adds a child node.</li>
+<li>remove_child: Removes a child node.</li>
+</ul>
+<dl class="method">
+<dt id="lib.parser.AbstractSyntaxTree.add_child">
+<tt class="descname">add_child</tt><big>(</big><em>entry</em><big>)</big><a class="reference internal" href="_modules/lib/parser.html#AbstractSyntaxTree.add_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.AbstractSyntaxTree.add_child" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds entry as a child to self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.parser.AbstractSyntaxTree.get_children">
+<tt class="descname">get_children</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/parser.html#AbstractSyntaxTree.get_children"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.AbstractSyntaxTree.get_children" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all children of self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.parser.AbstractSyntaxTree.remove_child">
+<tt class="descname">remove_child</tt><big>(</big><em>entry</em><big>)</big><a class="reference internal" href="_modules/lib/parser.html#AbstractSyntaxTree.remove_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.AbstractSyntaxTree.remove_child" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes entry from the node&#8217;s children.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.parser.Ontology">
+<em class="property">class </em><tt class="descclassname">lib.parser.</tt><tt class="descname">Ontology</tt><big>(</big><em>path</em>, <em>name=None</em>, <em>url=None</em><big>)</big><a class="reference internal" href="_modules/lib/parser.html#Ontology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.Ontology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Contains basic information about a KIF file.  This class is used to
+maintain separation between different Ontology-files so the user can choose
+which are active and where each Ontology should be saved.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>name: The name of the Ontology.</li>
+<li>path: The location of the Ontology in the filesystem.</li>
+<li>url: The URL from which the Ontology can be updated.</li>
+<li>active: Whether or not the Ontology is currently loaded.</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.parser.astmerge">
+<tt class="descclassname">lib.parser.</tt><tt class="descname">astmerge</tt><big>(</big><em>trees</em><big>)</big><a class="reference internal" href="_modules/lib/parser.html#astmerge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.astmerge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge two Abstract Syntax Trees</p>
+<p>Args:</p>
+<ul class="simple">
+<li>trees: a tuple of 2 AST objects</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li>AbstractSyntaxTree</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.parser.kifparse">
+<tt class="descclassname">lib.parser.</tt><tt class="descname">kifparse</tt><big>(</big><em>ontology</em>, <em>graph=None</em>, <em>ast=None</em><big>)</big><a class="reference internal" href="_modules/lib/parser.html#kifparse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.kifparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse an ontology and return an AbstractSyntaxTree.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>ontology: the ontology to parse</li>
+<li>graph: a modified graph of this ontology</li>
+<li>ast: the AST of ontologies which are needed from this ontology</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li>AbstractSyntaxTree</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.parser.kifserialize">
+<tt class="descclassname">lib.parser.</tt><tt class="descname">kifserialize</tt><big>(</big><em>ast</em>, <em>ontology</em><big>)</big><a class="reference internal" href="_modules/lib/parser.html#kifserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.kifserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes ontology to disk as kif. Parses ast and writes out all nodes
+that belong to ontology.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>ast: the Abstract Syntax Tree</li>
+<li>ontology: The specific ontology with is written to disk</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>OSError</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.parser.wparse">
+<tt class="descclassname">lib.parser.</tt><tt class="descname">wparse</tt><big>(</big><em>mapping</em><big>)</big><a class="reference internal" href="_modules/lib/parser.html#wparse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.parser.wparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the file containing the SUMO-WordNet mapping.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>mapping: The file for the SUMO WordNet mapping</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li>Dictionary</li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="lib-syntaxcontroller-module">
+<h2>lib.syntaxcontroller module<a class="headerlink" href="#lib-syntaxcontroller-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-e65c95a58b440510eddb4e35b2b44a376ee49bf0.svg" type="image/svg+xml" style="width:327px;height:180px;">
+<img src="_images/plantuml-e65c95a58b440510eddb4e35b2b44a376ee49bf0.png" alt="!include ./UML/lib/SyntaxController.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-lib.syntaxcontroller"></span><p>Handles all write accesses to the Ontologies and kif files. The
+SyntaxController&#8217;s main purpose is to act as an intermediary between the user
+and the Ontology.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>SyntaxController: The interface to the parser/serializer.</li>
+</ul>
+<dl class="class">
+<dt id="lib.syntaxcontroller.SyntaxController">
+<em class="property">class </em><tt class="descclassname">lib.syntaxcontroller.</tt><tt class="descname">SyntaxController</tt><big>(</big><em>index</em><big>)</big><a class="reference internal" href="_modules/lib/syntaxcontroller.html#SyntaxController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.syntaxcontroller.SyntaxController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The high-level class containing the interface to all parsing/serialization operations.
+All operations that can modify the Ontology or kif-file are passed through the SyntaxController.
+The SyntaxController acts as a moderator between user-side widgets and the low-level API
+ensuring that all requests are correct, that higher objects never gain direct access to
+internal objects and that all changes to the Ontology are atomic.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>actionlog: The ActionLog for this object.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>parse_partial: Checks a code block for syntax errors.</li>
+<li>parse_add: Checks a code for correctness and adds it to the Ontology.</li>
+<li>parse_graph: Modifies the current Ontology according to an AbstractGraph.</li>
+<li>add_ontology: Adds an Ontology to the in-memory Ontology.</li>
+<li>remove_ontology: Removes an Ontology from the in-memory Ontology.</li>
+<li>serialize: Writes an Ontology out as Kif.</li>
+</ul>
+<dl class="method">
+<dt id="lib.syntaxcontroller.SyntaxController.add_ontology">
+<tt class="descname">add_ontology</tt><big>(</big><em>ontology</em><big>)</big><a class="reference internal" href="_modules/lib/syntaxcontroller.html#SyntaxController.add_ontology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.syntaxcontroller.SyntaxController.add_ontology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds ontology to the current in-memory Ontology.</p>
+<p>Arguments:</p>
+<ul class="simple">
+<li>ontology: the ontology that will be added</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>ParseError</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.syntaxcontroller.SyntaxController.parse_add">
+<tt class="descname">parse_add</tt><big>(</big><em>code_block</em><big>)</big><a class="reference internal" href="_modules/lib/syntaxcontroller.html#SyntaxController.parse_add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.syntaxcontroller.SyntaxController.parse_add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tells self.parser to check code_block for syntactical correctness and add it to the
+Ontology if it is correct.</p>
+<p>Arguments:</p>
+<ul class="simple">
+<li>code_block: the code block that will be checked and added to the Ontology</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>ParseError</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.syntaxcontroller.SyntaxController.parse_graph">
+<tt class="descname">parse_graph</tt><big>(</big><em>graph</em><big>)</big><a class="reference internal" href="_modules/lib/syntaxcontroller.html#SyntaxController.parse_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.syntaxcontroller.SyntaxController.parse_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tells self.parser to modify the current Ontology according to graph.</p>
+<p>Arguments:</p>
+<ul class="simple">
+<li>graph: the AbstractGraph to check for modified nodes</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>ParseError</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.syntaxcontroller.SyntaxController.parse_partial">
+<tt class="descname">parse_partial</tt><big>(</big><em>code_block</em><big>)</big><a class="reference internal" href="_modules/lib/syntaxcontroller.html#SyntaxController.parse_partial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.syntaxcontroller.SyntaxController.parse_partial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tells self.parser to check code_block for syntactical correctness.</p>
+<p>Arguments:</p>
+<ul class="simple">
+<li>code_block: the partial code block that will be checked</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>ParseError</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.syntaxcontroller.SyntaxController.remove_ontology">
+<tt class="descname">remove_ontology</tt><big>(</big><em>ontology</em><big>)</big><a class="reference internal" href="_modules/lib/syntaxcontroller.html#SyntaxController.remove_ontology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.syntaxcontroller.SyntaxController.remove_ontology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes ontology from the current in-memory Ontology.</p>
+<p>Arguments:</p>
+<ul class="simple">
+<li>ontology: the ontology that will be removed</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>NoSuchOntologyError</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.syntaxcontroller.SyntaxController.serialize">
+<tt class="descname">serialize</tt><big>(</big><em>ontology</em>, <em>path=None</em><big>)</big><a class="reference internal" href="_modules/lib/syntaxcontroller.html#SyntaxController.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.syntaxcontroller.SyntaxController.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes ontology to path.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lib-updater-module">
+<h2>lib.updater module<a class="headerlink" href="#lib-updater-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-e6095fb93cab58f0bdcea62c1bb4c61b558420b7.svg" type="image/svg+xml" style="width:285px;height:103px;">
+<img src="_images/plantuml-e6095fb93cab58f0bdcea62c1bb4c61b558420b7.png" alt="!include ./UML/lib/Updater.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-lib.updater"></span><p>Module which handles updating of Ontologies.
+It use PycURL to check if any updates are avalible.
+The URLs for the ontlogies are safe in the ontology
+so the user can easy add an URL for a new ontlogy.</p>
+<dl class="function">
+<dt id="lib.updater.check_for_updates">
+<tt class="descclassname">lib.updater.</tt><tt class="descname">check_for_updates</tt><big>(</big><em>ontology</em>, <em>function=None</em><big>)</big><a class="reference internal" href="_modules/lib/updater.html#check_for_updates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.updater.check_for_updates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if there are updates for ontology.  If an update is available,
+executes function.  Function receives the ontology as the first
+positional argument.</p>
+<p>Returns:</p>
+<ul class="simple">
+<li>Boolean</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>HTTPError</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="lib.updater.update">
+<tt class="descclassname">lib.updater.</tt><tt class="descname">update</tt><big>(</big><em>ontology</em>, <em>function=None</em><big>)</big><a class="reference internal" href="_modules/lib/updater.html#update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.updater.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for updates to ontology and if available downloads them. If the
+update succeeds, executes function after the download completes. Function
+receives the path to the downloaded ontology as the first positional
+argument, and ontology as the second.</p>
+<p>Raises:</p>
+<ul class="simple">
+<li>HTTPError</li>
+</ul>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">lib package</a><ul>
+<li><a class="reference internal" href="#module-lib">Module contents</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#lib-indexabstractor-module">lib.indexabstractor module</a></li>
+<li><a class="reference internal" href="#lib-nltoolkit-module">lib.nltoolkit module</a></li>
+<li><a class="reference internal" href="#lib-parser-module">lib.parser module</a></li>
+<li><a class="reference internal" href="#lib-syntaxcontroller-module">lib.syntaxcontroller module</a></li>
+<li><a class="reference internal" href="#lib-updater-module">lib.updater module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">blaKonstantinistSooooTool&lt;3</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.logger.html"
+                        title="next chapter">lib.logger package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.logger.html" title="lib.logger package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="blaKonstantinistSooooTool&lt;3"
+             >previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

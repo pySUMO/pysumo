@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.indexabstractor &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.indexabstractor</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; This module abstracts all operations on the Ontology index.  It is used for</span>
+<span class="sd">every read operation on the Ontology. It eases access to the Ontology and</span>
+<span class="sd">protects the data structures from direct user access.</span>
+
+<span class="sd">This module contains:</span>
+
+<span class="sd">- IndexAbstractor: The interface to the Ontology index.</span>
+<span class="sd">- AbstractGraph: An object containing selected graph nodes and relations.</span>
+<span class="sd">- AbstractGraphNode: A node in a AbstractGraph</span>
+<span class="sd">- DotGraph: A Graphical representation of an AbstractGraph with DOT</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="IndexAbstractor"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.IndexAbstractor">[docs]</a><span class="k">class</span> <span class="nc">IndexAbstractor</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; The IndexAbstractor provides a high-level index of the</span>
+<span class="sd">    AbstractSyntaxTree.  Each Ontology is represented by a hashmap, the list of</span>
+<span class="sd">    these hashmaps is the index.  Average access time is in O(n) where n is the</span>
+<span class="sd">    number of loaded Ontologies.</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - search: searches for a term in the Ontology</span>
+<span class="sd">    - get_graph: creates an abstract graph containing a view of the Ontology</span>
+<span class="sd">    - wordnet_locate: returns information about a term from WordNet</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the IndexAbstractor object. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">[{}]</span>
+
+<div class="viewcode-block" id="IndexAbstractor.search"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.IndexAbstractor.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Search for term in the in-memory Ontology. Returns all objects that</span>
+<span class="sd">        match the search.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        - AbstractSyntaxTree[]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="IndexAbstractor.get_graph"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.IndexAbstractor.get_graph">[docs]</a>    <span class="k">def</span> <span class="nf">get_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns a hierarchical view of the Ontology.</span>
+
+<span class="sd">        Arguments:</span>
+
+<span class="sd">        - variant: the hierarchical variant to return</span>
+<span class="sd">        - root: the root node from which the graph will be created</span>
+<span class="sd">        - depth: the maximum depth of the graph</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        - AbstractGraph</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="IndexAbstractor.wordnet_locate"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.IndexAbstractor.wordnet_locate">[docs]</a>    <span class="k">def</span> <span class="nf">wordnet_locate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Use the mapping from SUMO to WordNet to retrieve information about a term.</span>
+
+<span class="sd">        Arguments:</span>
+
+<span class="sd">        - term: the term to locate</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        - String</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+</div></div>
+<div class="viewcode-block" id="DotGraph"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.DotGraph">[docs]</a><span class="k">class</span> <span class="nc">DotGraph</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; A utility class that handles layouting AbstractGraph objects.  This</span>
+<span class="sd">    class returns a layouted version of an AbstractGraph and provides a mapping</span>
+<span class="sd">    between the image and nodes in the AbstractGraph.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - graph: AbstractGraph</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - get_node_from_position: receives an xy coordinate and returns the node at that position</span>
+<span class="sd">    - get_edge_from_position: receives an xy coordinate and returns the edge at that position</span>
+<span class="sd">    - get_position_from_node: receives a node and returns its layouted position</span>
+<span class="sd">    - get_pic: returns the layouted graph</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the DotGraph and instantiates variables. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span>
+
+<div class="viewcode-block" id="DotGraph.get_node_from_position"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.DotGraph.get_node_from_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_from_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xcoord</span><span class="p">,</span> <span class="n">ycoord</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the AbstractGraphNode nearest to the given x y coordinate. &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="DotGraph.get_edge_from_position"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.DotGraph.get_edge_from_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_edge_from_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xcoord</span><span class="p">,</span> <span class="n">ycoord</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the edge nearest to the given x y coordinate. &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="DotGraph.get_position_from_node"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.DotGraph.get_position_from_node">[docs]</a>    <span class="k">def</span> <span class="nf">get_position_from_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the x y coordinate of the given node. &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="DotGraph.get_pic"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.DotGraph.get_pic">[docs]</a>    <span class="k">def</span> <span class="nf">get_pic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns a layouted version of self.graph. &quot;&quot;&quot;</span>
+</div></div>
+<div class="viewcode-block" id="AbstractGraph"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.AbstractGraph">[docs]</a><span class="k">class</span> <span class="nc">AbstractGraph</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; An abstract representation of a subset of an Ontology as a collection</span>
+<span class="sd">    of nodes and relations. This class can be used together with a DotGraph to</span>
+<span class="sd">    create a graphical representation of an Ontology, or passed to the</span>
+<span class="sd">    SyntaxController to modify the Ontology.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - nodes: The list of graph nodes.</span>
+<span class="sd">    - relations: An adjacency matrix of all the paths in the graph.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the AbstractGraph and instantiates variables. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relations</span> <span class="o">=</span> <span class="p">[[]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="p">(</span><span class="n">variant</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AbstractGraphNode"><a class="viewcode-back" href="../../lib.html#lib.indexabstractor.AbstractGraphNode">[docs]</a><span class="k">class</span> <span class="nc">AbstractGraphNode</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; A node in an AbstractGraph. Contains information necessary to recreate</span>
+<span class="sd">    an AbstractSyntaxTree from an AbstractGraph.</span>
+
+<span class="sd">    Varibles:</span>
+
+<span class="sd">    - name: The name of the AbstractGraphNode.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes an AbstractGraphNode and instantiates variables. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.logger package &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="index.html" />
+    <link rel="up" title="lib package" href="lib.html" />
+    <link rel="next" title="ui package" href="ui.html" />
+    <link rel="prev" title="lib package" href="lib.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ui.html" title="ui package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lib.html" title="lib package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="lib.html" accesskey="U">lib package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="lib-logger-package">
+<h1>lib.logger package<a class="headerlink" href="#lib-logger-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-lib.logger"></span><p>The pySUMO logging interface.</p>
+<p>This package contains 2 modules:</p>
+<ul class="simple">
+<li>infolog: A singleton called from the entry point to initialize the python logging framework and set the loglevel.</li>
+<li>actionlog: Stores a list of all write operations on the Ontology and provides undo and redo functionality.</li>
+</ul>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="lib-logger-actionlog-module">
+<h2>lib.logger.actionlog module<a class="headerlink" href="#lib-logger-actionlog-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-e6cee52d88c19215034e83cfbc750cdb605b910a.svg" type="image/svg+xml" style="width:489px;height:180px;">
+<img src="_images/plantuml-e6cee52d88c19215034e83cfbc750cdb605b910a.png" alt="!include ./UML/lib/logger/Actionlog.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-lib.logger.actionlog"></span><p>The pySUMO action log handler. This module handles undo and redo operations.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>ActionLog: The action log handler.</li>
+<li>LogIO: The action log io interface.</li>
+</ul>
+<dl class="class">
+<dt id="lib.logger.actionlog.ActionLog">
+<em class="property">class </em><tt class="descclassname">lib.logger.actionlog.</tt><tt class="descname">ActionLog</tt><big>(</big><em>path=None</em><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#ActionLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.ActionLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The pySUMO action log. The SyntaxController queues a new log entry before every
+operation that makes changes to an Ontology, if the change is successful it OKs the
+entry in the log queue and the entry is written out. Log entries that are not OKed
+time out and are removed from the queue.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>log_io: The io object for this log.</li>
+<li>queue: A queue of actions that have not yet successfully completed.</li>
+<li>actionlog: A list of actions that have completed successfully.</li>
+<li>redolog: A list of actions that have been undone successfully.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>queue_log: Create a log entry and append it to the log queue.</li>
+<li>ok_log_item: Move log entry from log queue to actual log.</li>
+<li>undo: Undoes the last action.</li>
+<li>redo: Redoes the last undone action.</li>
+</ul>
+<dl class="method">
+<dt id="lib.logger.actionlog.ActionLog.ok_log_item">
+<tt class="descname">ok_log_item</tt><big>(</big><em>log_queue_ok_num</em><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#ActionLog.ok_log_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.ActionLog.ok_log_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends the item in self.queue with log_queue_ok_num to self.actionlog
+and calls self.log_io.append_write_queue on it.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>log_queue_ok_num: the number of the queue item to okay</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>KeyError</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.actionlog.ActionLog.queue_log">
+<tt class="descname">queue_log</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#ActionLog.queue_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.ActionLog.queue_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a log entry and queue it for addition to self.actionlog.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>data: the data to be placed in the log</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li>int. The log_queue_ok_num</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.actionlog.ActionLog.redo">
+<tt class="descname">redo</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#ActionLog.redo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.ActionLog.redo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redoes the last undone action, appends it to self.undolog
+and removes it from self.redolog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.actionlog.ActionLog.undo">
+<tt class="descname">undo</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#ActionLog.undo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.ActionLog.undo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undoes the last action and appends it to self.redolog.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="lib.logger.actionlog.LogIO">
+<em class="property">class </em><tt class="descclassname">lib.logger.actionlog.</tt><tt class="descname">LogIO</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#LogIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.LogIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The IO interface for the pySUMO action log. This class provides a storage
+backend for the Action Log. Entries in the write queue are written to disk
+after a timeout, or when the write queue reaches a maximum size.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>path: The path to the logfile.</li>
+<li>write_queue: The queue in which actions are stored before being written to disk.</li>
+<li>timeout: The time period after which if no new packets have entered the queue, the queue is flushed.</li>
+<li>max_size: The maximum number of actions in the write queue after which when another packet enters the queue, the queue is flushed.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>write: Writes a full Action Log to path.</li>
+<li>read: Instantiates an Action Log with the data in the stored log at path.</li>
+<li>flush_write_queue: Appends all entries in the write queue to the log file.</li>
+<li>append_write_queue: Appends an entry to the write queue.</li>
+</ul>
+<dl class="method">
+<dt id="lib.logger.actionlog.LogIO.append_write_queue">
+<tt class="descname">append_write_queue</tt><big>(</big><em>entry</em><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#LogIO.append_write_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.LogIO.append_write_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append entry to self.write_queue.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lib.logger.actionlog.LogIO.default_path">
+<tt class="descname">default_path</tt><em class="property"> = ''</em><a class="headerlink" href="#lib.logger.actionlog.LogIO.default_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.actionlog.LogIO.flush_write_queue">
+<tt class="descname">flush_write_queue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#LogIO.flush_write_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.LogIO.flush_write_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append all entries in self.write_queue to self.path.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.actionlog.LogIO.read">
+<tt class="descname">read</tt><big>(</big><em>log</em><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#LogIO.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.LogIO.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the log at self.path into log.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.actionlog.LogIO.write">
+<tt class="descname">write</tt><big>(</big><em>log</em><big>)</big><a class="reference internal" href="_modules/lib/logger/actionlog.html#LogIO.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.actionlog.LogIO.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes log to self.path.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="lib-logger-infolog-module">
+<h2>lib.logger.infolog module<a class="headerlink" href="#lib-logger-infolog-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-4e725da35b0cc3f24182496a7fc6d7bdec9925e2.svg" type="image/svg+xml" style="width:522px;height:142px;">
+<img src="_images/plantuml-4e725da35b0cc3f24182496a7fc6d7bdec9925e2.png" alt="!include ./UML/lib/logger/InfoLog.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-lib.logger.infolog"></span><p>The pySUMO informational log handler. Acts as an initializer for the python
+logging framework and defines several convenience functions for working with
+it.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>InfoLog: The informational log handler.</li>
+</ul>
+<dl class="class">
+<dt id="lib.logger.infolog.InfoLog">
+<em class="property">class </em><tt class="descclassname">lib.logger.infolog.</tt><tt class="descname">InfoLog</tt><big>(</big><em>loglevel=30</em>, <em>filename=''</em><big>)</big><a class="reference internal" href="_modules/lib/logger/infolog.html#InfoLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.infolog.InfoLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The informational log handler for pySUMO. Initializes the python logging framework
+and contains several convenience functions. Instantiated only from the entry point.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>default_log_path: The default path where the infolog will be stored.</li>
+<li>filename: The location at which the infolog will be stored.</li>
+<li>last_entry: The last entry in the infolog.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>set_loglevel: Sets the loglevel above which to log messages.</li>
+<li>get_log: Returns the complete log.</li>
+<li>get_log_tail: Returns a subset of the most recent log messages.</li>
+</ul>
+<dl class="attribute">
+<dt id="lib.logger.infolog.InfoLog.default_log_path">
+<tt class="descname">default_log_path</tt><em class="property"> = ''</em><a class="headerlink" href="#lib.logger.infolog.InfoLog.default_log_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.infolog.InfoLog.get_log">
+<tt class="descname">get_log</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lib/logger/infolog.html#InfoLog.get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.infolog.InfoLog.get_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the complete informational log.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.infolog.InfoLog.get_log_tail">
+<tt class="descname">get_log_tail</tt><big>(</big><em>num=10</em><big>)</big><a class="reference internal" href="_modules/lib/logger/infolog.html#InfoLog.get_log_tail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.infolog.InfoLog.get_log_tail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all new messages in the informational log, but at most num.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lib.logger.infolog.InfoLog.set_loglevel">
+<tt class="descname">set_loglevel</tt><big>(</big><em>loglevel</em><big>)</big><a class="reference internal" href="_modules/lib/logger/infolog.html#InfoLog.set_loglevel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lib.logger.infolog.InfoLog.set_loglevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the loglevel above which to log messages.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">lib.logger package</a><ul>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#lib-logger-actionlog-module">lib.logger.actionlog module</a></li>
+<li><a class="reference internal" href="#lib-logger-infolog-module">lib.logger.infolog module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lib.html"
+                        title="previous chapter">lib package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ui.html"
+                        title="next chapter">ui package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lib.logger.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ui.html" title="ui package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lib.html" title="lib package"
+             >previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="lib.html" >lib package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

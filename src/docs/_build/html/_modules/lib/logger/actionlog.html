@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lib.logger.actionlog &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lib.logger.actionlog</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; The pySUMO action log handler. This module handles undo and redo operations.</span>
+
+<span class="sd">This module contains:</span>
+
+<span class="sd">- ActionLog: The action log handler.</span>
+<span class="sd">- LogIO: The action log io interface.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ActionLog"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.ActionLog">[docs]</a><span class="k">class</span> <span class="nc">ActionLog</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; The pySUMO action log. The SyntaxController queues a new log entry before every</span>
+<span class="sd">    operation that makes changes to an Ontology, if the change is successful it OKs the</span>
+<span class="sd">    entry in the log queue and the entry is written out. Log entries that are not OKed</span>
+<span class="sd">    time out and are removed from the queue.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - log_io: The io object for this log.</span>
+<span class="sd">    - queue: A queue of actions that have not yet successfully completed.</span>
+<span class="sd">    - actionlog: A list of actions that have completed successfully.</span>
+<span class="sd">    - redolog: A list of actions that have been undone successfully.</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - queue_log: Create a log entry and append it to the log queue.</span>
+<span class="sd">    - ok_log_item: Move log entry from log queue to actual log.</span>
+<span class="sd">    - undo: Undoes the last action.</span>
+<span class="sd">    - redo: Redoes the last undone action.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the action log and instantiates variables. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span> <span class="o">=</span> <span class="n">LogIO</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionlog</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redolog</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">_create_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a log entry from data.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        - data: the data used to create the log entry</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        - a log entry</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_append_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Appends entry to log.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        - entry: the entry to append</span>
+<span class="sd">        - log: the log to append it to</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ActionLog.queue_log"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.ActionLog.queue_log">[docs]</a>    <span class="k">def</span> <span class="nf">queue_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a log entry and queue it for addition to self.actionlog.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        - data: the data to be placed in the log</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        - int. The log_queue_ok_num</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="ActionLog.ok_log_item"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.ActionLog.ok_log_item">[docs]</a>    <span class="k">def</span> <span class="nf">ok_log_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_queue_ok_num</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Appends the item in self.queue with log_queue_ok_num to self.actionlog</span>
+<span class="sd">        and calls self.log_io.append_write_queue on it.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        - log_queue_ok_num: the number of the queue item to okay</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">        - KeyError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="ActionLog.undo"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.ActionLog.undo">[docs]</a>    <span class="k">def</span> <span class="nf">undo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Undoes the last action and appends it to self.redolog. &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="ActionLog.redo"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.ActionLog.redo">[docs]</a>    <span class="k">def</span> <span class="nf">redo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Redoes the last undone action, appends it to self.undolog</span>
+<span class="sd">        and removes it from self.redolog. &quot;&quot;&quot;</span>
+</div></div>
+<div class="viewcode-block" id="LogIO"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.LogIO">[docs]</a><span class="k">class</span> <span class="nc">LogIO</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; The IO interface for the pySUMO action log. This class provides a storage</span>
+<span class="sd">    backend for the Action Log. Entries in the write queue are written to disk</span>
+<span class="sd">    after a timeout, or when the write queue reaches a maximum size.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - path: The path to the logfile.</span>
+<span class="sd">    - write_queue: The queue in which actions are stored before being written to disk.</span>
+<span class="sd">    - timeout: The time period after which if no new packets have entered the queue, the queue is flushed.</span>
+<span class="sd">    - max_size: The maximum number of actions in the write queue after which when another packet enters the queue, the queue is flushed.</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - write: Writes a full Action Log to path.</span>
+<span class="sd">    - read: Instantiates an Action Log with the data in the stored log at path.</span>
+<span class="sd">    - flush_write_queue: Appends all entries in the write queue to the log file.</span>
+<span class="sd">    - append_write_queue: Appends an entry to the write queue.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_path</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the IO interface for an action log. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">LogIO</span><span class="o">.</span><span class="n">default_path</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_queue</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span> <span class="o">=</span> <span class="mi">10</span>
+
+<div class="viewcode-block" id="LogIO.write"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.LogIO.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Writes log to self.path. &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="LogIO.read"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.LogIO.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Reads the log at self.path into log. &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="LogIO.flush_write_queue"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.LogIO.flush_write_queue">[docs]</a>    <span class="k">def</span> <span class="nf">flush_write_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Append all entries in self.write_queue to self.path. &quot;&quot;&quot;</span>
+</div>
+<div class="viewcode-block" id="LogIO.append_write_queue"><a class="viewcode-back" href="../../../lib.logger.html#lib.logger.actionlog.LogIO.append_write_queue">[docs]</a>    <span class="k">def</span> <span class="nf">append_write_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Append entry to self.write_queue. &quot;&quot;&quot;</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

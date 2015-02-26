@@ -1,0 +1,460 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>blaKonstantinistSooooTool&lt;3 &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="#" />
+    <link rel="next" title="lib package" href="lib.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.html" title="lib package"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">pySUMO 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="blakonstantinistsooootool-3">
+<h1>blaKonstantinistSooooTool&lt;3<a class="headerlink" href="#blakonstantinistsooootool-3" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>This document introduces the Structure of our Ontology-editor pySUMO.</p>
+<p>First, a short excursion to the &#8220;Model View Controller&#8221; design pattern is made.</p>
+<p>Subsequently, our Class Diagram, which is structured according to the Model
+View Controller (MVC) design.  Due to limited resources of paper size, the
+class diagram is shown twice. Once as whole on page and one time on two pages
+cut in middle to increase the readability.</p>
+<p>Afterwards, several sequence diagrams which show a timeline of typical actions
+are presented.</p>
+<p>Furthermore, there are a couple of activity diagrams showcasing both a casual
+pySUMO workflow as well as what pySUMO does in the background to support your
+workflow.</p>
+<p>Thereafter the individual classes are introduced in more detail. This is
+followed up by a list of errors that pySUMO can throw and a list of external
+libraries used to develop pySUMO.</p>
+</div>
+<div class="section" id="structure">
+<h1>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h1>
+<p class="graphviz">
+<img src="_images/graphviz-35709851ab0419302af700f9b1429f5d286907f4.png" alt="graph {
+rankdir=LT;
+
+subgraph clusterView {
+	label=&quot;View&quot;;
+	MainWindow -- Widgets
+	MainWindow -- Toolbar
+	MainWindow -- Status
+	MainWindow -- Menu
+	Menu -- Update
+	RWidget -- Hierarchie
+	Widgets -- RWidget
+	Widgets -- RWWidget
+	RWWidget -- &quot;Graph&quot;	
+	RWWidget -- Text
+	RWidget -- Documentation 
+	Menu -- OptionDialog
+	OptionDialog -- HelpDialog
+	OptionDialog -- PluginManager
+	OptionDialog -- Shortcuts
+	Text -- CodeC
+	Text -- Syntax;
+}
+subgraph clusterController {
+	node [style=filled];
+	color=blue;
+	label=&quot;Controller&quot;;
+	SyntaxController -- IndexAbstractor
+	SyntaxController -- Logger
+	IndexAbstractor -- Logger;
+	V1[style=invis];
+	V2[style=invis];
+	IndexAbstractor -- V1 -- V2[style=invis];
+	IndexAbstractor --NLToolkit --V4[style=invis];
+}
+subgraph clusterModel {
+	label=&quot;Model&quot;;
+	Parser -- Lexer
+	Parser -- AST
+	AST -- Index
+	Lexer -- Serialize
+	Parser -- KIF
+	KIF -- Updater
+	KIF -- Serialize;
+	V3[style=invis];
+	V4[style=invis];
+	Index--V3--V4[style=invis];
+}
+edge[constraint=false,style=dotted];
+Widgets -- IndexAbstractor
+&quot;Graph&quot; -- IndexAbstractor
+RWWidget -- SyntaxController
+Status -- Logger
+SyntaxController -- Parser
+SyntaxController -- Serialize
+IndexAbstractor -- AST
+IndexAbstractor -- NLToolkit
+IndexAbstractor -- Index;
+
+SyntaxController[label=&quot;SyntaxController&quot;]
+IndexAbstractor[label=&quot;IndexAbstractor&quot;]
+KIF[label=&quot;KIF&quot;]
+AST[label=&quot;AST&quot;]
+Parser[label=&quot;Parser&quot;]
+Text[label=&quot;Text&quot;]
+&quot;Graph&quot;[label=&quot;Graph&quot;]
+Updater[label=&quot;Updater&quot;]
+Documentation[label=&quot;Documentation&quot;]
+Hierarchie[label=&quot;Hierarchie&quot;]
+MainWindow[label=&quot;MainWindow&quot;]
+Widgets[label=&quot;Widgets&quot;]
+Status[label=&quot;Status&quot;]
+OptionDialog[label=&quot;OptionDialog&quot;]
+NLToolkit[label=&quot;NLToolkit&quot;]
+Logger[label=&quot;Logger&quot;]
+HelpDialog[label=&quot;HelpDialog&quot;]
+}" />
+</p>
+<p>The program is structured around the MVC-architecture. The partitioning into
+Model, View and Controller makes modification of Program code easier and also
+allows the lib to be used independently of the GUI.</p>
+<div class="section" id="model">
+<h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">The model contains both the Parser and the Abstract Syntax Tree (AST) generated by the Parser.</div>
+<div class="line">The AST stores the Ontology in memory and allows modifications thereof.</div>
+<div class="line">The Parser provides both a kif-parser and serializer as well as a parser for the SUMO-WordNet mapping.</div>
+</div>
+</div>
+<div class="section" id="controller">
+<h2>Controller<a class="headerlink" href="#controller" title="Permalink to this headline">¶</a></h2>
+<p>The controller contains all base functionality of the program. It mediates all
+accesses to the AST, creates and maintains an index and handles interactions
+with WordNet. The controller also handles all other core functionality of
+pySUMO such as undo and redo.</p>
+</div>
+<div class="section" id="view">
+<h2>View<a class="headerlink" href="#view" title="Permalink to this headline">¶</a></h2>
+<p>The view consists of all the graphical elements of pySUMO including, but not
+limited to the Qt GUI.</p>
+</div>
+</div>
+<div class="section" id="overview-class-diagram-of-pysumo">
+<h1>Overview: Class Diagram of pySUMO<a class="headerlink" href="#overview-class-diagram-of-pysumo" title="Permalink to this headline">¶</a></h1>
+<p class="plantuml">
+<object data="_images/plantuml-559cd481cfed018e2191c0f10466b79677418ab3.svg" type="image/svg+xml" style="width:3430px;height:1743px;">
+<img src="_images/plantuml-559cd481cfed018e2191c0f10466b79677418ab3.png" alt="!include ./UML/main.pu" />
+
+</object></p>
+<img alt="./UML/main.png" src="./UML/main.png" />
+<img alt="./UML/main_001.png" src="./UML/main_001.png" />
+</div>
+<div class="section" id="sequence-diagram">
+<h1>Sequence diagram<a class="headerlink" href="#sequence-diagram" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="adding-graph-node">
+<h2>Adding graph node<a class="headerlink" href="#adding-graph-node" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-d24d8067d0651acca857b0ef2dbac6895aae83e0.svg" type="image/svg+xml" style="width:954px;height:764px;">
+<img src="_images/plantuml-d24d8067d0651acca857b0ef2dbac6895aae83e0.png" alt="!include ./UML/graph_node_add.iuml" />
+
+</object></p>
+<p>This diagram displays how the GraphWidget responds to user input and adds new
+nodes to the Ontology. Note that all operations that might change the Ontology
+pass through the SyntaxController and all operations that read from the loaded
+Ontologies pass through the IndexAbstractor.</p>
+</div>
+<div class="section" id="searching-in-the-index">
+<h2>Searching in the index<a class="headerlink" href="#searching-in-the-index" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-b2dafa147b5fc431b5666a126d73e572482a12ef.svg" type="image/svg+xml" style="width:379px;height:307px;">
+<img src="_images/plantuml-b2dafa147b5fc431b5666a126d73e572482a12ef.png" alt="!include ./UML/search.iuml" />
+
+</object></p>
+<p>This diagram displays a simple abstraction of how the DocumentationWidget
+responds to a user search request. Note that it does not include any
+IndexAbstractor internal operations such as building and maintaining the Index.</p>
+</div>
+</div>
+<div class="section" id="activity-diagram">
+<h1>Activity diagram<a class="headerlink" href="#activity-diagram" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="graph-widget-input-loop">
+<h2>Graph widget input loop<a class="headerlink" href="#graph-widget-input-loop" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-2f6e88afdf28d0bf1461c0d330cce6a1db483a8d.svg" type="image/svg+xml" style="width:765px;height:835px;">
+<a href="_images/plantuml-2f6e88afdf28d0bf1461c0d330cce6a1db483a8d.png"><img src="_images/plantuml-2f6e88afdf28d0bf1461c0d330cce6a1db483a8d.png" alt="!include ./UML/graphactivity.iuml" width="620.0px" height="671.2px"/></a>
+
+</object></p>
+<p>This diagram displays the activity diagram used by the GraphWidget when a user
+adds a node to the graph. Of special note is that the parsing of the new graph
+is done in the background so that the user can still interact with the
+GraphWidget while it is updating the Ontology.</p>
+</div>
+<div class="section" id="text-editor-input-loop">
+<h2>Text editor input loop<a class="headerlink" href="#text-editor-input-loop" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-436a42e27455dce47cea68eda4a9b1dd788cfc26.svg" type="image/svg+xml" style="width:436px;height:442px;">
+<img src="_images/plantuml-436a42e27455dce47cea68eda4a9b1dd788cfc26.png" alt="!include ./UML/textactivity.iuml" />
+
+</object></p>
+<p>This diagram displays the activity diagram used by the TextWidget while the
+user is typing. Once the user pauses typing, the text editor checks whether the
+parenthetical syntax is correct, and if it passes a simple syntax check, the
+text is passed to the parser. The parser then checks syntax and semantics and
+returns accordingly. If errors occur during parsing, they are displayed in the
+editor.</p>
+</div>
+<div class="section" id="common-workflow">
+<h2>Common workflow<a class="headerlink" href="#common-workflow" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-0488296d1d7227dc9d826f874fdeea3c9d82593d.svg" type="image/svg+xml" style="width:765px;height:799px;">
+<a href="_images/plantuml-0488296d1d7227dc9d826f874fdeea3c9d82593d.png"><img src="_images/plantuml-0488296d1d7227dc9d826f874fdeea3c9d82593d.png" alt="!include ./UML/activity_1.iuml" width="697.5px" height="722.7px"/></a>
+
+</object></p>
+<p>This diagram displays an abstract view of a common User-interaction with the
+program. The user starts the program adds a .kif-File, searches in WordNet
+and finally adds a relation through the GraphWidget. PySUMO automatically
+converts the relation to kif and appends it to the ontology source.</p>
+</div>
+<div class="section" id="exit-process">
+<h2>Exit process<a class="headerlink" href="#exit-process" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-b34d482789c60148b498825051642ab66e3ae5ed.svg" type="image/svg+xml" style="width:716px;height:514px;">
+<img src="_images/plantuml-b34d482789c60148b498825051642ab66e3ae5ed.png" alt="!include ./UML/activity_2.iuml" />
+
+</object></p>
+<p>This diagram displays an abstract view of the activity diagram when a user
+wants to exit the program. This is done when the user clicks on the close icon
+in the title bar of the main window of pySUMO or on &#8216;Exit&#8217; in the menu &#8216;File&#8217;.
+The program makes sure that there are no unsaved changes in open ontologies and
+if there are changes, prompts if they should be saved. If the user doesn&#8217;t save
+them, the modifications will be lost. Note that the program also saves session
+layouting preferences of the GUI so they can be restored in the next pySUMO
+session.  These preferences include, for example, the position of widgets in
+the main window.</p>
+</div>
+</div>
+<div class="section" id="detail-modules">
+<h1>Detail: Modules<a class="headerlink" href="#detail-modules" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lib.html">lib package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#module-lib">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lib.logger.html">lib.logger package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib.logger.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.logger.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.logger.html#lib-logger-actionlog-module">lib.logger.actionlog module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lib.logger.html#lib-logger-infolog-module">lib.logger.infolog module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#lib-indexabstractor-module">lib.indexabstractor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#lib-nltoolkit-module">lib.nltoolkit module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#lib-parser-module">lib.parser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#lib-syntaxcontroller-module">lib.syntaxcontroller module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lib.html#lib-updater-module">lib.updater module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">ui package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ui.html#module-ui">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ui.Widget.html">ui.Widget package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ui.Widget.html#module-ui.Widget">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ui.Widget.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ui.Widget.html#ui-widget-graphwidget-module">ui.Widget.GraphWidget module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ui.Widget.html#ui-widget-hierarchywidget-module">ui.Widget.HierarchyWidget module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ui.Widget.html#ui-widget-texteditor-module">ui.Widget.TextEditor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ui.Widget.html#ui-widget-widget-module">ui.Widget.Widget module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ui.Widget.html#ui-widget-documentationwidget-module">ui.Widget.DocumentationWidget module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html#ui-mainwindow-module">ui.MainWindow module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html#ui-settings-module">ui.Settings module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="errors">
+<h1>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Errors</th>
+<th class="head">Cause[s]</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>HTTPError</td>
+<td>An HTTP connection failed</td>
+</tr>
+<tr class="row-odd"><td>IOError</td>
+<td>An IO operation failed</td>
+</tr>
+<tr class="row-even"><td>KeyError</td>
+<td>The specified key does not exist in the dict</td>
+</tr>
+<tr class="row-odd"><td>NoSuchOntologyError</td>
+<td>The specified Ontology does not exist</td>
+</tr>
+<tr class="row-even"><td>NoSuchTermError</td>
+<td>The specified Term does not exist</td>
+</tr>
+<tr class="row-odd"><td>ParseError</td>
+<td>The specified Ontology is not valid</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="external-libraries">
+<h1>External Libraries<a class="headerlink" href="#external-libraries" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="93%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>NLTK</td>
+<td>Pulls information about terms from WordNet and finds possible synonyms for words and terms</td>
+</tr>
+<tr class="row-even"><td>PySide</td>
+<td>Python bindings needed to run Qt</td>
+</tr>
+<tr class="row-odd"><td>PycURL</td>
+<td>Python bindings for libcurl</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">blaKonstantinistSooooTool&lt;3</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#structure">Structure</a><ul>
+<li><a class="reference internal" href="#model">Model</a></li>
+<li><a class="reference internal" href="#controller">Controller</a></li>
+<li><a class="reference internal" href="#view">View</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#overview-class-diagram-of-pysumo">Overview: Class Diagram of pySUMO</a></li>
+<li><a class="reference internal" href="#sequence-diagram">Sequence diagram</a><ul>
+<li><a class="reference internal" href="#adding-graph-node">Adding graph node</a></li>
+<li><a class="reference internal" href="#searching-in-the-index">Searching in the index</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#activity-diagram">Activity diagram</a><ul>
+<li><a class="reference internal" href="#graph-widget-input-loop">Graph widget input loop</a></li>
+<li><a class="reference internal" href="#text-editor-input-loop">Text editor input loop</a></li>
+<li><a class="reference internal" href="#common-workflow">Common workflow</a></li>
+<li><a class="reference internal" href="#exit-process">Exit process</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#detail-modules">Detail: Modules</a></li>
+<li><a class="reference internal" href="#errors">Errors</a></li>
+<li><a class="reference internal" href="#external-libraries">External Libraries</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lib.html"
+                        title="next chapter">lib package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lib.html" title="lib package"
+             >next</a> |</li>
+        <li><a href="#">pySUMO 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
