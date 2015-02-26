@@ -96,6 +96,7 @@ def kifparse(infile, ontology, ast=None):
             node = AbstractSyntaxTree(ontology, line=linenumber)
             parsed = node.parse(line)
             line = line[parsed:]
+            root.add_child(node)
         linenumber = -1
     if oldline != None:
         raise ParseError(" ".join(oldline), linenumber)
