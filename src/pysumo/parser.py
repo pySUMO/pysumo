@@ -92,7 +92,7 @@ def kifparse(infile, ontology, ast=None):
             continue
         if linenumber == -1:
             linenumber = i
-        while line != [] and line.count('(') != line.count(')'):
+        while line != [] and line.count('(') == line.count(')'):
             node = AbstractSyntaxTree(ontology, line=linenumber)
             parsed = node.parse(line)
             line = line[parsed:]
@@ -341,4 +341,4 @@ class ParseError(Exception):
         self.linnumber = linenumber
 
     def __str__(self):
-        return "".join(["Parse error in line", str(self.linnumber), "\n", line])
+        return "".join(["Parse error in line ", str(self.linnumber), "\n", self.line])
