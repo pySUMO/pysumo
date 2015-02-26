@@ -92,15 +92,11 @@ def kifparse(infile, ontology, ast=None):
             continue
         if linenumber == -1:
             linenumber = i
-        node = AbstractSyntaxTree(ontology, line=linenumber)
-        parsed = node.parse(line)
+        while line != [] and line.count('(') != line.count(')'):
+            node = AbstractSyntaxTree(ontology, line=linenumber)
+            parsed = node.parse(line)
+            line = line[parsed:]
         linenumber = -1
-        if len(line) != parsed:
-            print(line)
-            print(len(line))
-            print(parsed)
-            raise ParseError(" ".join(line), i+1)
-        root.add_child(node)
     if oldline != None:
         raise ParseError(" ".join(oldline), linenumber)
     return root
