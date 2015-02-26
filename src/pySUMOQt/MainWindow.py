@@ -186,9 +186,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         if wrappedWidget is None :
             logging.error("can not create widget with type " + widgetType)
             return
-        
+
         wrappedWidget.ontologyChanged.connect(self.synchronize)
-        
+        wrappedWidget.setSettings(self.settings)
         self.synchronizeRequested.connect(wrappedWidget.refresh)
         objName = widgetType
         objName += str(len(widgetMenu.actions()))

@@ -62,6 +62,9 @@ class Widget(QObject):
     
     def _collapseAll_(self):
         pass
+    
+    def setSettings(self, settings):
+        self.settings = settings
 
 class RWidget(Widget):
 
