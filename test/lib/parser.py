@@ -38,6 +38,7 @@ class kifParseSerilizeTest(unittest.TestCase):
         o = Ontology(f)
         with open(o.path) as f:
             a = parser.kifparse(f, o)
+        self.assertNotEqual(a.children, [])
         with open(out1, 'w') as f:
             parser.kifserialize(a, o, f)
         with open(o.path) as f:
