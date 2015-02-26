@@ -20,7 +20,7 @@ from PySide.QtCore import QEvent, Signal
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QPixmap
 from PySide.QtGui import QIcon, QDockWidget, QFileDialog, QPrintDialog
 from PySide.QtGui import QAction, QMenu
-from PySide.QtNetwork import QLocalServer, QAbstractSocket
+from PySide.QtNetwork import QLocalServer
 
 from pySUMOQt.Designer.MainWindow import Ui_mainwindow
 from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
