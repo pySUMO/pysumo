@@ -225,6 +225,9 @@ class PySumoSettings(QSettings):
         self.setValue("maxDocumentationWidgets", 10)
         self.setValue("maxHierarchyWidgets", 10)
         self.setValue("maxGraphWidgets", 10)
+        self.setValue("defaultFontSize", defSize)
+        self.setValue("defaultFontFamily", defFont)
+        self.setValue("defaultFontColor", QApplication.palette().text().color().name())
     
 class PluginManager():
     """ The PluginManager handles all loadabel plugins. At startup it loads all

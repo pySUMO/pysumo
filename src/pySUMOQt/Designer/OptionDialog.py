@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'OptionDialog.ui'
 #
-# Created: Thu Feb 26 13:36:43 2015
+# Created: Thu Feb 26 15:15:57 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -199,6 +199,34 @@ class Ui_Dialog(object):
         self.maxTextEditorWidgets.setMaximum(10)
         self.maxTextEditorWidgets.setObjectName("maxTextEditorWidgets")
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.maxTextEditorWidgets)
+        self.defaultFontSize = QtGui.QSpinBox(self.tab_3)
+        self.defaultFontSize.setObjectName("defaultFontSize")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.defaultFontSize)
+        self.label_28 = QtGui.QLabel(self.tab_3)
+        self.label_28.setObjectName("label_28")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label_28)
+        self.label_29 = QtGui.QLabel(self.tab_3)
+        self.label_29.setObjectName("label_29")
+        self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_29)
+        self.defaultFontFamily = QtGui.QFontComboBox(self.tab_3)
+        self.defaultFontFamily.setObjectName("defaultFontFamily")
+        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.defaultFontFamily)
+        self.label_30 = QtGui.QLabel(self.tab_3)
+        self.label_30.setObjectName("label_30")
+        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_30)
+        self.widget_13 = QtGui.QWidget(self.tab_3)
+        self.widget_13.setObjectName("widget_13")
+        self.horizontalLayout_12 = QtGui.QHBoxLayout(self.widget_13)
+        self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_12.setObjectName("horizontalLayout_12")
+        self.defaultFontColor = QtGui.QLineEdit(self.widget_13)
+        self.defaultFontColor.setObjectName("defaultFontColor")
+        self.horizontalLayout_12.addWidget(self.defaultFontColor)
+        self.defaultFontColorChooser = QtGui.QToolButton(self.widget_13)
+        self.defaultFontColorChooser.setObjectName("defaultFontColorChooser")
+        self.horizontalLayout_12.addWidget(self.defaultFontColorChooser)
+        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.widget_13)
         self.gridLayout_7.addLayout(self.formLayout, 0, 0, 1, 1)
         self.tabWidget_2.addTab(self.tab_3, "")
         self.tab_6 = QtGui.QWidget()
@@ -208,7 +236,7 @@ class Ui_Dialog(object):
         self.toolBox = QtGui.QToolBox(self.tab_6)
         self.toolBox.setObjectName("toolBox")
         self.page_6 = QtGui.QWidget()
-        self.page_6.setGeometry(QtCore.QRect(0, 0, 353, 159))
+        self.page_6.setGeometry(QtCore.QRect(0, 0, 509, 278))
         self.page_6.setObjectName("page_6")
         self.gridLayout_9 = QtGui.QGridLayout(self.page_6)
         self.gridLayout_9.setObjectName("gridLayout_9")
@@ -614,6 +642,10 @@ class Ui_Dialog(object):
         self.label_23.setText(QtGui.QApplication.translate("Dialog", "Log Level: ", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_8), QtGui.QApplication.translate("Dialog", "Log", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Max. Number of Text Editor Widgets: ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_28.setText(QtGui.QApplication.translate("Dialog", "Default Font Size: ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_29.setText(QtGui.QApplication.translate("Dialog", "Default Font Family: ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_30.setText(QtGui.QApplication.translate("Dialog", "Default Font Color: ", None, QtGui.QApplication.UnicodeUTF8))
+        self.defaultFontColorChooser.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), QtGui.QApplication.translate("Dialog", "Misc.", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "Font Family: ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Font Size: ", None, QtGui.QApplication.UnicodeUTF8))
