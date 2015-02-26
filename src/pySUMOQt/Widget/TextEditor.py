@@ -3,7 +3,7 @@ widget. It contains the textual representation of the currently loaded
 Ontologies allowing conventional kif editing with features such as syntax
 highlighting and autocompletion.
 """
-from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint, QSize
+from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint, QSize, QTimer
 from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QPainter
 from PySide.QtGui import QFont, QSyntaxHighlighter, QShortcut, QKeySequence, QPrintDialog, QColor
 from PySide.QtGui import QTextCharFormat, QDialog, QPrinter, QPrinterInfo, QPrintPreviewDialog
@@ -62,13 +62,20 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
-
+        self.plainTextEdit.textChanged.connect(self.setTextChanged)
         self._updateOntologySelector()
         self.ontologySelector.currentIndexChanged[str].connect(
             self.showOtherOntology)
-        self.plainTextEdit.textChanged.connect(self.commit)
+        #self.plainTextEdit.textChanged.connect(self.commit)
         self.ontologySelector.setCurrentIndex(-1)
+        self.textChanged = False
         
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.commit)
+        self.timer.start(10000);
+        
+    def setTextChanged(self):
+        self.textChanged = True
     def _print_(self):
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted :
@@ -331,6 +338,9 @@ class TextEditor(RWWidget, Ui_Form):
 
     def commit(self):
         """ Overrides commit from RWWidget. """
+        if self.textChanged == False:
+            return
+        self.textChanged = False
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
             return
