@@ -1,4 +1,4 @@
-package "UI" {
+package "pySUMOQt" {
 note as N1
 Note that almost every UI class has a class
  created by Qt Designer and PySide which it inherits.

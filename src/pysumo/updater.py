@@ -4,8 +4,6 @@ The URLs for the ontlogies are safe in the ontology
 so the user can easy add an URL for a new ontlogy.
 """
 
-import pycurl
-
 def check_for_updates(ontology, function=None):
     """ Check if there are updates for ontology.  If an update is available,
     executes function.  Function receives the ontology as the first

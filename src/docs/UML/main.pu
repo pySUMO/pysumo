@@ -1,7 +1,7 @@
 @startuml
 page 2x1
-!include lib/package_lib.iuml
-!include ui/package_ui.iuml
+!include pysumo/package_pysumo.iuml
+!include pySUMOQt/package_pySUMOQt.iuml
 
 package "Extern" {
   !include QSyntaxHighlighter.iuml

@@ -27,7 +27,7 @@ class IndexAbstractor:
 
     - root: The root AbstractSyntaxTree node.
     - ontologies: The list of currently active Ontologies.
-    - index: The index of all terms in the currently active Ontology.
+    - index: The index of all terms in the currently active Ontologies.
     - wordnet: A reference to the Object containing the SUMO-WordNet mapping.
 
     Methods:
@@ -36,6 +36,7 @@ class IndexAbstractor:
     - update_index: Updates the index.
     - search: Searches for a term in the Ontology.
     - get_ontology_file: Return an in-memory file object for an Ontology.
+    - get_completions: Return a list of possible completions for the current index.
     - get_graph: Creates an abstract graph containing a view of the Ontology.
     - wordnet_locate: Returns information about a term from WordNet.
 
@@ -60,7 +61,7 @@ class IndexAbstractor:
         self._build_index()
 
     def _build_index(self):
-        """ Builds an index for ontology. """
+        """ Builds an index from self.root. """
         for child in self.root.children:
             self.ontologies.add(child.ontology)
             key = normalize(child.children[0].name)
@@ -111,9 +112,11 @@ class IndexAbstractor:
 
         Arguments:
 
-        - variant: The hierarchical variant to return.
+        - variant: The list of terms against which the resulting AbstractGraph matches.
+        - major: The position of the parent element.
+        - minor: The position of the child element.
         - root: The root node to which all other nodes are related.
-        - depth: The maximum depth of the graph.
+        - depth: The recursion depth.
 
         Returns:
 
@@ -160,9 +163,7 @@ class IndexAbstractor:
 
 class AbstractGraph:
     """ An abstract representation of a subset of an Ontology as a collection
-    of nodes and relations. This class can be used together with a DotGraph to
-    create a graphical representation of an Ontology, or passed to the
-    SyntaxController to modify the Ontology.
+    of nodes and relations.
 
     Variables:
 
@@ -191,6 +192,7 @@ class AbstractGraph:
         self.nodes = [AbstractGraphNode(x) for x in ontologies]
 
     def _check_matches(self, node):
+        """ Checks if node matches the variant. """
         try:
             for pos, val in self._settings[0]:
                 if pos == 0 and node.name != val:

@@ -1,4 +1,4 @@
-package "LIB" {
+package "pysumo" {
 note as N2
 AbstractSyntaxTree may be shortened to AST for ease of reading
 end note

@@ -1,4 +1,4 @@
-ui package
+pySUMOQt package
 ==========
 This section describes the graphical user interface of pySUMO. It will list all
 modules and classes which are necessary to connect the functionality of the
@@ -8,12 +8,12 @@ Qt and the Qt Designer, so almost all classes will inherit a class designed by
 Qt Designer and compiled by PySide.
 
 .. uml::
-    !include ./UML/ui/package_ui.iuml
+    !include ./UML/pySUMOQt/package_pySUMOQt.iuml
 
 Module contents
 ---------------
 
-.. automodule:: ui
+.. automodule:: pySUMOQt
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,34 +24,34 @@ Subpackages
 
 .. toctree::
 
-    ui.Widget
+    pySUMOQt.Widget
 
 Submodules
 ----------
 
-ui.MainWindow module
+pySUMOQt.MainWindow module
 --------------------
 
 .. uml::
-    !include ./UML/ui/MainWindow.iuml
+    !include ./UML/pySUMOQt/MainWindow.iuml
 
 |
 
-.. automodule:: ui.MainWindow
+.. automodule:: pySUMOQt.MainWindow
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-ui.Settings module
+pySUMOQt.Settings module
 ------------------
 
 .. uml::
-    !include ./UML/ui/Settings.iuml
+    !include ./UML/pySUMOQt/Settings.iuml
 
 |
 
-.. automodule:: ui.Settings
+.. automodule:: pySUMOQt.Settings
     :members:
     :undoc-members:
     :show-inheritance:
