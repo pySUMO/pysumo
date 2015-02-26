@@ -180,6 +180,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         elif widgetType == "GraphWidget":
             wrappedWidget = GraphWidget(widget)
             widget.setPrefixName("Graph Widget")
+            wrappedWidget.activeOntology.currentIndexChanged[str].connect(widget._setSuffixName_)
             wrappedWidget.graphicsView.installEventFilter(widget)
             wrappedWidget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(wrappedWidget._updateActiveOntology)
