@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'OptionDialog.ui'
 #
-# Created: Thu Feb 26 13:23:30 2015
+# Created: Thu Feb 26 13:36:43 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -174,9 +174,6 @@ class Ui_Dialog(object):
         self.formLayout_11.setWidget(2, QtGui.QFormLayout.FieldRole, self.logLevel)
         self.gridLayout_18.addWidget(self.groupBox_6, 1, 0, 1, 1)
         self.tabWidget.addTab(self.tab_8, "")
-        self.tab_2 = QtGui.QWidget()
-        self.tab_2.setObjectName("tab_2")
-        self.tabWidget.addTab(self.tab_2, "")
         self.gridLayout_3.addWidget(self.tabWidget, 0, 0, 1, 1)
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QtGui.QWidget()
@@ -616,7 +613,6 @@ class Ui_Dialog(object):
         self.socketOutputPathChooser.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.label_23.setText(QtGui.QApplication.translate("Dialog", "Log Level: ", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_8), QtGui.QApplication.translate("Dialog", "Log", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("Dialog", "Network", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Dialog", "Max. Number of Text Editor Widgets: ", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), QtGui.QApplication.translate("Dialog", "Misc.", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "Font Family: ", None, QtGui.QApplication.UnicodeUTF8))
