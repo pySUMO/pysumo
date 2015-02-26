@@ -5,7 +5,7 @@ highlighting and autocompletion.
 """
 from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint, QSize
 from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QPainter
-from PySide.QtGui import QFont, QSyntaxHighlighter, QShortcut, QKeySequence, QPrintDialog
+from PySide.QtGui import QFont, QSyntaxHighlighter, QShortcut, QKeySequence, QPrintDialog, QColor
 from PySide.QtGui import QTextCharFormat, QDialog, QPrinter, QPrinterInfo, QPrintPreviewDialog
 from collections import OrderedDict
 import re
@@ -16,6 +16,7 @@ from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
+from pySUMOQt.Dialog import str_to_bool
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -43,14 +44,14 @@ class TextEditor(RWWidget, Ui_Form):
     - insertCompletion: Puts the selected Completion into the TextEditor
     """
 
-    def __init__(self, mainwindow):
+    def __init__(self, mainwindow, settings=None):
         """ Initializes the text editor widget. """
         super(TextEditor, self).__init__(mainwindow)
         self.setupUi(self.mw)
         self.plainTextEdit.clear()
         self.plainTextEdit.setEnabled(False)
         self.plainTextEdit.show()
-        self.highlighter = SyntaxHighlighter(self.plainTextEdit.document())
+        self.highlighter = SyntaxHighlighter(self.plainTextEdit.document(), settings)
         self.initAutocomplete()
         QObject.connect(
             self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
@@ -341,21 +342,26 @@ class TextEditor(RWWidget, Ui_Form):
 
 class SyntaxHighlightSetting():
 
-    def __init__(self, expression, font_weight, font_color, expression_end='', font_family=None):
+    def __init__(self, expression, font_family, font_size, font_color, font_weight, font_style, font_underline, expression_end=''):
         self.expression = expression
         if expression_end != '':
             self.expression_end = expression_end
-        self.font_weight = font_weight
-        self.font_color = font_color
         self.font_family = font_family
+        self.font_size = font_size
+        self.font_color = font_color
+        self.font_weight = font_weight
+        self.font_style = font_style
+        self.font_underline = font_underline
         self.createFormat()
 
     def createFormat(self):
         self.class_format = QTextCharFormat()
-        self.class_format.setFontWeight(self.font_weight)
+        self.class_format.setFontFamily(self.font_family)
+        self.class_format.setFontPointSize(self.font_size)
         self.class_format.setForeground(self.font_color)
-        if self.font_family is not None :
-            self.class_format.setFontFamily(self.font_family)
+        self.class_format.setFontWeight(self.font_weight)
+        self.class_format.setFontItalic(self.font_style)
+        self.class_format.setFontUnderline(self.font_underline)
 
     def get_format(self):
         return self.class_format
@@ -379,20 +385,83 @@ class SyntaxHighlightSetting():
 
 class SyntaxHighlighter(QSyntaxHighlighter):
 
-    def __init__(self, document):
+    def __init__(self, document, settings):
         super(SyntaxHighlighter, self).__init__(document)
+        self.settings = settings
         self.singleline = []
-        self.singleline.append(
-            SyntaxHighlightSetting("(and|=>|not|or)(?!\w)", QFont.Bold, Qt.black))
+        # logical expressions highlighting
+        regex = "(and|=>|not|or)(?!\w)"
+        fFamily = self._getFontFamily("logicExprFontFamily")
+        fSize = self._getFontSize("logicExprFontSize")
+        fColor = self._getFontColor("logicExprFontColor")
+        fWeight = self._getFontWeight("logicExprBoldStyle")
+        fItalic = self._getFontItalic("logicExprItalicStyle")
+        fUnderline = self._getFontUnderline("logicExprUnderlinedStyle")
+        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline)
+        self.singleline.append(shSettings)
 
-        self.singleline.append(SyntaxHighlightSetting(
-            "(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W'\n']", QFont.Bold, Qt.darkGreen))
-        self.singleline.append(
-            SyntaxHighlightSetting(";.*$", QFont.StyleItalic, Qt.darkMagenta))
+        # keywords highlighting
+        regex = "(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W'\n']"
+        fFamily = self._getFontFamily("keywordsFontFamily")
+        fSize = self._getFontSize("keywordsFontSize")
+        fColor = self._getFontColor("keywordsFontColor")
+        fWeight = self._getFontWeight("keywordsBoldStyle")
+        fItalic = self._getFontItalic("keywordsItalicStyle")
+        fUnderline = self._getFontUnderline("keywordsUnderlinedStyle")
+        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline)
+        self.singleline.append(shSettings)
+        
+        # comment highlighting
+        regex = ";.*$"
+        fFamily = self._getFontFamily("commentFontFamily")
+        fSize = self._getFontSize("commentFontSize")
+        fColor = self._getFontColor("commentFontColor")
+        fWeight = self._getFontWeight("commentBoldStyle")
+        fItalic = self._getFontItalic("commentItalicStyle")
+        fUnderline = self._getFontUnderline("commentUnderlinedStyle")
+        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline)
+        self.singleline.append(shSettings)
 
         self.multiline = []
-        self.multiline.append(
-            SyntaxHighlightSetting('"', QFont.Normal, Qt.red, '"'))
+        
+        # strings highlighting
+        fFamily = self._getFontFamily("stringsFontFamily")
+        fSize = self._getFontSize("stringsFontSize")
+        fColor = self._getFontColor("stringsFontColor")
+        fWeight = self._getFontWeight("stringsBoldStyle")
+        fItalic = self._getFontItalic("stringsItalicStyle")
+        fUnderline = self._getFontUnderline("stringsUnderlinedStyle")
+        shSettings = SyntaxHighlightSetting('"', fFamily, fSize, fColor, fWeight, fItalic, fUnderline, expression_end='"')
+        self.multiline.append(shSettings)
+        
+    def _getFontFamily(self, propKey):
+        fFamily = self.settings.value(propKey)
+        return fFamily
+    
+    def _getFontSize(self, propKey):
+        fSize = self.settings.value(propKey)
+        return int(fSize)
+    
+    def _getFontColor(self, propKey):
+        fColor = self.settings.value(propKey)
+        return QColor(fColor)
+    
+    def _getFontItalic(self, propKey):
+        fStyle = self.settings.value(propKey)
+        return str_to_bool(fStyle)
+    
+    def _getFontUnderline(self, propKey):
+        fUnderlined = self.settings.value(propKey)
+        return str_to_bool(fUnderlined)
+        
+    def _getFontWeight(self, propKey):
+        fWeight = self.settings.value(propKey)
+        fWeight = str_to_bool(fWeight)
+        if fWeight :
+            fWeight = QFont.Bold
+        else :
+            fWeight = QFont.Normal
+        return fWeight
 
     def highlightBlock(self, text):
         for h in self.singleline:
