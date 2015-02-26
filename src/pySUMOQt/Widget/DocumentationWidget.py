@@ -14,21 +14,21 @@ class DocumentationWidget(RWidget, Ui_Form):
     """ The DocumentationWidget displays relevant information about the
     current Ontology, and offers a search interface to WordNet. """
 
-    WN_TROOL = list()
-    WN_PROCESS = None
-    WN_RECV = None
-    WN_SEND = None
+    _WN_TROOL = list()
+    _WN_PROCESS = None
+    _WN_RECV = None
+    _WN_SEND = None
 
     def __init__(self, mainwindow):
         """ Initializes the DocumentationWidget. """
         super(DocumentationWidget, self).__init__(mainwindow)
         self.setupUi(self.mw)
         self.lineEdit.returnPressed.connect(self.search)
-        if len(DocumentationWidget.WN_TROOL) == 0:
-            DocumentationWidget.WN_TROOL.append(1)
-            (DocumentationWidget.WN_RECV, DocumentationWidget.WN_SEND) = Pipe(False)
-            DocumentationWidget.WN_PROCESS = Process(target=DocumentationWidget._initialize, args=(DocumentationWidget.WN_SEND,))
-            DocumentationWidget.WN_PROCESS.start()
+        if len(DocumentationWidget._WN_TROOL) == 0:
+            DocumentationWidget._WN_TROOL.append(1)
+            (DocumentationWidget._WN_RECV, DocumentationWidget._WN_SEND) = Pipe(False)
+            DocumentationWidget._WN_PROCESS = Process(target=DocumentationWidget._initialize, args=(DocumentationWidget._WN_SEND,))
+            DocumentationWidget._WN_PROCESS.start()
 
     @classmethod
     def _initialize(cls, pipe):
@@ -39,28 +39,28 @@ class DocumentationWidget(RWidget, Ui_Form):
     def search(self):
         """ Uses the IndexAbstractor to search for all occurrences of
         string in the Ontology and displays them.  """
-        if len(DocumentationWidget.WN_TROOL) == 1:
-            DocumentationWidget.WN_TROOL.append(2)
-            RWidget.IA.wordnet = DocumentationWidget.WN_RECV.recv()
-            DocumentationWidget.WN_PROCESS.join()
+        if len(DocumentationWidget._WN_TROOL) == 1:
+            DocumentationWidget._WN_TROOL.append(2)
+            RWidget.IA.wordnet = DocumentationWidget._WN_RECV.recv()
+            DocumentationWidget._WN_PROCESS.join()
         try:
             searchOntology = self.getIndexAbstractor().search(
             self.lineEdit.text())
-            self.OntologyText.setPlainText(searchToText(searchOntology))
+            self.OntologyText.setPlainText(_searchToText(searchOntology))
         except KeyError:
             self.OntologyText.setPlainText('')
         try:
             searchWordnet = self.getIndexAbstractor().wordnet_locate(
                 self.lineEdit.text())
-            self.WordNetText.setPlainText(locateToText(searchWordnet))
+            self.WordNetText.setPlainText(_locateToText(searchWordnet))
         except KeyError:
             self.WordNetText.setPlainText('')
 
-def searchToText(search_results):
+def _searchToText(search_results):
     string = ''
     for ontology in search_results.keys():
         string = ''.join([string, str(ontology), ':\n', '\n'.join(search_results[ontology]), '\n'])
     return string
 
-def locateToText(locate_results):
+def _locateToText(locate_results):
     return '\n'.join(locate_results)

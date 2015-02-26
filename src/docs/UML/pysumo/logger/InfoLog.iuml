@@ -1,0 +1,12 @@
+class InfoLog {
+  - default_log_path : String
+  - default_socket_path : String
+  - filename : String
+  - socket : String
+  - root_logger : logger
+  - f_handler : RotatingFileHandler
+  - s_handler : SocketHandler
+  
+  + __init__(loglevel="WARNING" : String, filename=default_log_path : String, socket_path=default_socket_path : String) : InfoLog
+  + set_loglevel(level : int)
+}

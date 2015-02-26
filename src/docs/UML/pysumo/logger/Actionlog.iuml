@@ -1,0 +1,33 @@
+class Actionlog {
+  - actionlog : Stack
+  - redolog : Stack
+  - queue : (int, BytesIO)
+  - current : BytesIO
+  + __init__(name : String, path=None : String) : ActionLog
+  + queue_log(data : BytesIO) : int
+  + ok_log_item(log_queue_ok_num : int)
+  + undo() : BytesIO
+  + redo() : BytesIO
+}
+
+class LogIO {
+  - default_path : String
+  - timeout : int
+  - max_size : int
+  - max_diffs : int
+  - path : String
+  - name : String
+  - current : String
+  - uwrite_queue: BytesIO[]
+  - rwrite_queue: BytesIO[]
+  + __init__(path : String) : LogIO
+  + diff(current : BytesIO, new : BytesIO) : BytesIO
+  + read() : (BytesIO, BytesIO[], BytesIO[])
+  + flush_write_queue(_=None, __=None)
+  + clear(queue : String)
+  + pop(queue : String)
+  + undo(current : BytesIO, entry : BytesIO) : BytesIO
+  + redo(current : BytesIO, entry : BytesIO, clean=False) : BytesIO
+}
+
+Actionlog *- LogIO

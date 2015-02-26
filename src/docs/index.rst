@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-blaKonstantinistSooooTool<3
-===========================
+pysumo and pySUMOQt
+===================
 
 Introduction
 ============
@@ -146,8 +146,9 @@ Detail: Modules
    :maxdepth: 4
 
 
-   lib
-   ui
+   pysumo
+   pysumoQt
+   Changes
 
 Errors
 ==========
@@ -169,11 +170,11 @@ Errors
 
 External Libraries
 ==================
-+-------+-------------------------------------------------------------------------------------------+
-|PySide |Python bindings needed to run Qt                                                           |
-+-------+-------------------------------------------------------------------------------------------+
-|PycURL |Python bindings for libcurl                                                                |
-+-------+-------------------------------------------------------------------------------------------+
++-----------+--------------------------------+
+|PySide     |Python bindings for Qt          |
++-----------+--------------------------------+
+|PyGraphviz |Python bindings for Graphviz    |
++-----------+--------------------------------+
 
 
 Indices and tables

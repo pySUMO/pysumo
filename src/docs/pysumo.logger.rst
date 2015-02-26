@@ -1,9 +1,9 @@
-lib.logger package
+pysumo.logger package
 ==================
 Module contents
 ---------------
 
-.. automodule:: lib.logger
+.. automodule:: pysumo.logger
     :members:
     :undoc-members:
     :show-inheritance:
@@ -11,28 +11,28 @@ Module contents
 Submodules
 ----------
 
-lib.logger.actionlog module
+pysumo.logger.actionlog module
 ---------------------------
 
 .. uml::
-   !include ./UML/lib/logger/Actionlog.iuml
+   !include ./UML/pysumo/logger/Actionlog.iuml
 
 |
 
-.. automodule:: lib.logger.actionlog
+.. automodule:: pysumo.logger.actionlog
     :members:
     :undoc-members:
     :show-inheritance:
 
-lib.logger.infolog module
+pysumo.logger.infolog module
 -------------------------
 
 .. uml::
-    !include ./UML/lib/logger/InfoLog.iuml
+    !include ./UML/pysumo/logger/InfoLog.iuml
 
 |
 
-.. automodule:: lib.logger.infolog
+.. automodule:: pysumo.logger.infolog
     :members:
     :undoc-members:
     :show-inheritance:
