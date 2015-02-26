@@ -166,7 +166,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         
         
         if widgetType == "TextEditorWidget" :
-            wrappedWidget = TextEditor(widget)
+            wrappedWidget = TextEditor(widget, settings=self.settings)
             widget.setPrefixName("Text Editor")
             wrappedWidget.ontologySelector.currentIndexChanged[str].connect(widget._setSuffixName_)
             wrappedWidget.plainTextEdit.installEventFilter(widget)
