@@ -48,6 +48,12 @@ class kifParseSerilizeTest(unittest.TestCase):
         rmtree(tempd)
         assert ret == 0
 
+    def test1ParseGoverment(self):
+        f = "data/Government.kif"
+        o = Ontology(f)
+        with open(o.path) as f:
+            parser.kifparse(f, o)
+
 kifParseSuit = unittest.makeSuite(kifParseSerilizeTest, 'test')
 
 parseSuit = unittest.TestSuite((wParseSuit, kifParseSuit))
