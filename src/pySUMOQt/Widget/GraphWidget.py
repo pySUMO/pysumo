@@ -8,7 +8,7 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 """
 
 from PySide.QtCore import QLineF, Slot, Qt
-from PySide.QtGui import QColor, QPen, QStandardItem, QMenu, QInputDialog, QMessageBox
+from PySide.QtGui import QColor, QPen, QMenu, QInputDialog, QMessageBox
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
 from PySide.QtGui import QPrintPreviewDialog, QPainter
 import pygraphviz
@@ -20,7 +20,7 @@ from pySUMOQt.Designer.GraphWidget import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 
 def insert_newlines(string, every=64):
-    return '\n'.join(string[i:i+every] for i in range(0, len(string), every))
+    return '\n'.join(string[i:i + every] for i in range(0, len(string), every))
 
 
 class QtNode(QGraphicsEllipseItem):
@@ -33,7 +33,7 @@ class QtNode(QGraphicsEllipseItem):
     def setCallBackAddRelation(self, f):
         self.callbackR = f
     
-    def setNode(self,node):
+    def setNode(self, node):
         self.node = node
         
     def itemChange(self, itemChange, val):
@@ -75,7 +75,7 @@ class GraphWidget(RWWidget, Ui_Form):
         self.roots = set()
         self.doubleSpinBox.valueChanged[float].connect(self.changeScale)
         self.lineEdit.textChanged.connect(self.searchNode)
-        self.rootSelector.insertItem(0,"---")
+        self.rootSelector.insertItem(0, "---")
         self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
         self.relations.currentIndexChanged[str].connect(self.newVariant)
         self.depth.valueChanged.connect(self.newRoot)
@@ -86,12 +86,15 @@ class GraphWidget(RWWidget, Ui_Form):
 #         for i in self.getIndexAbstractor().get_graph('instance').relations.keys():
 #             m.appendRow(QStandardItem(i))
     
+    def refresh(self):
+        self.newVariant()
+    
     def _updateActiveOntology(self):
         self.activeOntology.clear()
         self.activeOntology.addItems(
             [i.name for i in self.getIndexAbstractor().ontologies])
 
-    def searchNode(self,search):
+    def searchNode(self, search):
         try:
             node = self.nodesToQNodes[search]
             self.graphicsView.centerOn(node)
@@ -176,7 +179,7 @@ class GraphWidget(RWWidget, Ui_Form):
 
             item = scene.addLine(line, self.qpens[edge.attr['color']])
             item.setZValue(-1)
-            item.setFlag(QGraphicsItem.ItemIsSelectable,True)
+            item.setFlag(QGraphicsItem.ItemIsSelectable, True)
             self.qLines.append(item)
             item = scene.addLine(arrowLine1, self.qpens[edge.attr['color']])
             self.qLines.append(item)
@@ -236,13 +239,13 @@ class GraphWidget(RWWidget, Ui_Form):
         QAction = menu.exec_(gpos)
         
         if (actionAddNode == QAction):
-            (text,ok) = QInputDialog.getText(self.graphicsView, "Insert Node Name", "Please insert a name for the node")
+            (text, ok) = QInputDialog.getText(self.graphicsView, "Insert Node Name", "Please insert a name for the node")
             if ok:
                 if text not in self.nodesToQNodes:
                     #User clicked on ok. Otherwise do nothing
                     self.gv.add_node(text)
                     node = self.gv.get_node(text)
-                    qnode = self.createQtNode(node, pos.x(), pos.y(),QColor(204,255,255))
+                    qnode = self.createQtNode(node, pos.x(), pos.y(), QColor(204, 255, 255))
                     self.graphicsView.scene().addItem(qnode)
     
                     self.nodesToQNodes[node] = qnode
@@ -254,7 +257,7 @@ class GraphWidget(RWWidget, Ui_Form):
     @Slot()
     def newRoot(self):
         root = self.rootSelector.currentText()
-        variant = self.relations.currentText()
+        variant = [(0, self.relations.currentText())]
         if root == "---":
             root = None
 
@@ -272,12 +275,12 @@ class GraphWidget(RWWidget, Ui_Form):
         self.rootSelector.clear()
         self.rootSelector.insertItem(0, "---")
         self.newRoot()
-        self.rootSelector.insertItems(1,list(self.roots))
+        self.rootSelector.insertItems(1, list(self.roots))
         self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
     
-    def createGV(self,variant='instance',r=None,d=None):
+    def createGV(self, variant='instance', r=None, d=None):
         gv = pygraphviz.AGraph(strict=False)
-        y = self.getIndexAbstractor().get_graph(variant,root=r, depth=d)
+        y = self.getIndexAbstractor().get_graph(variant, root=r, depth=d)
         colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
                   "yellow", "turquoise", "sienna", "darkgreen"]
         for k in y.relations.keys():

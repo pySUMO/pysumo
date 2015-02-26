@@ -91,9 +91,7 @@ class TextEditor(RWWidget, Ui_Form):
         if ontology is None :
             return 
         if type(ontology) is Ontology :
-            with open(ontology.path, mode='w') as f :
-                f.write(self.plainTextEdit.toPlainText())
-                f.close
+            ontology.save()
 
     def _initNumberBar(self):
         self.number_bar = NumberBar(self)
@@ -112,6 +110,9 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot(str)
     def showOtherOntology(self, ontologyname):
+        idx = self.ontologySelector.currentIndex()
+        if idx == -1 :
+            return
         ontologyname = self.ontologySelector.currentText()
         for i in self.getIndexAbstractor().ontologies:
             if i.name == ontologyname:

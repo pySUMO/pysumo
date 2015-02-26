@@ -116,6 +116,7 @@ class HelpDialog(QDialog):
         pass
     
 def str_to_bool(s):
+    s = str(s)
     if s.lower() == 'true':
         return True
     elif s.lower() == 'false':

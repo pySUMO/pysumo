@@ -1,9 +1,8 @@
 """ HierarchyWidget modul from pySUMO
 """
 
-from PySide.QtCore import SIGNAL, Qt
+from PySide.QtCore import Qt
 from PySide.QtGui import QApplication, QMainWindow, QTreeWidgetItem, QAbstractItemView
-import os
 import sys
 
 from pySUMOQt.Designer.HierarchyWidget import Ui_Form
