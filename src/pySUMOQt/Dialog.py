@@ -299,7 +299,6 @@ class OptionDialog(QDialog, Ui_Dialog):
         if newValue == oldValue :
             return
         self.changes[optionName] = newValue
-        print(self.changes)
         
     def accept(self, *args, **kwargs):
         # Save the options.
