@@ -11,10 +11,10 @@ from functools import partial
 
 class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
 
-    def __init__(self, parent):
+    def __init__(self, parent, defPath):
         super(NewOntologyDialog, self).__init__(parent)
         self.setupUi(self)
-        self.defPath = '/'.join([os.environ['HOME'], '.pysumo'])
+        self.defPath = defPath
         self.ontologyPath.setText(self.defPath)
         self.browseFolderBtn.clicked.connect(self.chooseOntologyPath)
         restoreDefsBtn = self.buttonBox.button(QDialogButtonBox.RestoreDefaults)
@@ -54,10 +54,10 @@ class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
 
 class OpenRemoteOntologyDialog(QDialog, Ui_OpenRemoteOntologyDialog):
 
-    def __init__(self, parent):
+    def __init__(self, parent, defPath):
         super(OpenRemoteOntologyDialog, self).__init__(parent)
         self.setupUi(self)
-        self.defPath = '/'.join([os.environ['HOME'], '.pysumo'])
+        self.defPath = defPath
         self.path.setText(self.defPath)
         self.browseBtn.clicked.connect(self.chooseOntologyPath)
         restoreDefsBtn = self.buttonBox.button(QDialogButtonBox.RestoreDefaults)

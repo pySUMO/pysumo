@@ -141,10 +141,10 @@ class MainWindow(Ui_mainwindow, QMainWindow):
                 exist = True
         except IOError :
             pass
-        settings = PySumoSettings(self, filepath)
+        self.settings = PySumoSettings(self, filepath)
         if not exist :
-            settings.loadDefaults()
-        self.optionDialog = OptionDialog(self, settings)
+            self.settings.loadDefaults()
+        self.optionDialog = OptionDialog(self, self.settings)
         self.actionSettings.triggered.connect(self._showOptionDialog_)
         # restore and show the view.
         self.userLayout.restoreLayout()
@@ -341,15 +341,20 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             self.actionDelete.triggered.disconnect(widget.plainTextEdit.clear)
             self.actionSelectAll.triggered.disconnect(widget.plainTextEdit.selectAll)
 
+    def getDefaultOutputPath(self):
+        return self.settings.value("configPath")
+
     def _newOntology_(self):
         '''Handles the new ontology action when it is triggered.'''
-        dialog = NewOntologyDialog(self)
+        defPath = self.getDefaultOutputPath()
+        dialog = NewOntologyDialog(self, defPath)
         dialog.show()
 
     def _openLocalOntology_(self):
         '''Handles the open local ontology action when it is triggered.'''
+        defPath = self.getDefaultOutputPath()
         x, y = QFileDialog.getOpenFileName(self, "Open Ontology File",
-                                                 os.environ['HOME'] + "/.pysumo", "SUO KIF Files (*.kif)")
+                                                defPath, "SUO KIF Files (*.kif)")
         if x == '' and y == '':
             return
         filepath = x
@@ -360,7 +365,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def _openRemoteOntology_(self):
         '''Handles the open remote ontology action when it is triggered.'''
-        dialog = OpenRemoteOntologyDialog(self)
+        defPath = self.getDefaultOutputPath()
+        dialog = OpenRemoteOntologyDialog(self, defPath)
         dialog.show()
 
     def addOntology(self, ontology):
