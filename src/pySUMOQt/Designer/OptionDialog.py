@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'OptionDialog.ui'
 #
-# Created: Thu Feb 26 15:15:57 2015
+# Created: Thu Feb 26 15:34:05 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -187,6 +187,7 @@ class Ui_Dialog(object):
         self.gridLayout_7 = QtGui.QGridLayout(self.tab_3)
         self.gridLayout_7.setObjectName("gridLayout_7")
         self.formLayout = QtGui.QFormLayout()
+        self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self.formLayout.setFormAlignment(QtCore.Qt.AlignCenter)
         self.formLayout.setObjectName("formLayout")
         self.label = QtGui.QLabel(self.tab_3)
@@ -199,12 +200,12 @@ class Ui_Dialog(object):
         self.maxTextEditorWidgets.setMaximum(10)
         self.maxTextEditorWidgets.setObjectName("maxTextEditorWidgets")
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.maxTextEditorWidgets)
-        self.defaultFontSize = QtGui.QSpinBox(self.tab_3)
-        self.defaultFontSize.setObjectName("defaultFontSize")
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.defaultFontSize)
         self.label_28 = QtGui.QLabel(self.tab_3)
         self.label_28.setObjectName("label_28")
         self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label_28)
+        self.defaultFontSize = QtGui.QSpinBox(self.tab_3)
+        self.defaultFontSize.setObjectName("defaultFontSize")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.defaultFontSize)
         self.label_29 = QtGui.QLabel(self.tab_3)
         self.label_29.setObjectName("label_29")
         self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_29)
@@ -227,6 +228,12 @@ class Ui_Dialog(object):
         self.defaultFontColorChooser.setObjectName("defaultFontColorChooser")
         self.horizontalLayout_12.addWidget(self.defaultFontColorChooser)
         self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.widget_13)
+        self.useHighlightingFontSizeLabel = QtGui.QLabel(self.tab_3)
+        self.useHighlightingFontSizeLabel.setObjectName("useHighlightingFontSizeLabel")
+        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.useHighlightingFontSizeLabel)
+        self.useHighlightingFontSize = QtGui.QCheckBox(self.tab_3)
+        self.useHighlightingFontSize.setObjectName("useHighlightingFontSize")
+        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.useHighlightingFontSize)
         self.gridLayout_7.addLayout(self.formLayout, 0, 0, 1, 1)
         self.tabWidget_2.addTab(self.tab_3, "")
         self.tab_6 = QtGui.QWidget()
@@ -646,6 +653,7 @@ class Ui_Dialog(object):
         self.label_29.setText(QtGui.QApplication.translate("Dialog", "Default Font Family: ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_30.setText(QtGui.QApplication.translate("Dialog", "Default Font Color: ", None, QtGui.QApplication.UnicodeUTF8))
         self.defaultFontColorChooser.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.useHighlightingFontSizeLabel.setText(QtGui.QApplication.translate("Dialog", "Use Highlighting Font Size: ", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), QtGui.QApplication.translate("Dialog", "Misc.", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Dialog", "Font Family: ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Font Size: ", None, QtGui.QApplication.UnicodeUTF8))

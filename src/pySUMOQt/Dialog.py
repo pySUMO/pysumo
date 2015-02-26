@@ -195,7 +195,7 @@ class OptionDialog(QDialog, Ui_Dialog):
         self.defaultFontSize.valueChanged.connect(partial(self.onOptionChanged, self.defaultFontSize))
         self.defaultFontColor.textChanged.connect(partial(self.onOptionChanged, self.defaultFontColor))
         self.defaultFontColorChooser.clicked.connect(partial(self.colorChooserClicked, self.defaultFontColor))
-
+        self.useHighlightingFontSize.toggled.connect(partial(self.onOptionChanged, self.useHighlightingFontSize))
         button = self.buttonBox.button(QDialogButtonBox.Apply)
         button.clicked.connect(self.onApplyClicked)
         button = self.buttonBox.button(QDialogButtonBox.Reset)
@@ -242,7 +242,7 @@ class OptionDialog(QDialog, Ui_Dialog):
         self.loadIntSetting(self.maxDocumentationWidgets)
         self.loadIntSetting(self.maxHierarchyWidgets)
         self.loadIntSetting(self.maxGraphWidgets)
-        
+        self.loadBoolSetting(self.useHighlightingFontSize)
         
     def onApplyClicked(self):
         self.save()
