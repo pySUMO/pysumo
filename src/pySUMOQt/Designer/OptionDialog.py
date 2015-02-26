@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'OptionDialog.ui'
 #
-# Created: Sun Feb 22 01:13:13 2015
+# Created: Thu Feb 26 13:23:30 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -211,7 +211,7 @@ class Ui_Dialog(object):
         self.toolBox = QtGui.QToolBox(self.tab_6)
         self.toolBox.setObjectName("toolBox")
         self.page_6 = QtGui.QWidget()
-        self.page_6.setGeometry(QtCore.QRect(0, 0, 501, 278))
+        self.page_6.setGeometry(QtCore.QRect(0, 0, 353, 159))
         self.page_6.setObjectName("page_6")
         self.gridLayout_9 = QtGui.QGridLayout(self.page_6)
         self.gridLayout_9.setObjectName("gridLayout_9")
@@ -283,7 +283,7 @@ class Ui_Dialog(object):
         self.gridLayout_9.addLayout(self.formLayout_2, 0, 0, 1, 1)
         self.toolBox.addItem(self.page_6, "")
         self.page_7 = QtGui.QWidget()
-        self.page_7.setGeometry(QtCore.QRect(0, 0, 501, 278))
+        self.page_7.setGeometry(QtCore.QRect(0, 0, 353, 159))
         self.page_7.setObjectName("page_7")
         self.gridLayout_10 = QtGui.QGridLayout(self.page_7)
         self.gridLayout_10.setObjectName("gridLayout_10")
@@ -354,7 +354,7 @@ class Ui_Dialog(object):
         self.gridLayout_10.addLayout(self.formLayout_3, 0, 0, 1, 1)
         self.toolBox.addItem(self.page_7, "")
         self.page_8 = QtGui.QWidget()
-        self.page_8.setGeometry(QtCore.QRect(0, 0, 501, 278))
+        self.page_8.setGeometry(QtCore.QRect(0, 0, 353, 159))
         self.page_8.setObjectName("page_8")
         self.gridLayout_11 = QtGui.QGridLayout(self.page_8)
         self.gridLayout_11.setObjectName("gridLayout_11")
@@ -425,7 +425,7 @@ class Ui_Dialog(object):
         self.gridLayout_11.addLayout(self.formLayout_4, 0, 0, 1, 1)
         self.toolBox.addItem(self.page_8, "")
         self.page_9 = QtGui.QWidget()
-        self.page_9.setGeometry(QtCore.QRect(0, 0, 501, 278))
+        self.page_9.setGeometry(QtCore.QRect(0, 0, 353, 159))
         self.page_9.setObjectName("page_9")
         self.gridLayout_12 = QtGui.QGridLayout(self.page_9)
         self.gridLayout_12.setObjectName("gridLayout_12")
@@ -602,7 +602,7 @@ class Ui_Dialog(object):
         __sortingEnabled = self.listWidget.isSortingEnabled()
         self.listWidget.setSortingEnabled(False)
         self.listWidget.setSortingEnabled(__sortingEnabled)
-        self.label_17.setText(QtGui.QApplication.translate("Dialog", "Configuration Path: ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_17.setText(QtGui.QApplication.translate("Dialog", "Default Output Path: ", None, QtGui.QApplication.UnicodeUTF8))
         self.configPathChooser.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("Dialog", "Misc.", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_5.setTitle(QtGui.QApplication.translate("Dialog", "Action Log", None, QtGui.QApplication.UnicodeUTF8))
