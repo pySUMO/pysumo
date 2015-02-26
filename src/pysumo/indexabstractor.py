@@ -106,7 +106,7 @@ class IndexAbstractor:
             pass
         raise KeyError('%s not in index.' % term)
 
-    def get_graph(self, variant, root=None, depth=None):
+    def get_graph(self, variant, major=2, minor=1, root=None, depth=None):
         """ Returns a hierarchical view of the Ontology.
 
         Arguments:
@@ -124,15 +124,15 @@ class IndexAbstractor:
         - KeyError
 
         """
-        var = normalize(variant)
-        try:
-            root = self._find_term(root)
-        except AttributeError:
-            pass
-        if var in self.index:
-            return AbstractGraph(var, root, depth, self.index)
+        if variant is None:
+            return AbstractGraph(None, None, None, None, None, self.ontologies)
         else:
-            return AbstractGraph(None, root, depth, self.ontologies)
+            var = [(x, normalize(y)) for x, y in variant]
+            try:
+                root = self._find_term(root)
+            except AttributeError:
+                pass
+            return AbstractGraph(var, major, minor, root, depth, self.index)
 
     def wordnet_locate(self, term):
         """ Use the mapping from SUMO to WordNet to retrieve information about a term.
@@ -171,11 +171,11 @@ class AbstractGraph:
 
     """
 
-    def __init__(self, variant, root, depth, info):
+    def __init__(self, variant, major, minor, root, depth, info):
         """ Initializes the AbstractGraph and instantiates variables. """
         self.nodes = []
         self.relations = dict()
-        self._settings = (root, variant, depth)
+        self._settings = (variant, major, minor, root, depth)
         if variant is None:
             self._ontology_graph(info)
         else:
@@ -190,14 +190,29 @@ class AbstractGraph:
         """ Produces an AbstractGraph of all the currently active ontologies. """
         self.nodes = [AbstractGraphNode(x) for x in ontologies]
 
+    def _check_matches(self, node):
+        try:
+            for pos, val in self._settings[0]:
+                if pos == 0 and node.name != val:
+                    return False
+                elif pos != 0 and node.children[pos - 1].name != val:
+                    return False
+                else:
+                    continue
+            return True
+        except IndexError:
+            return False
+
     def _relation_graph(self, index):
         """ Produces an AbstractGraph containing all relations of type variant. """
+        major_pos = self._settings[1]
+        minor_pos = self._settings[2]
         node_set = set()
         for ast in index.values():
             for node in ast:
-                if node.name == self._settings[1]:
-                    minor = node.children[0].name
-                    major = node.children[1].name
+                if self._check_matches(node):
+                    minor = node.children[minor_pos - 1].name
+                    major = node.children[major_pos - 1].name
                     node_set.add(AbstractGraphNode(minor))
                     node_set.add(AbstractGraphNode(major))
                     relation = self.relations.get(major, set())
@@ -208,12 +223,14 @@ class AbstractGraph:
     def _filter_root(self, root, depth):
         """ Filters the AbstractGraph so only children of root are kept up to a maximum depth. """
         try:
-            if depth >= self._settings[2]:
+            if depth >= self._settings[4]:
                 return set()
         except TypeError:
             pass
-        
-        rel = set(self.relations[root])
+        try:
+            rel = set(self.relations[root])
+        except KeyError:
+            return set()
         for minor in self.relations[root]:
             try:
                 rel = rel.union(self._filter_root(minor, depth + 1))
