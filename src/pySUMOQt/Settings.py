@@ -228,6 +228,7 @@ class PySumoSettings(QSettings):
         self.setValue("defaultFontSize", defSize)
         self.setValue("defaultFontFamily", defFont)
         self.setValue("defaultFontColor", QApplication.palette().text().color().name())
+        self.setValue("useHighlightingFontSize", False)
     
 class PluginManager():
     """ The PluginManager handles all loadabel plugins. At startup it loads all

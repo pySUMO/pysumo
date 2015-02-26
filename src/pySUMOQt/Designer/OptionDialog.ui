@@ -336,6 +336,9 @@
              <layout class="QGridLayout" name="gridLayout_7">
               <item row="0" column="0">
                <layout class="QFormLayout" name="formLayout">
+                <property name="fieldGrowthPolicy">
+                 <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                </property>
                 <property name="formAlignment">
                  <set>Qt::AlignCenter</set>
                 </property>
@@ -362,15 +365,15 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="defaultFontSize"/>
-                </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_28">
                   <property name="text">
                    <string>Default Font Size: </string>
                   </property>
                  </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="defaultFontSize"/>
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_29">
@@ -407,6 +410,16 @@
                    </item>
                   </layout>
                  </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="useHighlightingFontSizeLabel">
+                  <property name="text">
+                   <string>Use Highlighting Font Size: </string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QCheckBox" name="useHighlightingFontSize"/>
                 </item>
                </layout>
               </item>

@@ -359,7 +359,7 @@ class TextEditor(RWWidget, Ui_Form):
 
 class SyntaxHighlightSetting():
 
-    def __init__(self, expression, font_family, font_size, font_color, font_weight, font_style, font_underline, expression_end=''):
+    def __init__(self, expression, font_family, font_size, font_color, font_weight, font_style, font_underline, use_font_size, expression_end=''):
         self.expression = expression
         if expression_end != '':
             self.expression_end = expression_end
@@ -369,12 +369,14 @@ class SyntaxHighlightSetting():
         self.font_weight = font_weight
         self.font_style = font_style
         self.font_underline = font_underline
+        self.use_font_size = use_font_size
         self.createFormat()
 
     def createFormat(self):
         self.class_format = QTextCharFormat()
         self.class_format.setFontFamily(self.font_family)
-        self.class_format.setFontPointSize(self.font_size)
+        if self.use_font_size :
+            self.class_format.setFontPointSize(self.font_size)
         self.class_format.setForeground(self.font_color)
         self.class_format.setFontWeight(self.font_weight)
         self.class_format.setFontItalic(self.font_style)
@@ -405,6 +407,8 @@ class SyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self, document, settings):
         super(SyntaxHighlighter, self).__init__(document)
         self.settings = settings
+        use_font_size = self.settings.value("useHighlightingFontSize")
+        use_font_size = str_to_bool(use_font_size)
         self.singleline = []
         # logical expressions highlighting
         regex = "(and|=>|not|or)(?!\w)"
@@ -414,7 +418,7 @@ class SyntaxHighlighter(QSyntaxHighlighter):
         fWeight = self._getFontWeight("logicExprBoldStyle")
         fItalic = self._getFontItalic("logicExprItalicStyle")
         fUnderline = self._getFontUnderline("logicExprUnderlinedStyle")
-        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline)
+        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline, use_font_size)
         self.singleline.append(shSettings)
 
         # keywords highlighting
@@ -425,7 +429,7 @@ class SyntaxHighlighter(QSyntaxHighlighter):
         fWeight = self._getFontWeight("keywordsBoldStyle")
         fItalic = self._getFontItalic("keywordsItalicStyle")
         fUnderline = self._getFontUnderline("keywordsUnderlinedStyle")
-        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline)
+        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline, use_font_size)
         self.singleline.append(shSettings)
         
         # comment highlighting
@@ -436,7 +440,7 @@ class SyntaxHighlighter(QSyntaxHighlighter):
         fWeight = self._getFontWeight("commentBoldStyle")
         fItalic = self._getFontItalic("commentItalicStyle")
         fUnderline = self._getFontUnderline("commentUnderlinedStyle")
-        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline)
+        shSettings = SyntaxHighlightSetting(regex, fFamily, fSize, fColor, fWeight, fItalic, fUnderline, use_font_size)
         self.singleline.append(shSettings)
 
         self.multiline = []
@@ -448,7 +452,7 @@ class SyntaxHighlighter(QSyntaxHighlighter):
         fWeight = self._getFontWeight("stringsBoldStyle")
         fItalic = self._getFontItalic("stringsItalicStyle")
         fUnderline = self._getFontUnderline("stringsUnderlinedStyle")
-        shSettings = SyntaxHighlightSetting('"', fFamily, fSize, fColor, fWeight, fItalic, fUnderline, expression_end='"')
+        shSettings = SyntaxHighlightSetting('"', fFamily, fSize, fColor, fWeight, fItalic, fUnderline, use_font_size, expression_end='"')
         self.multiline.append(shSettings)
         
     def _getFontFamily(self, propKey):
