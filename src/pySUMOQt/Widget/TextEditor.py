@@ -341,18 +341,21 @@ class TextEditor(RWWidget, Ui_Form):
 
 class SyntaxHighlightSetting():
 
-    def __init__(self, expression, font_weight, font_color, expression_end=''):
+    def __init__(self, expression, font_weight, font_color, expression_end='', font_family=None):
         self.expression = expression
         if expression_end != '':
             self.expression_end = expression_end
         self.font_weight = font_weight
         self.font_color = font_color
+        self.font_family = font_family
         self.createFormat()
 
     def createFormat(self):
         self.class_format = QTextCharFormat()
         self.class_format.setFontWeight(self.font_weight)
         self.class_format.setForeground(self.font_color)
+        if self.font_family is not None :
+            self.class_format.setFontFamily(self.font_family)
 
     def get_format(self):
         return self.class_format
