@@ -69,6 +69,11 @@ class TextEditor(RWWidget, Ui_Form):
             self.showOtherOntology)
         #self.plainTextEdit.textChanged.connect(self.commit)
         self.ontologySelector.setCurrentIndex(-1)
+        self.textChanged = False
+        
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.commit)
+        self.timer.start(10000);
         
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
@@ -346,8 +351,14 @@ class TextEditor(RWWidget, Ui_Form):
 
     def commit(self):
         """ Overrides commit from RWWidget. """
+<<<<<<< HEAD
         logging.info("Sychronizing via Texteditor")
         self.timer.stop()
+=======
+        if self.textChanged == False:
+            return
+        self.textChanged = False
+>>>>>>> 22f6917... Timer for parser
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
             return
