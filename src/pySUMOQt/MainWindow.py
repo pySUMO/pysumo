@@ -144,11 +144,15 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         settings = PySumoSettings(self, filepath)
         if not exist :
             settings.loadDefaults()
-        optionDialog = OptionDialog(self, settings)
-        self.actionSettings.triggered.connect(optionDialog.show)
+        self.optionDialog = OptionDialog(self, settings)
+        self.actionSettings.triggered.connect(self._showOptionDialog_)
         # restore and show the view.
         self.userLayout.restoreLayout()
         self.show()
+        
+    def _showOptionDialog_(self):
+        self.optionDialog.initialize()
+        self.optionDialog.show()
 
     def _addWidget_(self, widgetType, widgetMenu):
         '''Add a widget into the layout with the given widget type as string.'''
