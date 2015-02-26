@@ -18,6 +18,7 @@ import logging
 
 from pySUMOQt.Designer.GraphWidget import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
+import weakref
 
 def insert_newlines(string, every=64):
     return '\n'.join(string[i:i + every] for i in range(0, len(string), every))
@@ -26,12 +27,9 @@ def insert_newlines(string, every=64):
 class QtNode(QGraphicsEllipseItem):
     """ A Node representation in Qt"""
     callback = None
-    def setCallBackItemChange(self, f):
+    def setCallback(self, f):
         """ Sets a callback function to call after the position has changed"""
         self.callback = f
-        
-    def setCallBackAddRelation(self, f):
-        self.callbackR = f
     
     def setNode(self, node):
         self.node = node
@@ -39,14 +37,14 @@ class QtNode(QGraphicsEllipseItem):
     def itemChange(self, itemChange, val):
         if (itemChange == QGraphicsItem.ItemPositionHasChanged):
             if self.callback is not None:
-                self.callback()
+                self.callback().renewplot()
         return super().itemChange(itemChange, val)
     
     def mouseDoubleClickEvent(self, event):
-        if self.callbackR is not None:
-            self.callbackR(self)
-        #super(QtNode, self).mouseDoubleClickEvent(event)
 
+        if self.callback is not None:
+            self.callback().addRelation(self)
+        
 class GraphWidget(RWWidget, Ui_Form):
 
     """ Displays a graph of the Ontology and passes all modifications to the
@@ -80,7 +78,7 @@ class GraphWidget(RWWidget, Ui_Form):
         self.relations.currentIndexChanged[str].connect(self.newVariant)
         self.depth.valueChanged.connect(self.newRoot)
         self._updateActiveOntology()
-        
+        self.graphicsView.setScene(QGraphicsScene())
 #     def initRelationBox(self):
 #         m = self.relations.model()
 #         for i in self.getIndexAbstractor().get_graph('instance').relations.keys():
@@ -194,8 +192,10 @@ class GraphWidget(RWWidget, Ui_Form):
         Creates a QGraphicScene for the layouted graph in self.gv
         This function has to be called every time, a node change happened.
         """
-        scene = QGraphicsScene()
-        self.graphicsView.setScene(scene)
+        #scene = QGraphicsScene()
+        #self.graphicsView.setScene(scene)
+        scene = self.graphicsView.scene()
+        scene.clear()
         self.nodesToQNodes = {}
         self.qLines = []
         for node in self.gv.nodes_iter():
@@ -212,8 +212,7 @@ class GraphWidget(RWWidget, Ui_Form):
             qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
             qnode.setPos(posx, posy)
             qnode.setFlag(QGraphicsItem.ItemIsMovable)
-            qnode.setCallBackItemChange(self.renewplot)
-            qnode.setCallBackAddRelation(self.addRelation)
+            qnode.setCallback(weakref.ref(self))
             qnode.setNode(node)
             qnode.setBrush(color)
             txt = QGraphicsSimpleTextItem(qnode)
