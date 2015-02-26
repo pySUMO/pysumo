@@ -31,7 +31,7 @@ class WSettings(QSettings):
 class LayoutManager(QSettings):
     
     def __init__(self, MainWindow):
-        super(LayoutManager, self).__init__("user-layout.ini", QSettings.IniFormat)
+        super(LayoutManager, self).__init__(logger.CONFIG_PATH + "/user-layout.ini", QSettings.IniFormat)
         self.mainwindow = MainWindow
     
     def saveLayout(self):
