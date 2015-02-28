@@ -17,6 +17,7 @@ from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
 from pySUMOQt.Dialog import str_to_bool
+import logging
 
 
 class TextEditor(RWWidget, Ui_Form):
