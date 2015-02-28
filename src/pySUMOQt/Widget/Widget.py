@@ -11,6 +11,7 @@ from PySide.QtCore import QObject, Signal
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.syntaxcontroller import SyntaxController
 
+import logging
 
 class Widget(QObject):
     """ The main class representing a widget in the pySUMO GUI.
@@ -33,7 +34,7 @@ class Widget(QObject):
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """
-        print("refreshing " + self.parent().windowTitle())
+        logging.info("refreshing " + self.parent().windowTitle())
 
     def getWidget(self):
         pass

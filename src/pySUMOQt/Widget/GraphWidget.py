@@ -86,6 +86,7 @@ class GraphWidget(RWWidget, Ui_Form):
     
     def refresh(self):
         self.newVariant()
+        super(GraphWidget, self).refresh()
     
     def _updateActiveOntology(self):
         self.activeOntology.clear()
