@@ -76,7 +76,11 @@ class TextEditor(RWWidget, Ui_Form):
     def setTextChanged(self):
         self.timer.stop()
         self.timer.start(3000)
-         
+    
+    def refresh(self):
+        self.showOtherOntology(self.ontologySelector.currentText())
+        super(TextEditor, self).refresh()
+             
     def _print_(self):
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted :
