@@ -94,9 +94,8 @@ class OpenRemoteOntologyDialog(QDialog, Ui_OpenRemoteOntologyDialog):
             else :
                 raise RuntimeError
         ontology = Ontology(path, self.name.text(), self.url.text())
-        # download the ontology and fill the file,
-        updater.update(ontology)
-        self.parent().addOntology(ontology)
+        # download the ontology (user must save to store ontology on disk)
+        updater.update(ontology, lambda x: self.parent().addOntology(ontology, newversion=x.getvalue().decode('utf8')))
         super(OpenRemoteOntologyDialog, self).accept()
         
 class HelpDialog(QDialog):

@@ -8,7 +8,7 @@
 ;; The SUMO is freely available, subject to the following IEEE license.  
 
 ;; ----------------------
-;; Copyright © 2004 by the Institute of Electrical and Electronics Engineers, Inc.
+;; Copyright � 2004 by the Institute of Electrical and Electronics Engineers, Inc.
 ;; Three Park Avenue
 ;; New York, NY 10016-5997, USA
 ;; All rights reserved.
@@ -112,12 +112,16 @@ in which all the tuples of the original relation are reversed.  In
 other words, one &%BinaryRelation is the inverse of another if they are 
 equivalent when their arguments are swapped.")
 
-(=>
-   (inverse ?REL1 ?REL2)
-   (forall (?INST1 ?INST2)
-      (<=>
-         (?REL1 ?INST1 ?INST2)
-         (?REL2 ?INST2 ?INST1))))
+; causes a predicate variable expansion explosion
+; (=>
+;    (and
+;      (inverse ?REL1 ?REL2)
+;      (instance ?REL1 Predicate)
+;      (instance ?REL2 Predicate))
+;    (forall (?INST1 ?INST2)
+;       (<=>
+;          (?REL1 ?INST1 ?INST2)
+;          (?REL2 ?INST2 ?INST1))))
 
 (instance subclass BinaryPredicate)
 (instance subclass PartialOrderingRelation)
@@ -181,6 +185,8 @@ of this is that a &%Relation and its subrelations must have the same
 (=>
    (and
       (subrelation ?REL1 ?REL2)
+      (instance ?REL1 Predicate)
+      (instance ?REL2 Predicate)
       (?REL1 @ROW))
    (?REL2 @ROW))
 
@@ -1849,7 +1855,9 @@ the last one.  Note that declaring a &%Relation to be both a &%TotalValuedRelati
 and a &%SingleValuedRelation means that it is a total function.")
 
 (<=>
-   (instance ?REL TotalValuedRelation)
+   (and
+     (instance ?REL TotalValuedRelation)
+     (instance ?REL Predicate))
    (exists (?VALENCE)
       (and
          (instance ?REL Relation)
@@ -1898,6 +1906,7 @@ iff (?REL ?INST ?INST) holds for no value of ?INST.")
          (?REL ?INST ?INST))))
 
 (subclass SymmetricRelation BinaryRelation)
+(disjoint SymmetricRelation AntisymmetricRelation)
 (documentation SymmetricRelation EnglishLanguage "A &%BinaryRelation ?REL is
 symmetric just iff (?REL ?INST1 ?INST2) imples (?REL 
 ?INST2 ?INST1), for all ?INST1 and ?INST2.")
@@ -1960,6 +1969,7 @@ distinct individuals are elements of ?REL.")
             (?REL ?INST2 ?INST1)))))
 
 (subclass TransitiveRelation BinaryRelation)
+(disjoint TransitiveRelation IntransitiveRelation)
 (documentation TransitiveRelation EnglishLanguage "A &%BinaryRelation ?REL is transitive 
 if (?REL ?INST1 ?INST2) and (?REL ?INST2 ?INST3) imply (?REL ?INST1 ?INST3), 
 for all ?INST1, ?INST2, and ?INST3.")
@@ -2080,6 +2090,7 @@ sees the fish.  Note that &%experiencer, unlike &%agent, does
 not entail a causal relation between its arguments.")
 
 (subrelation instrument patient)
+(instance instrument CaseRole)
 (domain instrument 1 Process)
 (domain instrument 2 Object)
 (documentation instrument EnglishLanguage "(instrument ?EVENT ?TOOL) means that ?TOOL 
@@ -2113,6 +2124,7 @@ when one wants to specify as broadly as possible the object of a
 &%Process.")
 
 (subrelation resource patient)
+(instance resource CaseRole)
 (domain resource 1 Process)
 (domain resource 2 Object)
 (disjointRelation resource result)
@@ -2127,6 +2139,7 @@ Note that &%resource differs from &%instrument, another subrelation of
 some way by the &%Process.")
 
 (subrelation result patient)
+(instance result CaseRole)
 (domain result 1 Process)
 (domain result 2 Entity)
 (documentation result EnglishLanguage "(result ?ACTION ?OUTPUT) means that ?OUTPUT is 
@@ -2528,12 +2541,14 @@ value &%Tuesday.")
 (=>
    (and
       (domain ?REL ?NUMBER ?CLASS)
+      (instance ?REL Predicate)
       (?REL @ROW))
    (instance (ListOrderFn (ListFn @ROW) ?NUMBER) ?CLASS))
 
 (=>
    (and
       (domainSubclass ?REL ?NUMBER ?CLASS)
+      (instance ?REL Predicate)
       (?REL @ROW))
    (subclass (ListOrderFn (ListFn @ROW) ?NUMBER) ?CLASS))
 
@@ -2573,7 +2588,9 @@ value 3.")
       (ListLengthFn (ListFn @ROW ?ITEM))) ?ITEM))
 
 (=>
-   (valence ?REL ?NUMBER)
+   (and
+     (valence ?REL ?NUMBER)
+     (instance ?REL Predicate))
    (forall (@ROW)
       (=>
          (?REL @ROW)
@@ -2973,7 +2990,9 @@ always an instance of the &%SetOrClass.")
 to itself.")
 
 (=> 
-   (reflexiveOn ?RELATION ?CLASS)
+   (and
+     (reflexiveOn ?RELATION ?CLASS)
+     (instance ?RELATION Predicate))
    (forall (?INST)
       (=> 
          (instance ?INST ?CLASS)
@@ -2988,7 +3007,9 @@ to itself.")
 itself.")
 
 (=> 
-   (irreflexiveOn ?RELATION ?CLASS)
+   (and
+     (irreflexiveOn ?RELATION ?CLASS)
+     (instance ?RELATION Predicate))
    (forall (?INST)
       (=> 
          (instance ?INST ?CLASS)
@@ -3036,7 +3057,9 @@ of the &%SetOrClass, at least one of the following holds:  (?REL ?INST1 ?INST2),
 (?REL ?INST2 ?INST1) or (equal ?INST1 ?INST2).")
 
 (=>
-   (trichotomizingOn ?RELATION ?CLASS)
+   (and
+     (trichotomizingOn ?RELATION ?CLASS)
+     (instance ?RELATION Predicate))
    (forall (?INST1 ?INST2)
       (=> 
          (and 
@@ -3391,6 +3414,7 @@ means that some &%subProcess of &%Process ?PROC is located in &%Object ?OBJ.")
   (eventPartlyLocated ?PROCESS ?LOC))
      
 (subrelation eventLocated eventPartlyLocated)
+(instance eventLocated CaseRole)
 (documentation eventLocated EnglishLanguage "(&%eventLocated ?PROC ?OBJ) means that
 the entire &%Process ?PROC is located on &%Object ?OBJ, meaning that all &%subProcess 
 of ?PROC is located on ?OBJ")
@@ -8329,7 +8353,10 @@ distinguished part (proper or not) of a &%Process.")
 ;;     (subProcess ?SUBPROC ?PROC))
 ;;   (exists (?TIME)
 ;;     (time ?SUBPROC ?TIME)))
-        
+
+
+
+
 ;; The following formulas cover the hierarchy of &%Classes under 
 ;; &%BiologicalProcess.
 
@@ -10786,6 +10813,7 @@ exhibitions, etc.")
       (attends ?DEMO ?PERSON)))
 
 (subrelation attends experiencer)
+(instance attends CaseRole)
 (domain attends 1 Demonstrating)
 (domain attends 2 Human)
 (documentation attends EnglishLanguage "(&%attends ?DEMO ?PERSON) means that ?PERSON attends, 
@@ -13791,7 +13819,6 @@ cultures, but that aspect of meaning is not addressed here.")
 
 
 (instance familyRelation BinaryPredicate)
-(instance familyRelation EquivalenceRelation) 
 (domain familyRelation 1 Organism) 
 (domain familyRelation 2 Organism) 
 (documentation familyRelation EnglishLanguage "A very general &%Predicate for biological 
@@ -14722,6 +14749,21 @@ mapping external knowledge sources to the SUMO.  If a term from such a knowledge
 source seems to lack objective criteria for its attribution, it is assigned to 
 this &%Class.")
 
+(=>
+    (and
+        (attribute ?OBJ ?ATR)
+        (instance ?ATR SubjectiveAssessmentAttribute))
+    (exists (?TIME ?JUDGE ?AGENT)
+    (and
+          (instance ?JUDGE Judging)
+          (agent ?JUDGE ?AGENT)
+          (patient ?JUDGE ?OBJ)
+          (patient ?JUDGE
+                (attribute ?OBJ ?ATR))
+          (holdsDuring ?TIME
+            (believes ?AGENT
+              (property ?OBJ ?ATR))))))
+
 (subclass SubjectiveStrongPositiveAttribute SubjectiveAssessmentAttribute)
 (documentation SubjectiveStrongPositiveAttribute EnglishLanguage "The &%Class 
 of &%NormativeAttributes which lack an objective criterion for their 
@@ -15581,6 +15623,18 @@ down commentaries ?STR on a defined &%Entity ?ENT")
 (domain comment 1 Entity)
 (domain comment 2 SymbolicString)
 (domain comment 3 SymbolicString)   
+
+(instance MakingFn UnaryFunction)
+(domainSubclass MakingFn 1 Making)
+(rangeSubclass MakingFn Object)
+(documentation MakingFn EnglishLanguage "A &%Function that denotes the creation of an &%Object.")
+
+(=>
+  (instance ?X (MakingFn ?Y))
+  (exists (?OBJECT)
+    (and
+      (instance ?OBJECT ?Y)
+      (result ?X ?OBJECT))))
 
 ;; END FILE
 

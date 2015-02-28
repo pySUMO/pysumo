@@ -120,7 +120,7 @@ class SyntaxController:
         """
 
         if newversion == None:
-            with open(ontology.path) as f:
+            with open(ontology.path, errors='replace') as f:
                 pos = f.tell()
                 num = ontology.action_log.queue_log(BytesIO(f.read().encode()))
                 f.seek(pos)
