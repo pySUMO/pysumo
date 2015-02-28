@@ -246,9 +246,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         data = socket.readAll().data()
         slen = unpack(">L", data[:4])[0]
         data = data[4:]
-        assert len(data) == slen
+        #assert len(data) == slen, "%r, %r" %(loads(data), slen)
         logrecord = logging.makeLogRecord(loads(data))
-        self.statusBar.showMessage(logrecord.getMessage())
+        self.statusBar.showMessage(logrecord.getMessage(),2500)
 
     def _updateStatusbar_(self, wrappedWidget = None):
         '''Update the status bar.'''
@@ -273,7 +273,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def synchronize(self):
         """ Performs synchronization of the main window by reporting changes in
         all the others widgets. """
-        logging.info("synchronizing ...")
+        self.log.info("synchronizing ...")
         self.synchronizeRequested.emit()
 
     def _deleteWidget_(self, widget):
