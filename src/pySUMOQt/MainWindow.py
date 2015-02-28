@@ -34,6 +34,7 @@ from pySUMOQt.Widget.GraphWidget import GraphWidget
 from pysumo.syntaxcontroller import Ontology
 from pysumo import logger
 from pysumo.logger.infolog import InfoLog
+from pysumo.updater import update
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -371,9 +372,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         dialog = OpenRemoteOntologyDialog(self, defPath)
         dialog.show()
 
-    def addOntology(self, ontology):
+    def addOntology(self, ontology, newversion=None):
         '''Adds an ontology to index and notify all components required.'''
-        RWWidget.SyntaxController.add_ontology(ontology)
+        RWWidget.SyntaxController.add_ontology(ontology, newversion)
         self.ontologyAdded.emit(ontology)
 
     def notifyOntologyAdded(self, ontology):
@@ -451,8 +452,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         pass
 
     def _updateOntology_(self, ontology):
-        ''' TODO: '''
-        pass
+        update(ontology, lambda x: RWWidget.SyntaxController.add_ontology(ontology, newversion=x.getvalue().decode('utf8')))
+        self.synchronize()
 
     def _revertOntology_(self, ontology):
         ''' TODO: '''
