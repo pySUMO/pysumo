@@ -159,12 +159,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         '''Create a widget wrapper containing the given widget type.'''
         widget = PySUMOWidget(self)
         wrappedWidget = None
+        
+        
         if widgetType == "TextEditorWidget" :
             wrappedWidget = TextEditor(widget)
             widget.setPrefixName("Text Editor")
             wrappedWidget.ontologySelector.currentIndexChanged[str].connect(widget._setSuffixName_)
             wrappedWidget.plainTextEdit.installEventFilter(widget)
-            wrappedWidget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(wrappedWidget._updateOntologySelector)
         elif widgetType == "DocumentationWidget" :
             wrappedWidget = DocumentationWidget(widget)
@@ -177,11 +178,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             wrappedWidget = GraphWidget(widget)
             widget.setPrefixName("Graph Widget")
             wrappedWidget.graphicsView.installEventFilter(widget)
-            wrappedWidget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(wrappedWidget._updateActiveOntology)
         if wrappedWidget is None :
-            print("can not create widget with type " + widgetType)
+            logging.error("can not create widget with type " + widgetType)
             return
+        
+        wrappedWidget.ontologyChanged.connect(self.synchronize)
+        
         self.synchronizeRequested.connect(wrappedWidget.refresh)
         objName = widgetType
         objName += str(len(widgetMenu.actions()))
@@ -270,7 +273,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def synchronize(self):
         """ Performs synchronization of the main window by reporting changes in
         all the others widgets. """
-        print("synchronizing ...")
+        logging.info("synchronizing ...")
         self.synchronizeRequested.emit()
 
     def _deleteWidget_(self, widget):
