@@ -16,6 +16,7 @@ from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
+import logging
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -74,10 +75,12 @@ class TextEditor(RWWidget, Ui_Form):
         
     def setTextChanged(self):
         self.timer.stop()
+        self.timer.setSingleShot(True)
         self.timer.start(3000)
     
     def refresh(self):
         self.showOtherOntology(self.ontologySelector.currentText())
+        self.timer.stop()
         super(TextEditor, self).refresh()
              
     def _print_(self):
@@ -342,7 +345,8 @@ class TextEditor(RWWidget, Ui_Form):
 
     def commit(self):
         """ Overrides commit from RWWidget. """
-
+        logging.info("Sychronizing via Texteditor")
+        self.timer.stop()
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
             return
