@@ -351,14 +351,8 @@ class TextEditor(RWWidget, Ui_Form):
 
     def commit(self):
         """ Overrides commit from RWWidget. """
-<<<<<<< HEAD
         logging.info("Sychronizing via Texteditor")
         self.timer.stop()
-=======
-        if self.textChanged == False:
-            return
-        self.textChanged = False
->>>>>>> 22f6917... Timer for parser
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
             return

@@ -192,6 +192,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
         wrappedWidget.ontologyChanged.connect(self.synchronize)
         wrappedWidget.setSettings(self.settings)
+        wrappedWidget.ontologyChanged.connect(self.synchronize)
         self.synchronizeRequested.connect(wrappedWidget.refresh)
         objName = widgetType
         objName += str(len(widgetMenu.actions()))
