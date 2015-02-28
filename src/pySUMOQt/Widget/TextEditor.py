@@ -68,14 +68,15 @@ class TextEditor(RWWidget, Ui_Form):
             self.showOtherOntology)
         #self.plainTextEdit.textChanged.connect(self.commit)
         self.ontologySelector.setCurrentIndex(-1)
-        self.textChanged = False
         
         self.timer = QTimer(self)
+        self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.commit)
-        self.timer.start(10000);
         
     def setTextChanged(self):
-        self.textChanged = True
+        self.timer.stop()
+        self.timer.start(3000)
+         
     def _print_(self):
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted :
@@ -338,9 +339,7 @@ class TextEditor(RWWidget, Ui_Form):
 
     def commit(self):
         """ Overrides commit from RWWidget. """
-        if self.textChanged == False:
-            return
-        self.textChanged = False
+
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
             return
