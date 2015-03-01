@@ -68,7 +68,7 @@ class HierarchyWidget(RWWidget, Ui_Form):
         """ Initializes the hierarchy widget. """
         super(HierarchyWidget, self).__init__(mainwindow)
         self.setupUi(self.mw)
-        self.refresh()
+        #self.refresh()
         self.relationSelector.setCurrentIndex(-1)
         self.relationSelector.currentIndexChanged.connect(self.refresh)
         self.rootSelector.setCurrentIndex(-1)
