@@ -1,5 +1,7 @@
-class TextEditor {
-	__init__(mainwindow)
+== Texteditor ==
+   * Removed: show_autocomplete(txt  String)  String[], because Qt does this automatically
+
+   * Added:
 	setTextChanged()
 	_initNumberBar()
 	_updateOntologySelector()
@@ -21,4 +23,3 @@ class TextEditor {
 	hideFrom(line)
 	insertCompletion(completion)
 	commit()
-}
