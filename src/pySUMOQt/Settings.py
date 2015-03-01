@@ -11,6 +11,7 @@ This module contains:
 import pysumo
 from PySide.QtCore import QSettings, Qt
 from PySide.QtGui import QApplication, QColor
+from pysumo.syntaxcontroller import Ontology
 
 class WSettings(QSettings):
     """ This class represents the settings of the widgets in pySUMO's GUI.  The
@@ -34,6 +35,7 @@ class LayoutManager(QSettings):
         self.mainwindow = MainWindow
     
     def saveLayout(self):
+        self.clear()
         self.savePositionState(self.mainwindow)
         self.saveSizeState(self.mainwindow)
         self.setValue("mainWindow/state", self.mainwindow.saveState())
@@ -68,11 +70,35 @@ class LayoutManager(QSettings):
         self.restoreRecentOntologyHistory()
         
     def saveRecentOntologyHistory(self):
-        pass
+        actions = self.mainwindow.menuRecent_Ontologies.actions()
+        self.beginWriteArray("RecentOntologies")
+        idx = 0
+        for action in actions :
+            data = action.data()
+            if not data is None and type(data) == Ontology :
+                self.setArrayIndex(idx)
+                self.setValue("name", data.name)
+                self.setValue("path", data.path)
+                self.setValue("url", data.url)
+                action_log = data.action_log
+                log_io = action_log.log_io
+                lpath = log_io.path
+                self.setValue("lpath", lpath)
+                idx = idx + 1
+        self.endArray()
 
     def restoreRecentOntologyHistory(self):
-        pass
-    
+        size = self.beginReadArray("RecentOntologies")
+        for i in range(size) :
+            self.setArrayIndex(i)
+            name = self.value("value")
+            path = self.value("path")
+            url = self.value("url")
+            lpath = self.value("lpath")
+            ontology = Ontology(path, name, url, lpath)
+            self.mainwindow.addOntology(ontology)
+        self.endArray()
+
     def restoreGraphWidgets(self):
         graphWidgetsCount = self.value("GraphWidgets/count")
         if graphWidgetsCount is None :

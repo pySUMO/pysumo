@@ -63,9 +63,9 @@ class TextEditor(RWWidget, Ui_Form):
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
 
-        self._updateOntologySelector()
         self.ontologySelector.currentIndexChanged[str].connect(
             self.showOtherOntology)
+        self._updateOntologySelector()
         self.plainTextEdit.textChanged.connect(self.commit)
         self.ontologySelector.setCurrentIndex(-1)
         
@@ -105,9 +105,18 @@ class TextEditor(RWWidget, Ui_Form):
             self.number_bar.updateContents)
 
     def _updateOntologySelector(self):
+        current = self.ontologySelector.currentText()
+        self.ontologySelector.currentIndexChanged[str].disconnect(self.showOtherOntology)
         self.ontologySelector.clear()
+        index = -1
+        count = 0
         for i in self.getIndexAbstractor().ontologies :
+            if current == i.name :
+                index = count
             self.ontologySelector.addItem(i.name, i)
+            count = count + 1
+        self.ontologySelector.setCurrentIndex(index)
+        self.ontologySelector.currentIndexChanged[str].connect(self.showOtherOntology)
 
     @Slot(str)
     def showOtherOntology(self, ontologyname):
