@@ -108,9 +108,16 @@ class GraphWidget(RWWidget, Ui_Form):
         super(GraphWidget, self).refresh()
     
     def _updateActiveOntology(self):
+        currentText = self.activeOntology.currentText()
         self.activeOntology.clear()
-        self.activeOntology.addItems(
-            [i.name for i in self.getIndexAbstractor().ontologies])
+        idx = -1
+        count = 0
+        for i in self.getIndexAbstractor().ontologies :
+            if currentText == i.name :
+                idx = count
+            self.activeOntology.addItem(i.name, i)
+            count = count + 1
+        self.activeOntology.setCurrentIndex(idx)
 
     def searchNode(self, search):
         """Search the node and focus the GraphicView to the node """

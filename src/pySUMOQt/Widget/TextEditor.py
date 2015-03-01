@@ -68,6 +68,7 @@ class TextEditor(RWWidget, Ui_Form):
         self._updateOntologySelector()
         self.ontologySelector.currentIndexChanged[str].connect(
             self.showOtherOntology)
+
         self.ontologySelector.setCurrentIndex(-1)
         
         self.timer = QTimer(self)
@@ -128,10 +129,22 @@ class TextEditor(RWWidget, Ui_Form):
             self.number_bar.updateContents)
 
     def _updateOntologySelector(self):
+<<<<<<< HEAD
         """ Update the ontology selector where you can select which Ontology to show in the editor"""
+=======
+        current = self.ontologySelector.currentText()
+        self.ontologySelector.currentIndexChanged[str].disconnect(self.showOtherOntology)
+>>>>>>> The active ontologies are now saved in the gui layout settings and are restored at startup.
         self.ontologySelector.clear()
+        index = -1
+        count = 0
         for i in self.getIndexAbstractor().ontologies :
+            if current == i.name :
+                index = count
             self.ontologySelector.addItem(i.name, i)
+            count = count + 1
+        self.ontologySelector.setCurrentIndex(index)
+        self.ontologySelector.currentIndexChanged[str].connect(self.showOtherOntology)
 
     @Slot(str)
     def showOtherOntology(self, ontologyname):
