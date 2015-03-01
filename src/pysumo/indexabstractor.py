@@ -153,13 +153,26 @@ class IndexAbstractor:
         - KeyError
 
         """
-        term = self._find_term(term)
         try:
+            term = self._find_term(term)
             results = self.wordnet.locate_term(term)
+        except KeyError:
+            results = self._synonym_locate(normalize(term))
         except AttributeError:
             self.init_wordnet()
             results = self.wordnet.locate_term(term)
         return [' '.join([x[0], ''.join(['(', x[1].value, '):']), x[2]]) for x in results]
+
+    def _synonym_locate(self, term):
+        try:
+            ret = list()
+            synset = self.wordnet.find_synonym(term)
+            for syn in synset:
+                ret.extend(self.wordnet.locate_term(syn))
+            return ret
+        except AttributeError:
+            self.init_wordnet()
+            return self._synonym_locate(term)
 
 class AbstractGraph:
     """ An abstract representation of a subset of an Ontology as a collection
