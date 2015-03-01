@@ -8,10 +8,9 @@ This module contains:
 
 """
 
+import pysumo
 from PySide.QtCore import QSettings, Qt
 from PySide.QtGui import QApplication, QColor
-from pysumo import logger
-from os import environ
 
 class WSettings(QSettings):
     """ This class represents the settings of the widgets in pySUMO's GUI.  The
@@ -31,7 +30,7 @@ class WSettings(QSettings):
 class LayoutManager(QSettings):
     
     def __init__(self, MainWindow):
-        super(LayoutManager, self).__init__(logger.CONFIG_PATH + "/user-layout.ini", QSettings.IniFormat)
+        super(LayoutManager, self).__init__(pysumo.CONFIG_PATH + "/user-layout.ini", QSettings.IniFormat)
         self.mainwindow = MainWindow
     
     def saveLayout(self):
@@ -188,12 +187,12 @@ class PySumoSettings(QSettings):
         super(PySumoSettings, self).__init__(filepath, QSettings.IniFormat)
         
     def loadDefaults(self):
-        self.setValue("configPath", environ['HOME'] + "/pySUMO")
+        self.setValue("configPath", pysumo.CONFIG_PATH)
         self.setValue("maxQueueSize", 10)
         self.setValue("maxUndoRedoQueueSize", 10)
         self.setValue("flushWriteQueuesTimeout", 10)
-        self.setValue("logOutputPath", logger.CONFIG_PATH)
-        self.setValue("socketOutputPath", logger.CONFIG_PATH)
+        self.setValue("logOutputPath", pysumo.CONFIG_PATH)
+        self.setValue("socketOutputPath", pysumo.CONFIG_PATH)
         self.setValue("logLevel", 10)
         defFont = QApplication.font().family()
         defSize = QApplication.font().pointSize()

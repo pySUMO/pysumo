@@ -6,6 +6,7 @@ This module contains:
 
 """
 
+import pysumo
 from . import parser
 
 class WordNet:
@@ -21,7 +22,10 @@ class WordNet:
     """
 
     def __init__(self):
-        self.mapping = parser.wparse('data')
+        try:
+            self.mapping = parser.wparse(pysumo.CONFIG_PATH)
+        except FileNotFoundError:
+            self.mapping = parser.wparse(pysumo.PACKAGE_DATA)
 
 
     def locate_term(self, term):
