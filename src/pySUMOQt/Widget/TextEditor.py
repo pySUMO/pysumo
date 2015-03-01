@@ -66,7 +66,7 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
         self.plainTextEdit.textChanged.connect(self.setTextChanged)
         self._updateOntologySelector()
-        self.ontologySelector.currentIndexChanged[str].connect(
+        self.ontologySelector.currentIndexChanged[int].connect(
             self.showOtherOntology)
 
         self.ontologySelector.setCurrentIndex(-1)
@@ -129,12 +129,9 @@ class TextEditor(RWWidget, Ui_Form):
             self.number_bar.updateContents)
 
     def _updateOntologySelector(self):
-<<<<<<< HEAD
         """ Update the ontology selector where you can select which Ontology to show in the editor"""
-=======
         current = self.ontologySelector.currentText()
-        self.ontologySelector.currentIndexChanged[str].disconnect(self.showOtherOntology)
->>>>>>> The active ontologies are now saved in the gui layout settings and are restored at startup.
+        self.ontologySelector.currentIndexChanged[int].disconnect(self.showOtherOntology)
         self.ontologySelector.clear()
         index = -1
         count = 0
@@ -144,15 +141,18 @@ class TextEditor(RWWidget, Ui_Form):
             self.ontologySelector.addItem(i.name, i)
             count = count + 1
         self.ontologySelector.setCurrentIndex(index)
-        self.ontologySelector.currentIndexChanged[str].connect(self.showOtherOntology)
+        if index == -1 :
+            # the ontology was removed.
+            self.showOtherOntology(index)
+        self.ontologySelector.currentIndexChanged[int].connect(self.showOtherOntology)
 
-    @Slot(str)
-    def showOtherOntology(self, ontologyname):
+    @Slot(int)
+    def showOtherOntology(self, idx):
         """ Show other ontology in the plaintextedit
             
             Arguments:
             
-            - ontologyname: The name (str representation)
+            - idx: The id of the current Ontologyselector
         """
         dced = False
         try:
@@ -161,7 +161,10 @@ class TextEditor(RWWidget, Ui_Form):
             dced = True
 
         idx = self.ontologySelector.currentIndex()
+
         if idx == -1 :
+            self.plainTextEdit.setEnabled(False)
+            self.plainTextEdit.clear()
             return
         ontologyname = self.ontologySelector.currentText()
         for i in self.getIndexAbstractor().ontologies:

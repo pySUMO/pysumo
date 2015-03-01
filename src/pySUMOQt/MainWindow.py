@@ -108,6 +108,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     """
     
     ontologyAdded = Signal(Ontology)
+    ontologyRemoved = Signal(Ontology)
     synchronizeRequested = Signal()
     def __init__(self):
         """ Constructs the main window.  """
@@ -172,6 +173,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             wrappedWidget.plainTextEdit.installEventFilter(widget)
             wrappedWidget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(wrappedWidget._updateOntologySelector)
+            self.ontologyRemoved.connect(wrappedWidget._updateOntologySelector)
         elif widgetType == "DocumentationWidget" :
             wrappedWidget = DocumentationWidget(widget)
             widget.setPrefixName("Documentation Widget")
@@ -186,6 +188,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             wrappedWidget.graphicsView.installEventFilter(widget)
             wrappedWidget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(wrappedWidget._updateActiveOntology)
+            self.ontologyRemoved.connect(wrappedWidget._updateActiveOntology)
         if wrappedWidget is None :
             self.log.error("can not create widget with type " + widgetType)
             return
@@ -439,7 +442,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         actionClose.setIcon(icon)
         actionClose.setIconVisibleInMenu(True)
         actionClose.setData(ontology)
-        actionClose.triggered.connect(partial(self._closeOntology, ontology))
+        actionClose.triggered.connect(partial(self._closeOntology_, ontology, ontologyMenu))
         ontologyMenu.addSeparator()
         # Add ontology menu to menu bar
         self.menuOntology.addMenu(ontologyMenu)
@@ -466,9 +469,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         ''' TODO: '''
         pass
 
-    def _closeOntology(self, ontology):
-        ''' TODO: '''
-        pass
+    def _closeOntology_(self, ontology, ontologyMenu):
+        RWWidget.SyntaxController.remove_ontology(ontology)
+        self.ontologyRemoved.emit(ontology)
+        # remove ontology in active ones.
+        ontologyMenu.deleteLater()
 
 def main():
     app = QApplication(sys.argv)
