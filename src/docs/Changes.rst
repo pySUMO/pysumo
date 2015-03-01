@@ -61,3 +61,51 @@ pySUMOQt
 TextEditor
 ----------
 * remove show autocomplete – Qt does this on its own
+* Added
+      * Functions
+	setTextChanged()
+	_initNumberBar()
+	_updateOntologySelector()
+	_hideLines(lines)
+	_showLines(lines)
+	_zoomOut_()
+	_zoomIn_()
+	showOtherOntology(ontologyname)
+	expandIfBracketRemoved()
+	increaseSize()
+	decreaseSize()
+	expandAll()
+	hideAll()
+	getLayoutWidget()
+	numberbarPaint(number_bar, event)
+	initAutocomplete()
+	searchCompletion()
+	toggleVisibility(line)
+	hideFrom(line)
+	insertCompletion(completion)
+	commit()
+
+Introduce SyntaxHighlightSetting to handle user defined Syntax Highlight Rules
+
+class SyntaxHighlightSetting()
+__init__( expression, font_weight, font_color, expression_end='')
+createFormat()
+get_format()
+getValues()
+serialize()
+deserialize( string)
+
+
+Introduce class SyntaxHighlighter
+class SyntaxHighlighter
+__init__( document)
+highlightBlock( text)
+
+Introduce Numberbar because Qt does not do this on his own
+class NumberBar(QWidget)
+__init__( edit)
+paintEvent( event)
+adjustWidth( count)
+updateContents( rect, scroll)
+mouseDoubleClickEvent( event)
+
