@@ -46,3 +46,10 @@ class WordNet:
         - String[]
 
         """
+        ret = set()
+        w = word.replace(' ', '_')
+        for key, value in self.mapping.items():
+            for wn_item in value:
+                if w in [x[0] for x in wn_item.synset]:
+                    ret.add(key)
+        return ret
