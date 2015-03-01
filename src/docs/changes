@@ -1,7 +1,8 @@
 == Texteditor ==
-   * Removed: show_autocomplete(txt  String)  String[], because Qt does this automatically
+   * Removed show_autocomplete(txt  String)  String[], because Qt does this automatically
 
-   * Added:
+   * Added
+      * Functions
 	setTextChanged()
 	_initNumberBar()
 	_updateOntologySelector()
@@ -23,3 +24,27 @@
 	hideFrom(line)
 	insertCompletion(completion)
 	commit()
+
+Introduce SyntaxHighlightSetting to handle user defined Syntax Highlight Rules
+
+class SyntaxHighlightSetting()
+__init__( expression, font_weight, font_color, expression_end='')
+createFormat()
+get_format()
+getValues()
+serialize()
+deserialize( string)
+
+
+Introduce class SyntaxHighlighter
+class SyntaxHighlighter
+__init__( document)
+highlightBlock( text)
+
+Introduce Numberbar because Qt does not do this on his own
+class NumberBar(QWidget)
+__init__( edit)
+paintEvent( event)
+adjustWidth( count)
+updateContents( rect, scroll)
+mouseDoubleClickEvent( event)
