@@ -63,7 +63,7 @@ class TextEditor(RWWidget, Ui_Form):
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
 
-        self.ontologySelector.currentIndexChanged[str].connect(
+        self.ontologySelector.currentIndexChanged[int].connect(
             self.showOtherOntology)
         self._updateOntologySelector()
         self.plainTextEdit.textChanged.connect(self.commit)
@@ -106,7 +106,7 @@ class TextEditor(RWWidget, Ui_Form):
 
     def _updateOntologySelector(self):
         current = self.ontologySelector.currentText()
-        self.ontologySelector.currentIndexChanged[str].disconnect(self.showOtherOntology)
+        self.ontologySelector.currentIndexChanged[int].disconnect(self.showOtherOntology)
         self.ontologySelector.clear()
         index = -1
         count = 0
@@ -116,12 +116,16 @@ class TextEditor(RWWidget, Ui_Form):
             self.ontologySelector.addItem(i.name, i)
             count = count + 1
         self.ontologySelector.setCurrentIndex(index)
-        self.ontologySelector.currentIndexChanged[str].connect(self.showOtherOntology)
+        if index == -1 :
+            # the ontology was removed.
+            self.showOtherOntology(index)
+        self.ontologySelector.currentIndexChanged[int].connect(self.showOtherOntology)
 
-    @Slot(str)
-    def showOtherOntology(self, ontologyname):
-        idx = self.ontologySelector.currentIndex()
+    @Slot(int)
+    def showOtherOntology(self, idx):
         if idx == -1 :
+            self.plainTextEdit.setEnabled(False)
+            self.plainTextEdit.clear()
             return
         ontologyname = self.ontologySelector.currentText()
         for i in self.getIndexAbstractor().ontologies:

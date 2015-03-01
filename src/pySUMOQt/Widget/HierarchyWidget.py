@@ -96,7 +96,7 @@ class HierarchyWidget(RWWidget, Ui_Form):
         model.setStringList(nodeList)
         self.createdNodes = createdNodes
         self.rootSelector.setModel(model)
-        assert self.rootSelector.count() == len(createdNodes)
+        self.rootSelector.setCurrentIndex(-1)
         
     def findNodeByText(self, val):
         if not self.createdNodes is None :
@@ -108,6 +108,7 @@ class HierarchyWidget(RWWidget, Ui_Form):
     def _relationChanged_(self, val):
         self.treeWidget.clearSelection()
         if val == -1 :
+            self.treeWidget.collapseAll()
             return
         else :
             textVal = self.rootSelector.itemText(val)
