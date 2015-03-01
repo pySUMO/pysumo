@@ -15,7 +15,7 @@ from atexit import register as atexit
 from io import BytesIO
 from random import SystemRandom
 
-from . import CONFIG_PATH
+from pysumo import CONFIG_PATH
 
 class ActionLog:
     """ The pySUMO action log. The SyntaxController queues a new log entry before every

@@ -9,24 +9,26 @@ This module contains:
 """
 
 from io import StringIO, BytesIO
-from os import environ, listdir, fdopen, remove
+from os import listdir, fdopen, remove
 from os.path import basename, isdir, join
-from .logger import actionlog
-from . import parser
 from tempfile import mkstemp
 from subprocess import Popen, PIPE, DEVNULL
 
-def get_ontologies(packaged='/usr/local/share/pysumo', user='/'.join([environ['HOME'], '.pysumo'])):
+import pysumo
+from .logger import actionlog
+from . import parser
+
+def get_ontologies():
     """ Returns a set of all ontologies provided by pysumo as well as local ontologies. """
     ret = set()
-    if isdir(packaged):
-        for f in listdir(packaged):
+    if isdir(pysumo.PACKAGE_DATA):
+        for f in listdir(pysumo.PACKAGE_DATA):
             if f.endswith(".kif"):
-                ret.add(Ontology(join(packaged, f)))
-    if isdir(user):
-        for f in listdir(user):
+                ret.add(Ontology(join(pysumo.PACKAGE_DATA, f)))
+    if isdir(pysumo.CONFIG_PATH):
+        for f in listdir(pysumo.CONFIG_PATH):
             if f.endswith(".kif"):
-                ret.add(Ontology(join(user, f)))
+                ret.add(Ontology(join(pysumo.CONFIG_PATH, f)))
     return ret
 
 class SyntaxController:

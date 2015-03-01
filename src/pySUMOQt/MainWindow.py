@@ -12,6 +12,7 @@ from signal import signal, SIGINT
 from pickle import loads
 from struct import unpack
 import logging
+import pysumo
 import os
 import sys
 
@@ -134,7 +135,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.fileChooser = QFileDialog(self)  
         self.dialog = QPrintDialog()
         self.userLayout = LayoutManager(self)
-        filepath = logger.CONFIG_PATH + "/settings.ini"
+        filepath = pysumo.CONFIG_PATH + "/settings.ini"
         exist = False
         try :
             with open(filepath) as f :

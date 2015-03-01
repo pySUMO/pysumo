@@ -76,7 +76,7 @@ class syntaxTestCase(unittest.TestCase):
         self.assertListEqual(mterm[self.milo], ['( subclass OrganismRemains OrganicObject )', '( documentation OrganismRemains EnglishLanguage "An&%instance of &%OrganismRemains is &%Dead matter of aformerly &%Living &%Organism: &%Plant, &%Animal, or&%Microorganism.  An &%instance of &%OrganismRemains mightor might not be recognizable as the remains of a particularkind or species of organism, depending on the cause of the&%Organism\'s &%Death (heart failure, stroke, roadkill,dismemberment, etc.), the elapsed time since death, thespeed of decomposition, and any post-mortem processing ofthe dead organism (embalming, cremation, mummification,boiling, consumption as food, etc.)." )'])
 
     def test4GetOntologies(self):
-        ontologies = get_ontologies(user='data')
+        ontologies = get_ontologies()
         self.assertIn(Ontology('data/Merge.kif'), ontologies)
         self.assertIn(Ontology('data/MILO.kif'), ontologies)
 
