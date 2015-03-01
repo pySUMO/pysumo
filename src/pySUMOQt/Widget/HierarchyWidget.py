@@ -3,6 +3,7 @@
 
 from PySide.QtCore import Qt
 from PySide.QtGui import QApplication, QMainWindow, QTreeWidgetItem, QAbstractItemView
+from PySide.QtGui import QStringListModel
 import sys
 
 from pySUMOQt.Designer.HierarchyWidget import Ui_Form
@@ -16,6 +17,9 @@ class OntologyHierarchyNode(QTreeWidgetItem):
         if data is not None :
             self.setText(0, data)
         self.dataObj = data
+        
+    def __str__(self, *args, **kwargs):
+        return self.dataObj
         
 def buildRootNode(relations, treeview):
     """ Build the Qtreeitem from the abstract graph and it's children."""
@@ -40,11 +44,12 @@ def buildRootNode(relations, treeview):
                     break
             if subNode is None :
                 subNode = OntologyHierarchyNode(data=j)
-                createdNodes.append(node)
+                createdNodes.append(subNode)
             node.addChild(subNode)
         if not foundNode :
             items.append(node)
     treeview.addTopLevelItems(items)
+    return createdNodes
         
 class HierarchyWidget(RWWidget, Ui_Form):
 
@@ -65,33 +70,56 @@ class HierarchyWidget(RWWidget, Ui_Form):
         self.setupUi(self.mw)
         self.refresh()
         self.relationSelector.setCurrentIndex(-1)
-        self.relationSelector.currentIndexChanged[int].connect(self._selectionChanged_)
-#         node = QTreeWidgetItem()
-#         node.setText(0, "Ontology")
-#         self.treeWidget.addTopLevelItem(node)
+        self.relationSelector.currentIndexChanged.connect(self.refresh)
+        self.rootSelector.setCurrentIndex(-1)
+        self.rootSelector.currentIndexChanged[int].connect(self._relationChanged_)
+        self.createdNodes = None
         
     def refresh(self):
         RWWidget.refresh(self)
-        abstractGraph= self.IA.get_graph([(0, "instance")])
+        idx = self.relationSelector.currentIndex()
+        self.treeWidget.clear()
+        variant = None
+        if idx != -1 :
+            variant = self.relationSelector.currentText()
+        if variant is None :
+            return
+        abstractGraph = self.IA.get_graph([(0, variant)])
         if abstractGraph is None or len(abstractGraph.relations) == 0:
             return
-        self.treeWidget.clear()
-        buildRootNode(abstractGraph.relations, treeview=self.treeWidget)
-        self.relationSelector.setModel(self.treeWidget.model())
+        createdNodes = buildRootNode(abstractGraph.relations, treeview=self.treeWidget)
+        self.rootSelector.clear()
+        model = QStringListModel()
+        nodeList = list()
+        for i in createdNodes :
+            nodeList.append(i.text(0))
+        nodeList.sort()
+        model.setStringList(nodeList)
+        self.createdNodes = createdNodes
+        self.rootSelector.setModel(model)
+        assert self.rootSelector.count() == len(createdNodes)
         
-    def _selectionChanged_(self, val):
+    def findNodeByText(self, val):
+        if not self.createdNodes is None :
+            for i in self.createdNodes :
+                if i.text(0) == val :
+                    return i
+        return None
+        
+    def _relationChanged_(self, val):
         self.treeWidget.clearSelection()
         if val == -1 :
             return
         else :
-            textVal = self.relationSelector.itemText(val)
-            objs = self.treeWidget.findItems(textVal, Qt.MatchCaseSensitive)
-            if objs is not None and len(objs) == 1 :
-                node = objs[0]
+            textVal = self.rootSelector.itemText(val)
+            node = self.findNodeByText(textVal)
+            if node is not None :
+                idx = self.treeWidget.indexFromItem(node, 0)
+                node = self.treeWidget.itemFromIndex(idx)
                 self.treeWidget.setItemExpanded(node, True)
                 self.treeWidget.setItemSelected(node, True)
                 self.treeWidget.scrollToItem(node, QAbstractItemView.PositionAtCenter)
-                self.relationSelector.clearFocus()
+                self.rootSelector.clearFocus()
                 self.treeWidget.setFocus()
 
     def _expandAll_(self):
