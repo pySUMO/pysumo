@@ -147,7 +147,7 @@ Detail: Modules
 
 
    pysumo
-   pysumoQt
+   pySUMOQt
    Changes
 
 Errors
