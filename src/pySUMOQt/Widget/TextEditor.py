@@ -140,10 +140,11 @@ class TextEditor(RWWidget, Ui_Form):
             
             - ontologyname: The name (str representation)
         """
+        dced = False
         try:
             self.plainTextEdit.textChanged.disconnect(self.setTextChanged)
         except RuntimeError:
-            pass
+            dced = True
 
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
@@ -154,7 +155,8 @@ class TextEditor(RWWidget, Ui_Form):
                 self.plainTextEdit.setEnabled(True)
                 self.getWidget().setPlainText(
                     self.getIndexAbstractor().get_ontology_file(i).getvalue())
-                self.plainTextEdit.textChanged.connect(self.setTextChanged)
+                if not dced:
+                    self.plainTextEdit.textChanged.connect(self.setTextChanged)
                 return
         assert False
 
