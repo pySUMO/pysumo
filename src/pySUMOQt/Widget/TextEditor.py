@@ -55,34 +55,40 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.show()
         self.highlighter = SyntaxHighlighter(self.plainTextEdit.document(), settings)
         self.initAutocomplete()
-        QObject.connect(
-            self.getWidget(), SIGNAL('textChanged()'), self.searchCompletion)
+        
 
         self._initNumberBar()
         self.hidden = {}
         self.printer = QPrinter(QPrinterInfo.defaultPrinter())
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
-        self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
-
-        self.plainTextEdit.textChanged.connect(self.setTextChanged)
 
 
         self.canUndo = False
         self.canRedo = False
-        self.plainTextEdit.undoAvailable.connect(self.setCanUndo)
-        self.plainTextEdit.redoAvailable.connect(self.setCanRedo)
 
-        self.ontologySelector.currentIndexChanged[int].connect(
-            self.showOtherOntology)
 
-        self._updateOntologySelector()
         self.ontologySelector.setCurrentIndex(-1)
         
 
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.commit)
+
+
+        #Connects
+        self.getWidget().textChanged.connect(self.searchCompletion)
+        self.plainTextEdit.undoAvailable.connect(self.setCanUndo)
+        self.plainTextEdit.redoAvailable.connect(self.setCanRedo)
+
+        self.ontologySelector.currentIndexChanged[int].connect(
+            self.showOtherOntology)
+        self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
+
+        self.plainTextEdit.textChanged.connect(self.setTextChanged)
+
+        self._updateOntologySelector() #must be after connects
+
     
     @Slot()
     def setTextChanged(self):
