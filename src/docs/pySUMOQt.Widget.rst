@@ -12,7 +12,7 @@ Submodules
 ----------
 
 pySUMOQt.Widget.GraphWidget module
-----------------------------
+----------------------------------
 
 .. uml::
     !include ./UML/pySUMOQt/Widget/GraphWidget.iuml
@@ -25,7 +25,7 @@ pySUMOQt.Widget.GraphWidget module
     :show-inheritance:
 
 pySUMOQt.Widget.HierarchyWidget module
---------------------------------
+--------------------------------------
 
 .. uml::
     !include ./UML/pySUMOQt/Widget/HierarchyWidget.iuml
@@ -39,7 +39,7 @@ pySUMOQt.Widget.HierarchyWidget module
     :show-inheritance:
 
 pySUMOQt.Widget.TextEditor module
----------------------------
+---------------------------------
 
 .. uml::
     :scale: 70%
@@ -54,7 +54,7 @@ pySUMOQt.Widget.TextEditor module
     :show-inheritance:
 
 pySUMOQt.Widget.Widget module
------------------------
+-----------------------------
 
 .. uml::
     !include ./UML/pySUMOQt/Widget/Widget.iuml
@@ -68,7 +68,7 @@ pySUMOQt.Widget.Widget module
     :show-inheritance:
 
 pySUMOQt.Widget.DocumentationWidget module
-------------------------------------
+------------------------------------------
 
 .. uml::
     !include ./UML/pySUMOQt/Widget/DocumentationWidget.iuml
