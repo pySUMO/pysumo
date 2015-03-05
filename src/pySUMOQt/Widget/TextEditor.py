@@ -68,8 +68,8 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.redoAvailable.connect(self.setCanRedo)
         self.ontologySelector.currentIndexChanged[int].connect(
             self.showOtherOntology)
-        self._updateOntologySelector()
         self.plainTextEdit.textChanged.connect(self.commit)
+        self._updateOntologySelector()
         self.ontologySelector.setCurrentIndex(-1)
         
     def setCanUndo(self, b):
@@ -137,13 +137,14 @@ class TextEditor(RWWidget, Ui_Form):
             self.ontologySelector.addItem(i.name, i)
             count = count + 1
         self.ontologySelector.setCurrentIndex(index)
-        if index == -1 :
+        # if index == -1 :
             # the ontology was removed.
-            self.showOtherOntology(index)
+        #    self.showOtherOntology(index)
         self.ontologySelector.currentIndexChanged[int].connect(self.showOtherOntology)
 
     @Slot(int)
     def showOtherOntology(self, idx):
+        self.plainTextEdit.textChanged.disconnect(self.commit)
         if idx == -1 :
             self.plainTextEdit.setEnabled(False)
             self.plainTextEdit.clear()
@@ -154,7 +155,9 @@ class TextEditor(RWWidget, Ui_Form):
                 self.plainTextEdit.setEnabled(True)
                 self.getWidget().setPlainText(
                     self.getIndexAbstractor().get_ontology_file(i).getvalue())
+                self.plainTextEdit.textChanged.connect(self.commit)
                 return
+        self.plainTextEdit.textChanged.connect(self.commit)
         assert False
 
     @Slot()
