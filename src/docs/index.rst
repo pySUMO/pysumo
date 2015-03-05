@@ -150,6 +150,60 @@ Detail: Modules
    pySUMOQt
    Changes
 
+Tests
+=====
+ActionLog
+---------
+* Queue the addition of an ontology to the ActionLog
+* Initialize an ActionLog with an ontology
+* Modify an ontology and store the changes
+* Assert that undoing the last action returns the previous state
+* Assert that undo/redo is invariant
+* Make sure the queue auto-flushes when exceeding size
+* Check that addition queue is overwritten when new changes are added and the old changes have not been OK'd.
+* Assert the invariance of excessive undoes
+* Assert the invariance of excessive redoes
+* Check that ActionLog copes with high workloads
+
+IndexAbstractor
+---------------
+* Assert than normalize() normalizes terms correctly.
+* Assert that the index is built correctly.
+* Test search on various terms
+* Test WordNet search and self-initialization.
+* Build several AbstractGraphs and check their contents
+* Test that get_ontology_file returns the correct kif
+* Test that adding multiple ontologies works
+* Test that get_completions returns a correct list of terms
+
+Parser
+------
+wParse
+^^^^^^
+* Check that Tokenizer works on single lines
+* Check that whole WordNet parses successfully
+
+kifParse
+^^^^^^^^
+* Check invariance of kifparse/kifserialize
+* Test that parsing Government.kif works
+
+SyntaxController
+----------------
+* Assert that add_ontology() adds an AST equivalent to the one produced by kifparse()
+* Assert the invariance of redundant adds
+* Assert that adding and then deleting an ontology is invariant
+* Check that adding two ontologies works correctly
+* Assert that get_ontologies() lists the correct ontologies
+* Assert that modifying the ontology  works correctly
+* Assert that parsing diffs works correctly
+* Assert that undo/redo work correctl
+
+WordNet
+-------
+* Check functionality of locate_term
+* Check functionality of find_synonym
+
 Errors
 ==========
 +-------------------+--------------------------------------------+
