@@ -27,7 +27,7 @@ from pySUMOQt.Designer.MainWindow import Ui_mainwindow
 from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
 from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
-from pySUMOQt.Widget.Widget import RWWidget
+from pySUMOQt.Widget.Widget import RWWidget, Widget
 
 from pySUMOQt.Settings import LayoutManager, PySumoSettings
 from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog, OptionDialog
@@ -36,6 +36,7 @@ from pysumo.syntaxcontroller import Ontology
 from pysumo import logger
 from pysumo.logger.infolog import InfoLog
 from pysumo.updater import update
+from _io import BytesIO
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -229,7 +230,26 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     def closeEvent(self, event):
         self.userLayout.saveLayout()
+        # check for unsaved files.
+        for o in Widget.IA.ontologies :
+            changed , diff = self.ontologyChanged(o)
+            if changed :
+                msgBox = QMessageBox(self)
+                msgBox.setText("The ontology file \"" + o.name + "\" has been modified.")
+                msgBox.setInformativeText("Do you want to save your changes?")
+                msgBox.setDetailedText(diff)
+                msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard)
+                msgBox.setDefaultButton(QMessageBox.Save)
+                ret = msgBox.exec_()
+                if ret == QMessageBox.Save :
+                    o.save()
         super(MainWindow, self).closeEvent(event)
+        
+    def ontologyChanged(self, ontology):
+        with open(ontology.path) as f :
+            b = BytesIO(f.read().encode('utf8'))
+        diff = ontology.action_log.log_io.diff(ontology.action_log.current, b).getvalue()
+        return diff != b'', diff.decode(encoding="utf-8", errors="strict")
 
     def createStatusBar(self):
         '''Create the status bar.'''
