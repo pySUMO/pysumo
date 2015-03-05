@@ -19,3 +19,5 @@ class Ontology {
 
 	+ __init__(path : String, name=None : String, url=None : String) : Ontology
 }
+
+SyntaxController --> Ontology : > uses

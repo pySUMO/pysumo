@@ -20,13 +20,12 @@ SyntaxController -- Actionlog : > uses
 SyntaxController --> Parser : > uses
 SyntaxController "1" --> "1" Updater
 SyntaxController "1" o--> "1" AbstractSyntaxTree
-SyntaxController "1" -- "many" Ontology
 Updater -- Ontology : > uses
 
 AbstractSyntaxTree --o IndexAbstractor
 IndexAbstractor --> "1..*" Ontology : > uses
 
 WordNet --> Parser : > uses
-IndexAbstractor --> WordNet : > uses
+IndexAbstractor "1" -- "1" WordNet
 
 AbstractSyntaxTree -- Ontology
