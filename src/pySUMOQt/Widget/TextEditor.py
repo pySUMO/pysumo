@@ -66,7 +66,7 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
 
         self.plainTextEdit.textChanged.connect(self.setTextChanged)
-        self._updateOntologySelector()
+
 
         self.canUndo = False
         self.canRedo = False
@@ -76,6 +76,7 @@ class TextEditor(RWWidget, Ui_Form):
         self.ontologySelector.currentIndexChanged[int].connect(
             self.showOtherOntology)
 
+        self._updateOntologySelector()
         self.ontologySelector.setCurrentIndex(-1)
         
 
