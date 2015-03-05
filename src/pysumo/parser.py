@@ -16,7 +16,7 @@ from .logger import actionlog
 from enum import Enum
 from pickle import dumps
 
-def tokenize_docstring(chars, f):
+def _tokenize_docstring(chars, f):
     n = 0
     ret = []
 
@@ -27,31 +27,23 @@ def tokenize_docstring(chars, f):
         chars = "".join([chars, line])
     chars = chars.split('"')
     while len(chars) > 1:
-        c = tokenize(chars.pop(0))
+        c = _tokenize(chars.pop(0))
         ret.extend(c)
         ret.append("".join(['"',chars.pop(0),'"']))
-    ret.extend(tokenize(chars.pop(0)))
+    ret.extend(_tokenize(chars.pop(0)))
     return (ret, n)
 
 
-def tokenize(chars):
+def _tokenize(chars):
     return chars.replace('(', ' ( ').replace(')', ' ) ').split()
 
-def cleanup(chars):
+def _cleanup(chars):
     if '"' in chars and ';' in chars and chars.find(";") > chars.find('"'):
         return chars
     chars = chars.split(";")
     chars = chars[0]
     chars = chars.strip()
     return chars
-
-def atom(token):
-    "Numbers become numbers; every other token is a symbol."
-    try: return int(token)
-    except ValueError:
-        try: return float(token)
-        except ValueError:
-            return Symbol(token)
 
 def kifparse(infile, ontology, ast=None):
     """ Parse an ontology and return an AbstractSyntaxTree.
@@ -72,14 +64,14 @@ def kifparse(infile, ontology, ast=None):
     oldline = None
     linenumber = -1
     for i, line in enumerate(infile):
-        line = cleanup(line)
+        line = _cleanup(line)
         if line == "":
             continue
         if '"' in line:
-            line, n = tokenize_docstring(line, infile)
+            line, n = _tokenize_docstring(line, infile)
             i += n
         else:
-            line = tokenize(line)
+            line = _tokenize(line)
         if oldline != None:
             line = oldline + line
             oldline = None
