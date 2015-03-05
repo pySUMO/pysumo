@@ -67,39 +67,47 @@ class TextEditor(RWWidget, Ui_Form):
         self._updateOntologySelector()
         self.ontologySelector.currentIndexChanged[str].connect(
             self.showOtherOntology)
-        #self.plainTextEdit.textChanged.connect(self.commit)
         self.ontologySelector.setCurrentIndex(-1)
         
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.commit)
-        
+    
+    @Slot()
     def setTextChanged(self):
+        """Is called if the text changed signal is thrown and 
+        sets a timer of 3 seconds to reparse the ontology. """
         self.timer.stop()
         self.timer.start(3000)
     
+    @Slot()
     def refresh(self):
+        """ Updates the TextEditor regarding to latest indexabstractor changes"""
         self.showOtherOntology(self.ontologySelector.currentText())
         super(TextEditor, self).refresh()
              
     def _print_(self):
+        """ Creates a print dialog with the latest text"""
         dialog = QPrintDialog()
         if dialog.exec_() == QDialog.Accepted :
             doc = self.plainTextEdit.document()
             doc.print_(dialog.printer())
             
     def _quickPrint_(self):
+        """ No dialog, just print"""
         if self.printer is None :
             return
         doc = self.plainTextEdit.document()
         doc.print_(self.printer)
         
     def _printPreview_(self):
+        """ Create a print preview"""
         dialog = QPrintPreviewDialog()
         dialog.paintRequested.connect(self.plainTextEdit.print_)
         dialog.exec_()
         
     def _save_(self):
+        """ Save the ontology to disk"""
         idx = self.ontologySelector.currentIndex()
         ontology = self.ontologySelector.itemData(idx)
         if ontology is None :
@@ -108,6 +116,7 @@ class TextEditor(RWWidget, Ui_Form):
             ontology.save()
 
     def _initNumberBar(self):
+        """ Init the number bar"""
         self.number_bar = NumberBar(self)
         self.number_bar.setMinimumSize(QSize(30, 0))
         self.number_bar.setObjectName("number_bar")
@@ -118,16 +127,24 @@ class TextEditor(RWWidget, Ui_Form):
             self.number_bar.updateContents)
 
     def _updateOntologySelector(self):
+        """ Update the ontology selector where you can select which Ontology to show in the editor"""
         self.ontologySelector.clear()
         for i in self.getIndexAbstractor().ontologies :
             self.ontologySelector.addItem(i.name, i)
 
     @Slot(str)
     def showOtherOntology(self, ontologyname):
+        """ Show other ontology in the plaintextedit
+            
+            Arguments:
+            
+            - ontologyname: The name (str representation)
+        """
         try:
             self.plainTextEdit.textChanged.disconnect(self.setTextChanged)
         except RuntimeError:
             pass
+
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
             return
@@ -143,6 +160,8 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot()
     def expandIfBracketRemoved(self):
+        """ Check if a line with ( or ) was changed and expand the possible hidden lines   
+        """
         current_line = self.getWidget().document().findBlock(
             self.getWidget().textCursor().position()).blockNumber() + 1
         if current_line in self.hidden:
@@ -150,6 +169,9 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot()
     def increaseSize(self):
+        """ Increase the size of the font in the TextEditor
+        
+        """
         doc = self.getWidget().document()
         font = doc.defaultFont()
         font.setPointSize(font.pointSize() + 1)
@@ -157,10 +179,14 @@ class TextEditor(RWWidget, Ui_Form):
         doc.setDefaultFont(font)
         
     def _zoomIn_(self):
+        """ API of Widget - see increaseSize
+        This function is deprecated since pysumo 1.0 and will be merged with increaseSize
+        """
         self.increaseSize()
 
     @Slot()
     def decreaseSize(self):
+        """ Decrease the size of the font in the TextEditor"""
         doc = self.getWidget().document()
         font = doc.defaultFont()
         font.setPointSize(font.pointSize() - 1)
@@ -168,18 +194,24 @@ class TextEditor(RWWidget, Ui_Form):
         doc.setDefaultFont(font)
         
     def _zoomOut_(self):
+        """ API of Widget - see decreaseSize
+            This function is deprecated since pysumo 1.0 and will be merged with decreaseSize
+        """
         self.decreaseSize()
 
     @Slot()
     def expandAll(self):
+        """ Expands all hidden code blocks"""
         for see in list(self.hidden.keys()):
             self.toggleVisibility(see)
 
     def _expandAll_(self):
+        """ Stupid work of Kent"""
         self.expandAll()
 
     @Slot()
     def hideAll(self):
+        """ Collapse all code blocks (where possible)"""
         block = self.getWidget().document().firstBlock()
         while block.isValid():
             if block.isVisible():
@@ -188,6 +220,7 @@ class TextEditor(RWWidget, Ui_Form):
             block = block.next()
             
     def _collapseAll_(self):
+        """ Stupid work of Kent"""
         self.hideAll()
 
     def _hideLines(self, lines):
@@ -198,6 +231,13 @@ class TextEditor(RWWidget, Ui_Form):
             assert not block.isVisible()
 
     def _showLines(self, lines):
+        """ Show the lines not visible starting by lines
+        
+        Arguments:
+        
+        - lines: The first line followed by an unvisible block
+        
+        """
         for line in lines:
             block = self.getWidget().document().findBlockByNumber(line - 1)
             assert not block.isVisible(), "%r %r %r %r %r" % (
@@ -207,6 +247,7 @@ class TextEditor(RWWidget, Ui_Form):
             ), "there was an error hide/unhide line %r %r" % (line, block.text())
 
     def getLayoutWidget(self):
+        """ Returns the layout widget"""
         return self.widget
 
     def numberbarPaint(self, number_bar, event):
@@ -293,6 +334,7 @@ class TextEditor(RWWidget, Ui_Form):
             QKeySequence("Ctrl+Enter"), self.getWidget(), self.insertCompletion)
 
     def toggleVisibility(self, line):
+        """ Shows or hides a line """
         if line in self.hidden:
             self._showLines(self.hidden[line])
             del self.hidden[line]
@@ -305,6 +347,7 @@ class TextEditor(RWWidget, Ui_Form):
         self.number_bar.update()
 
     def hideFrom(self, line):
+        """ Hides a block starting by line. Do nothing if not hidable"""
         block = self.getWidget().document().findBlockByNumber(
             line - 1)
 
@@ -339,12 +382,14 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot(str)
     def insertCompletion(self, completion):
+        """ Adds the completion to current text"""
         tc = self.getWidget().textCursor()
         tc.movePosition(QTextCursor.StartOfWord, QTextCursor.KeepAnchor)
         tc.removeSelectedText()
         tc.insertText(completion)
 
     def getWidget(self):
+        """ Return the QPlainTextEdit Widget"""
         return self.plainTextEdit
 
     def commit(self):
@@ -360,7 +405,21 @@ class TextEditor(RWWidget, Ui_Form):
         RWWidget.commit(self)
 
 class SyntaxHighlightSetting():
-
+    """ This class contains a single Setting for a code block in the SyntaxHighlighter. 
+    
+    Variables:
+        
+        - expression: The regular expression of the syntax block
+        - expression_end: If the expression has a start and an end expression
+        - font_size
+        - font_color
+        - font_weight
+        - font_style
+        - font_underline
+        - use_font_size
+        
+    
+    """
     def __init__(self, expression, font_family, font_size, font_color, font_weight, font_style, font_underline, use_font_size, expression_end=''):
         self.expression = expression
         if expression_end != '':
@@ -375,6 +434,7 @@ class SyntaxHighlightSetting():
         self.createFormat()
 
     def createFormat(self):
+        """ Create a QTextCharformat and saves it in self.class_format"""
         self.class_format = QTextCharFormat()
         self.class_format.setFontFamily(self.font_family)
         if self.use_font_size :
@@ -518,7 +578,9 @@ class SyntaxHighlighter(QSyntaxHighlighter):
 
 
 class NumberBar(QWidget):
-
+    """ 
+    A widget for the numberbar on the left of QPlainTextEdit
+    """
     def __init__(self, edit):
         QWidget.__init__(self, edit.getWidget())
         self.edit = edit
@@ -554,21 +616,3 @@ class NumberBar(QWidget):
         assert self.edit.getWidget().document().findBlockByNumber(
             last - 1).isVisible()
         self.edit.toggleVisibility(last)
-
-
-if __name__ == "__main__":
-    application = QApplication(sys.argv)
-    mainwindow = QMainWindow()
-    x = TextEditor(mainwindow)
-    sumo = Ontology('../data/Merge.kif', name='SUMO')
-    milo = Ontology('../data/MILO.kif', name='MILO')
-    with open(sumo.path) as f:
-        kif = parser.kifparse(f, sumo)
-    with open(milo.path) as f:
-        mkif = parser.kifparse(f, milo)
-    x.getIndexAbstractor().update_index(kif)
-    x.getIndexAbstractor().update_index(mkif)
-    x._updateOntologySelector()
-    mainwindow.show()
-
-    sys.exit(application.exec_())
