@@ -53,7 +53,7 @@ def kifparse(infile, ontology, ast=None):
     - ontology: the ontology to parse
     - graph: a modified graph of this ontology
     - ast: the AST of ontologies which are needed from this ontology
-    -infile: the file object to parse
+    - infile: the file object to parse
 
     Returns:
 
