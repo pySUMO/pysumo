@@ -21,6 +21,13 @@ from pySUMOQt.Widget.Widget import RWWidget
 import weakref
 
 def insert_newlines(string, every=64):
+    """ Insert a newline after ’every‘ characters
+    
+        Arguments:
+        
+            - every : The amount of characters before a newline is inserted 
+            
+    """
     return '\n'.join(string[i:i + every] for i in range(0, len(string), every))
 
 
@@ -32,16 +39,24 @@ class QtNode(QGraphicsEllipseItem):
         self.callback = f
     
     def setNode(self, node):
+        """ Save the graphviz node"""
         self.node = node
         
     def itemChange(self, itemChange, val):
+        """ Override Qt
+        
+        Renew the arrows
+        """
         if (itemChange == QGraphicsItem.ItemPositionHasChanged):
             if self.callback is not None:
                 self.callback().renewplot()
         return super().itemChange(itemChange, val)
     
     def mouseDoubleClickEvent(self, event):
-
+        """ Override Qt
+        
+        Add a relation or save start relation point when double clicking
+        """
         if self.callback is not None:
             self.callback().addRelation(self)
         
@@ -65,7 +80,7 @@ class GraphWidget(RWWidget, Ui_Form):
         self.abstractGraph = None
         self.gv = None
         self.widget = self.layoutWidget
-        self.nodesToQNodes = None
+        self.nodesToQNodes = {}
         self.qLines = []
         self.qpens = {}
         self.lastScale = 1
@@ -85,6 +100,9 @@ class GraphWidget(RWWidget, Ui_Form):
 #             m.appendRow(QStandardItem(i))
     
     def refresh(self):
+        """ Override Widget
+        Updates the TextEditor regarding to latest indexabstractor changes
+        """
         self.newVariant()
         super(GraphWidget, self).refresh()
     
@@ -94,6 +112,7 @@ class GraphWidget(RWWidget, Ui_Form):
             [i.name for i in self.getIndexAbstractor().ontologies])
 
     def searchNode(self, search):
+        """Search the node and focus the GraphicView to the node """
         try:
             node = self.nodesToQNodes[search]
             self.graphicsView.centerOn(node)
@@ -101,6 +120,9 @@ class GraphWidget(RWWidget, Ui_Form):
             pass # TODO: Mach hier einen Log
         
     def addRelation(self, qnode):
+        """ Adds a relation or save a starting point
+        
+        """
         if self.startRelation != None: # yeah a new relation
             logging.info("Add relation from " + self.startRelation.node + " to " + qnode.node )
             addstr = "\n(" + self.relations.currentText() + " " + self.startRelation.node + " " + qnode.node + ")\n"
@@ -141,12 +163,20 @@ class GraphWidget(RWWidget, Ui_Form):
         
     @Slot(float)
     def changeScale(self, val):
+        """ Scale the GraphicView to val
+        
+        Arguments:
+        
+            - val: The value to scale to. In Designer: 0.01 <= val <= 5
+        
+        """
         toScale = val / self.lastScale
         self.lastScale = val
         self.graphicsView.scale(toScale, toScale)
 
     @Slot()
     def renewplot(self):
+        """ Do not layout anything, but redraw all lines"""
         scene = self.graphicsView.scene()
         self.roots = set()
         # scene.changed.disconnect(self.renewplot)
@@ -209,23 +239,36 @@ class GraphWidget(RWWidget, Ui_Form):
         self.renewplot()
 
     def createQtNode(self, node, posx, posy, color = QColor(255,150,150)):
-            qnode = QtNode(-40, -40, 80, 80)
-            qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
-            qnode.setPos(posx, posy)
-            qnode.setFlag(QGraphicsItem.ItemIsMovable)
-            qnode.setCallback(weakref.ref(self))
-            qnode.setNode(node)
-            qnode.setBrush(color)
-            txt = QGraphicsSimpleTextItem(qnode)
-            txt.setPos(-35, -25)
-            font = txt.font()
-            font.setPointSize(14)
-            txt.setFont(font)
-            txt.setText(insert_newlines(node, 8))
+        """ Create a QtNode with given position, color for given node
+        
+        Arguments:
             
-            return qnode
+            - node: The graphviz node
+            - posx: The x position from graphviz layout
+            - posy: The y position from graphviz layout
+            - color: The color of circle (red by default)
+        
+        """
+        qnode = QtNode(-40, -40, 80, 80)
+        qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
+        qnode.setPos(posx, posy)
+        qnode.setFlag(QGraphicsItem.ItemIsMovable)
+        qnode.setCallback(weakref.ref(self))
+        qnode.setNode(node)
+        qnode.setBrush(color)
+        txt = QGraphicsSimpleTextItem(qnode)
+        txt.setPos(-35, -25)
+        font = txt.font()
+        font.setPointSize(14)
+        txt.setFont(font)
+        txt.setText(insert_newlines(node, 8))
+        
+        return qnode
 
     def initMenu(self):
+        """
+        Configure the Widget to provide a handmade CustomContextMenu 
+        """
         self.graphicsView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.graphicsView.customContextMenuRequested.connect(self.showContextMenu)
     
@@ -256,6 +299,7 @@ class GraphWidget(RWWidget, Ui_Form):
                 self.searchNode(text)
     @Slot()
     def newRoot(self):
+        """ Change to new root set in the widget and redraw"""
         root = self.rootSelector.currentText()
         variant = [(0, self.relations.currentText())]
         if root == "---":
@@ -271,6 +315,7 @@ class GraphWidget(RWWidget, Ui_Form):
         self.plot()
         
     def newVariant(self):
+        """ Change to new variant set in the widget and redraw"""
         self.rootSelector.currentIndexChanged[str].disconnect(self.newRoot)
         self.rootSelector.clear()
         self.rootSelector.insertItem(0, "---")
@@ -279,6 +324,15 @@ class GraphWidget(RWWidget, Ui_Form):
         self.rootSelector.currentIndexChanged[str].connect(self.newRoot)
     
     def createGV(self, variant='instance', r=None, d=None):
+        """ Create a pygraphviz graph from pysumo abstract graph and layout it.
+        
+        Arguments: 
+            
+            - variant: The variant to use (e.g. instance)
+            - r: The root
+            - d: The depth (none for infinite depth
+        
+        """
         gv = pygraphviz.AGraph(strict=False)
         y = self.getIndexAbstractor().get_graph(variant, root=r, depth=d)
         colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
