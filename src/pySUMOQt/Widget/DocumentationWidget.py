@@ -3,9 +3,10 @@ Ontology. For example you can search WordNet for synonyms or
 print the definition for a selected term
 """
 
-from PySide.QtCore import Slot
+from PySide.QtCore import Slot, QTimer
 from PySide.QtGui import QApplication, QMainWindow
 from multiprocessing import Process, Pipe
+from atexit import register, unregister
 
 from pySUMOQt.Designer.DocumentationWidget import Ui_Form
 from .Widget import RWidget
@@ -18,6 +19,8 @@ class DocumentationWidget(RWidget, Ui_Form):
     _WN_PROCESS = None
     _WN_RECV = None
     _WN_SEND = None
+    _TIMER = QTimer()
+    _TIMER.setSingleShot(True)
 
     def __init__(self, mainwindow):
         """ Initializes the DocumentationWidget. """
@@ -29,6 +32,9 @@ class DocumentationWidget(RWidget, Ui_Form):
             (DocumentationWidget._WN_RECV, DocumentationWidget._WN_SEND) = Pipe(False)
             DocumentationWidget._WN_PROCESS = Process(target=DocumentationWidget._initialize, args=(DocumentationWidget._WN_SEND,))
             DocumentationWidget._WN_PROCESS.start()
+            register(DocumentationWidget._WN_PROCESS.terminate)
+            register(DocumentationWidget._WN_SEND.close)
+            register(DocumentationWidget._WN_RECV.close)
 
     @classmethod
     def _initialize(cls, pipe):
@@ -40,9 +46,16 @@ class DocumentationWidget(RWidget, Ui_Form):
         """ Uses the IndexAbstractor to search for all occurrences of
         string in the Ontology and displays them.  """
         if len(DocumentationWidget._WN_TROOL) == 1:
+            if not DocumentationWidget._WN_RECV.poll():
+                self._TIMER.timeout.connect(self.search)
+                self._TIMER.start(3000)
+                return
             DocumentationWidget._WN_TROOL.append(2)
             RWidget.IA.wordnet = DocumentationWidget._WN_RECV.recv()
             DocumentationWidget._WN_PROCESS.join()
+            unregister(DocumentationWidget._WN_PROCESS.terminate)
+            unregister(DocumentationWidget._WN_SEND.close)
+            unregister(DocumentationWidget._WN_RECV.close)
         try:
             searchOntology = self.getIndexAbstractor().search(
             self.lineEdit.text())
