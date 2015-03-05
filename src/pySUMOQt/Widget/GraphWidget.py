@@ -89,23 +89,9 @@ class GraphWidget(RWWidget, Ui_Form):
         RWWidget.refresh(self)
         self.newVariant()
         
-    def _redo_(self):
-        print("redoing from graph widget")
+    def getActiveOntology(self):
         idx = self.activeOntology.currentIndex()
-        ontology = self.activeOntology.itemData(idx)
-        if not ontology is None and type(ontology) == Ontology :
-            action_log = ontology.action_log
-            action_log.redo()
-            self.commit()
-            
-    def _undo_(self):
-        print("undoing from graph widget")
-        idx = self.activeOntology.currentIndex()
-        ontology = self.activeOntology.itemData(idx)
-        if not ontology is None and type(ontology) == Ontology :
-            action_log = ontology.action_log
-            action_log.undo()
-            self.commit()
+        return self.activeOntology.itemData(idx)
     
     def _updateActiveOntology(self):
         currentText = self.activeOntology.currentText()

@@ -62,12 +62,21 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
-
+        self.canUndo = False
+        self.canRedo = False
+        self.plainTextEdit.undoAvailable.connect(self.setCanUndo)
+        self.plainTextEdit.redoAvailable.connect(self.setCanRedo)
         self.ontologySelector.currentIndexChanged[int].connect(
             self.showOtherOntology)
         self._updateOntologySelector()
         self.plainTextEdit.textChanged.connect(self.commit)
         self.ontologySelector.setCurrentIndex(-1)
+        
+    def setCanUndo(self, b):
+        self.canUndo = b
+        
+    def setCanRedo(self, b):
+        self.canRedo = b
         
     def _print_(self):
         dialog = QPrintDialog()
@@ -85,21 +94,27 @@ class TextEditor(RWWidget, Ui_Form):
         dialog = QPrintPreviewDialog()
         dialog.paintRequested.connect(self.plainTextEdit.print_)
         dialog.exec_()
-        
-    def _save_(self):
-        idx = self.ontologySelector.currentIndex()
-        ontology = self.ontologySelector.itemData(idx)
-        if ontology is None :
-            return 
-        if type(ontology) is Ontology :
-            ontology.save()
             
+    def getActiveOntology(self):
+        idx = self.ontologySelector.currentIndex()
+        return self.ontologySelector.itemData(idx)
+    
     def _undo_(self):
-        self.plainTextEdit.undo()
+        if self.canUndo :
+            self.plainTextEdit.undo()
+            self.SyntaxController.add_ontology(self.getActiveOntology(), self.plainTextEdit.toPlainText())
+            self.commit()
+            return 
+        # RWWidget._undo_(self)
         
     def _redo_(self):
-        self.plainTextEdit.redo()
-
+        if self.canRedo :
+            self.plainTextEdit.redo()
+            self.SyntaxController.add_ontology(self.getActiveOntology(), self.plainTextEdit.toPlainText())
+            self.commit()
+            return
+        # RWWidget._redo_(self)
+        
     def _initNumberBar(self):
         self.number_bar = NumberBar(self)
         self.number_bar.setMinimumSize(QSize(30, 0))
