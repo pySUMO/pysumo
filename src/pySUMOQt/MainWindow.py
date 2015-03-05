@@ -248,10 +248,12 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     @Slot()
     def displayLog(self, socket):
-        data = socket.readAll().data()
-        slen = unpack(">L", data[:4])[0]
-        data = data[4:]
-        assert len(data) == slen
+        data = socket.read(4).data()
+        slen = unpack(">L", data)[0]
+        data = socket.read(slen).data()
+        while len(data) < slen:
+            data = data + socket.read(slen - len(data))
+        assert len(data) == slen, "%d data read does not equal %d data expected." % (len(data), slen)
         logrecord = logging.makeLogRecord(loads(data))
         self.statusBar.showMessage(logrecord.getMessage())
 
