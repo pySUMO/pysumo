@@ -26,7 +26,7 @@ Submodules
 ----------
 
 pysumo.indexabstractor module
---------------------------
+-----------------------------
 
 .. uml::
     !include ./UML/pysumo/IndexAbstractor.iuml
@@ -39,7 +39,7 @@ pysumo.indexabstractor module
     :show-inheritance:
 
 pysumo.wordnet module
---------------------
+----------------------
 .. uml::
     !include ./UML/pysumo/WordNet.iuml
 
@@ -52,7 +52,7 @@ pysumo.wordnet module
     :show-inheritance:
 
 pysumo.parser module
------------------
+--------------------
 
 .. uml::
     !include ./UML/pysumo/Parser.iuml
@@ -65,7 +65,7 @@ pysumo.parser module
     :show-inheritance:
 
 pysumo.syntaxcontroller module
----------------------------
+-------------------------------
 
 .. uml::
     !include ./UML/pysumo/SyntaxController.iuml
@@ -79,7 +79,7 @@ pysumo.syntaxcontroller module
     :show-inheritance:
 
 pysumo.updater module
-------------------
+---------------------
 
 .. uml::
     !include ./UML/pysumo/Updater.iuml

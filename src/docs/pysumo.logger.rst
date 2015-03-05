@@ -1,5 +1,5 @@
 pysumo.logger package
-==================
+=====================
 Module contents
 ---------------
 
@@ -12,7 +12,7 @@ Submodules
 ----------
 
 pysumo.logger.actionlog module
----------------------------
+-------------------------------
 
 .. uml::
    !include ./UML/pysumo/logger/Actionlog.iuml
@@ -25,7 +25,7 @@ pysumo.logger.actionlog module
     :show-inheritance:
 
 pysumo.logger.infolog module
--------------------------
+-----------------------------
 
 .. uml::
     !include ./UML/pysumo/logger/InfoLog.iuml

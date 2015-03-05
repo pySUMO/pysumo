@@ -26,4 +26,6 @@ DotGraph -- AbstractGraph
 GraphWidget "1" - "1" DotGraph
 GraphWidget o-- AbstractGraph
 
+QtNode -|> QGraphicsEllipseItem
+
 @enduml

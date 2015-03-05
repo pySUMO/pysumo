@@ -42,6 +42,7 @@ pySUMOQt.Widget.TextEditor module
 ---------------------------
 
 .. uml::
+    :scale: 70%
     !include ./UML/pySUMOQt/Widget/TextEditor.iuml
 
 |

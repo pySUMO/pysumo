@@ -148,6 +148,13 @@ Detail: Modules
 
    pysumo
    pySUMOQt
+
+Changes
+====================================
+
+.. toctree::
+   :maxdepth: 4
+   
    Changes
 
 Tests
