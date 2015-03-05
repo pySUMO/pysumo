@@ -1,5 +1,5 @@
 pysumo package
-===========
+==============
 This section describes the backing pysumorary of pySUMO. It contains listings and
 descriptions of all the modules and classes in the pySUMO core. The pysumo
 conforms to PEP 008.
