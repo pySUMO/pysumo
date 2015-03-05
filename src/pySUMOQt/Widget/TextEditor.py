@@ -64,21 +64,21 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
-<<<<<<< HEAD
+
         self.plainTextEdit.textChanged.connect(self.setTextChanged)
         self._updateOntologySelector()
-=======
+
         self.canUndo = False
         self.canRedo = False
         self.plainTextEdit.undoAvailable.connect(self.setCanUndo)
         self.plainTextEdit.redoAvailable.connect(self.setCanRedo)
->>>>>>> the rw widgets is can now save the ontology, undo and redo from action log.
+
         self.ontologySelector.currentIndexChanged[int].connect(
             self.showOtherOntology)
 
         self.ontologySelector.setCurrentIndex(-1)
         
-<<<<<<< HEAD
+
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.commit)
@@ -96,14 +96,14 @@ class TextEditor(RWWidget, Ui_Form):
         self.showOtherOntology(self.ontologySelector.currentText())
         super(TextEditor, self).refresh()
              
-=======
+
     def setCanUndo(self, b):
         self.canUndo = b
         
     def setCanRedo(self, b):
         self.canRedo = b
         
->>>>>>> the rw widgets is can now save the ontology, undo and redo from action log.
+
     def _print_(self):
         """ Creates a print dialog with the latest text"""
         dialog = QPrintDialog()
@@ -177,13 +177,14 @@ class TextEditor(RWWidget, Ui_Form):
             self.ontologySelector.addItem(i.name, i)
             count = count + 1
         self.ontologySelector.setCurrentIndex(index)
-        if index == -1 :
+        # if index == -1 :
             # the ontology was removed.
-            self.showOtherOntology(index)
+        #    self.showOtherOntology(index)
         self.ontologySelector.currentIndexChanged[int].connect(self.showOtherOntology)
 
     @Slot(int)
     def showOtherOntology(self, idx):
+
         """ Show other ontology in the plaintextedit
             
             Arguments:
@@ -198,6 +199,7 @@ class TextEditor(RWWidget, Ui_Form):
 
         idx = self.ontologySelector.currentIndex()
 
+
         if idx == -1 :
             self.plainTextEdit.setEnabled(False)
             self.plainTextEdit.clear()
@@ -208,9 +210,12 @@ class TextEditor(RWWidget, Ui_Form):
                 self.plainTextEdit.setEnabled(True)
                 self.getWidget().setPlainText(
                     self.getIndexAbstractor().get_ontology_file(i).getvalue())
+
                 if not dced:
                     self.plainTextEdit.textChanged.connect(self.setTextChanged)
+
                 return
+        self.plainTextEdit.textChanged.connect(self.commit)
         assert False
 
     @Slot()

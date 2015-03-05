@@ -20,7 +20,7 @@ from PySide.QtCore import QCoreApplication, Qt, Slot, QObject, SIGNAL
 from PySide.QtCore import QEvent, Signal
 from PySide.QtGui import QMainWindow, QApplication, QLabel, QPixmap
 from PySide.QtGui import QIcon, QDockWidget, QFileDialog, QPrintDialog
-from PySide.QtGui import QAction, QMenu
+from PySide.QtGui import QAction, QMenu, QMessageBox
 from PySide.QtNetwork import QLocalServer
 
 from pySUMOQt.Designer.MainWindow import Ui_mainwindow
@@ -458,6 +458,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         pass
 
     def _updateOntology_(self, ontology):
+        if not ontology is None and ontology.url is None :
+            QMessageBox.warning(self, "Can not perform an update.", "The ontology " + ontology.name + " has no url specified in it's configuration to perform an update.", QMessageBox.Ok, QMessageBox.Ok)
+            return 
         update(ontology, lambda x: RWWidget.SyntaxController.add_ontology(ontology, newversion=x.getvalue().decode('utf8')))
         self.synchronize()
 

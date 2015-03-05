@@ -48,7 +48,7 @@ class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
                 return
             else :
                 raise RuntimeError
-        ontology = Ontology(path, self.ontologyName.text())
+        ontology = Ontology(path, name=self.ontologyName.text())
         self.parent().addOntology(ontology)
         super(NewOntologyDialog, self).accept()
 
@@ -93,7 +93,7 @@ class OpenRemoteOntologyDialog(QDialog, Ui_OpenRemoteOntologyDialog):
                 return
             else :
                 raise RuntimeError
-        ontology = Ontology(path, self.name.text(), self.url.text())
+        ontology = Ontology(path, name=self.name.text(), url=self.url.text())
         # download the ontology (user must save to store ontology on disk)
         updater.update(ontology, lambda x: self.parent().addOntology(ontology, newversion=x.getvalue().decode('utf8')))
         super(OpenRemoteOntologyDialog, self).accept()
