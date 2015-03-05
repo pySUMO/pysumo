@@ -5,10 +5,10 @@ activate User
 User -> GraphWidget: Adds Node
 
 activate GraphWidget
-GraphWidget -> SyntaxController: parse_graph(graph)
+GraphWidget -> SyntaxController: add_ontology(ontology, newversion=kif)
 
 activate SyntaxController
-SyntaxController -> Parser: kifparse(ontology, graph)
+SyntaxController -> Parser: kifparse(file, ontology, ast)
 activate Parser
 Parser -> AbstractSyntaxTree: add_child(entry)
 
@@ -23,7 +23,7 @@ deactivate SyntaxController
 
 GraphWidget -> GraphWidget: commit()
 activate GraphWidget
-GraphWidget -> IndexAbstractor: index.replace(old_AST, new_AST)
+GraphWidget -> IndexAbstractor: index.update_index(new_AST)
 
 activate IndexAbstractor
 IndexAbstractor -> GraphWidget:
@@ -32,27 +32,17 @@ deactivate IndexAbstractor
 GraphWidget -> GraphWidget:
 deactivate GraphWidget
 
-GraphWidget -> IndexAbstractor: get_graph(variant, root, depth)
+GraphWidget -> IndexAbstractor: get_graph(variant, major, minor, root, depth)
 activate IndexAbstractor
 IndexAbstractor --> GraphWidget: return AbstractGraph
 deactivate IndexAbstractor
 
-destroy DotGraph
 
-GraphWidget -> DotGraph: init()
+GraphWidget -> GraphWidget: newVariant()
+GraphWidget -> GraphWidget: newRoot()
+GraphWidget -> GraphWidget: createGV()
+GraphWidget -> GraphWidget: plot()
 
-activate DotGraph
-DotGraph -> GraphWidget: return self
-deactivate DotGraph
-GraphWidget -> DotGraph: get_pic()
-activate DotGraph
-DotGraph --> GraphWidget: return picture
-deactivate DotGraph
-
-GraphWidget -> GraphWidget: draw_graph()
-activate GraphWidget
-GraphWidget -> GraphWidget:
-deactivate GraphWidget
 GraphWidget -> User: Display Graph
 deactivate GraphWidget
 deactivate User
