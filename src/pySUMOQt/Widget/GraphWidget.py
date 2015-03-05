@@ -65,6 +65,7 @@ class GraphWidget(RWWidget, Ui_Form):
         self.abstractGraph = None
         self.gv = None
         self.widget = self.layoutWidget
+        self.log = logging.getLogger('.' + __name__)
         self.nodesToQNodes = None
         self.qLines = []
         self.qpens = {}
@@ -102,7 +103,7 @@ class GraphWidget(RWWidget, Ui_Form):
         
     def addRelation(self, qnode):
         if self.startRelation != None: # yeah a new relation
-            logging.info("Add relation from " + self.startRelation.node + " to " + qnode.node )
+            self.log.info("Add relation from " + self.startRelation.node + " to " + qnode.node )
             addstr = "\n(" + self.relations.currentText() + " " + self.startRelation.node + " " + qnode.node + ")\n"
             self.startRelation = None
             ontology = None
@@ -118,7 +119,7 @@ class GraphWidget(RWWidget, Ui_Form):
             self.SyntaxController.add_ontology(ontology, newversion=x.getvalue())
             self.commit()
         else:
-            logging.info("Starting node is " + qnode.node)
+            self.log.info("Starting node is " + qnode.node)
             self.startRelation = qnode
 
     def _printPreview_(self):

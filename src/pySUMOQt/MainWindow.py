@@ -187,7 +187,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             wrappedWidget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(wrappedWidget._updateActiveOntology)
         if wrappedWidget is None :
-            print("can not create widget with type " + widgetType)
+            self.log.error("can not create widget with type " + widgetType)
             return
         wrappedWidget.setSettings(self.settings)
         self.synchronizeRequested.connect(wrappedWidget.refresh)
@@ -278,7 +278,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def synchronize(self):
         """ Performs synchronization of the main window by reporting changes in
         all the others widgets. """
-        print("synchronizing ...")
+        self.log.info("synchronizing")
         self.synchronizeRequested.emit()
 
     def _deleteWidget_(self, widget):
