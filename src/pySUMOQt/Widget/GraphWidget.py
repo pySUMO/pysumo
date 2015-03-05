@@ -19,6 +19,7 @@ import logging
 from pySUMOQt.Designer.GraphWidget import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import weakref
+from pysumo.syntaxcontroller import Ontology
 
 def insert_newlines(string, every=64):
     """ Insert a newline after ’every‘ characters
@@ -106,6 +107,25 @@ class GraphWidget(RWWidget, Ui_Form):
         """
         self.newVariant()
         super(GraphWidget, self).refresh()
+
+        
+    def _redo_(self):
+        self.log.info("redoing from graph widget")
+        idx = self.activeOntology.currentIndex()
+        ontology = self.activeOntology.itemData(idx)
+        if not ontology is None and type(ontology) == Ontology :
+            action_log = ontology.action_log
+            action_log.redo()
+            self.commit()
+            
+    def _undo_(self):
+        self.log.info("undoing from graph widget")
+        idx = self.activeOntology.currentIndex()
+        ontology = self.activeOntology.itemData(idx)
+        if not ontology is None and type(ontology) == Ontology :
+            action_log = ontology.action_log
+            action_log.undo()
+            self.commit()
     
     def _updateActiveOntology(self):
         currentText = self.activeOntology.currentText()

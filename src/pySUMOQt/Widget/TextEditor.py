@@ -116,6 +116,12 @@ class TextEditor(RWWidget, Ui_Form):
             return 
         if type(ontology) is Ontology :
             ontology.save()
+            
+    def _undo_(self):
+        self.plainTextEdit.undo()
+        
+    def _redo_(self):
+        self.plainTextEdit.redo()
 
     def _initNumberBar(self):
         """ Init the number bar"""
@@ -422,6 +428,16 @@ class TextEditor(RWWidget, Ui_Form):
             return
         self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
         RWWidget.commit(self)
+        
+    def refresh(self):
+        RWWidget.refresh(self)
+        self.plainTextEdit.textChanged.disconnect(self.commit)
+        idx = self.ontologySelector.currentIndex()
+        ontology = self.ontologySelector.itemData(idx)
+        if not ontology is None and type(ontology) == Ontology :
+            f = self.IA.get_ontology_file(ontology)
+            self.plainTextEdit.setPlainText(f.getvalue())
+        self.plainTextEdit.textChanged.connect(self.commit)
 
 class SyntaxHighlightSetting():
     """ This class contains a single Setting for a code block in the SyntaxHighlighter. 
