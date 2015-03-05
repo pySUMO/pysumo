@@ -35,6 +35,7 @@ class TextEditor(RWWidget, Ui_Form):
     - syntax_highlighter: The syntax highlighter object for the text editor.
 
     Methods:
+    
     - __init__: Initalizes the Object and the QPlainTextEdit
     - commit: Notifies other Widgets of changes.
     - show_autocomplete: Returns autocompletion choices.
