@@ -30,7 +30,8 @@ from pySUMOQt.Widget.TextEditor import TextEditor
 from pySUMOQt.Widget.Widget import RWWidget, Widget
 
 from pySUMOQt.Settings import LayoutManager, PySumoSettings
-from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog, OptionDialog
+from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog, OptionDialog,\
+    OntologyPropertyDialog
 from pySUMOQt.Widget.GraphWidget import GraphWidget
 from pysumo.syntaxcontroller import Ontology
 from pysumo import logger
@@ -116,6 +117,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
         self.setupUi(self)
+        self.actionAboutpySUMO.triggered.connect(self._showAboutBox_)
         self.infolog = InfoLog()
         self.log = logging.getLogger('.' + __name__)
         self.setCentralWidget(None)
@@ -474,9 +476,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.menuRecent_Ontologies.addSeparator()
         self.menuRecent_Ontologies.addAction(self.clearHistoryAction)
 
-    def _deleteOntology_(self, ontology):
-        ''' TODO: '''
-        pass
+    def _deleteOntology_(self, ontology, ontologyMenu=None):
+        self._closeOntology_(ontology, ontologyMenu)
+        os.remove(ontology.path)
 
     def _updateOntology_(self, ontology):
         if not ontology is None and ontology.url is None :
@@ -499,8 +501,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
                 widget.setActiveOntology(ontology) 
 
     def _showOntologyProperties_(self, ontology):
-        ''' TODO: '''
-        pass
+        OntologyPropertyDialog(self, ontology).show()
     
     def removeOntology(self, ontology):
         RWWidget.SyntaxController.remove_ontology(ontology)
@@ -510,6 +511,9 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.removeOntology(ontology)
         # remove ontology in active ones.
         ontologyMenu.deleteLater()
+        
+    def _showAboutBox_(self):
+        QMessageBox.about(self, "About PySumo", "PSE TEAM Project")
 
 def main():
     app = QApplication(sys.argv)

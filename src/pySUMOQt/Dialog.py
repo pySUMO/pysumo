@@ -7,6 +7,7 @@ from pySUMOQt.Designer.OpenRemoteOntologyDialog import Ui_OpenRemoteOntologyDial
 from pysumo import updater
 from pySUMOQt.Designer.OptionDialog import Ui_Dialog
 from functools import partial
+from pySUMOQt.Designer import OntologyPropertyDialog
 
 
 class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
@@ -97,6 +98,16 @@ class OpenRemoteOntologyDialog(QDialog, Ui_OpenRemoteOntologyDialog):
         # download the ontology (user must save to store ontology on disk)
         updater.update(ontology, lambda x: self.parent().addOntology(ontology, newversion=x.getvalue().decode('utf8')))
         super(OpenRemoteOntologyDialog, self).accept()
+        
+class OntologyPropertyDialog(QDialog, OntologyPropertyDialog.Ui_Dialog):
+    
+    def __init__(self, parent, ontology):
+        super(OntologyPropertyDialog, self).__init__(parent)
+        self.setupUi(self)
+        self.ontologyName.setText(ontology.name)
+        self.ontologyPath.setText(ontology.path)
+        self.ontologyUrl.setText(ontology.url)
+        self.ontologyLogPath.setText(ontology.action_log.log_io.path)
         
 class HelpDialog(QDialog):
 
