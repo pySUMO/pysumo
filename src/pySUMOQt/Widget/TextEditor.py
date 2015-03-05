@@ -124,6 +124,10 @@ class TextEditor(RWWidget, Ui_Form):
 
     @Slot(str)
     def showOtherOntology(self, ontologyname):
+        try:
+            self.plainTextEdit.textChanged.disconnect(self.setTextChanged)
+        except RuntimeError:
+            pass
         idx = self.ontologySelector.currentIndex()
         if idx == -1 :
             return
@@ -133,6 +137,7 @@ class TextEditor(RWWidget, Ui_Form):
                 self.plainTextEdit.setEnabled(True)
                 self.getWidget().setPlainText(
                     self.getIndexAbstractor().get_ontology_file(i).getvalue())
+                self.plainTextEdit.textChanged.connect(self.setTextChanged)
                 return
         assert False
 
