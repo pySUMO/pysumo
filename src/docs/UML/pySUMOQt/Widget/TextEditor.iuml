@@ -44,3 +44,6 @@ class NumberBar {
 	updateContents( rect, scroll)
 	mouseDoubleClickEvent( event)
 }
+TextEditor  --* NumberBar
+TextEditor --* SyntaxHighlighter
+SyntaxHighlighter -- SyntaxHighlightSetting

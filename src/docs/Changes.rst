@@ -1,3 +1,7 @@
+Changes
+======================
+
+
 pysumo
 ======
 * Rename lib to pysumo.
@@ -62,28 +66,27 @@ TextEditor
 ----------
 * remove show autocomplete – Qt does this on its own
 * Added
-      * Functions
-	setTextChanged()
-	_initNumberBar()
-	_updateOntologySelector()
-	_hideLines(lines)
-	_showLines(lines)
-	_zoomOut_()
-	_zoomIn_()
-	showOtherOntology(ontologyname)
-	expandIfBracketRemoved()
-	increaseSize()
-	decreaseSize()
-	expandAll()
-	hideAll()
-	getLayoutWidget()
-	numberbarPaint(number_bar, event)
-	initAutocomplete()
-	searchCompletion()
-	toggleVisibility(line)
-	hideFrom(line)
-	insertCompletion(completion)
-	commit()
+	* setTextChanged()
+	* _initNumberBar()
+	* _updateOntologySelector()
+	* _hideLines(lines)
+	* _showLines(lines)
+	* _zoomOut_()
+	* _zoomIn_()
+	* showOtherOntology(ontologyname)
+	* expandIfBracketRemoved()
+	* increaseSize()
+	* decreaseSize()
+	* expandAll()
+	* hideAll()
+	* getLayoutWidget()
+	* numberbarPaint(number_bar, event)
+	* initAutocomplete()
+	* searchCompletion()
+	* toggleVisibility(line)
+	* hideFrom(line)
+	* insertCompletion(completion)
+	* commit()
 
 Introduce SyntaxHighlightSetting to handle user defined Syntax Highlight Rules
 
@@ -108,4 +111,8 @@ paintEvent( event)
 adjustWidth( count)
 updateContents( rect, scroll)
 mouseDoubleClickEvent( event)
+
+GraphWidget
+-----------
+Komplette Änderung der API, um an pygraphviz anzupassen
 
