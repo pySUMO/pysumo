@@ -11,6 +11,8 @@ from pysumo.syntaxcontroller import *
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.parser import kifparse, AbstractSyntaxTree, astmerge
 
+pysumo.PACKAGE_DATA = 'data/'
+
 class syntaxTestCase(unittest.TestCase):
     def setUp(self):
         self.tmpdir = mkdtemp()
