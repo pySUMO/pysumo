@@ -10,6 +10,7 @@ This module contains:
 from PySide.QtCore import QObject, Signal
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.syntaxcontroller import SyntaxController
+from pysumo.syntaxcontroller import Ontology
 
 import logging
 
@@ -105,3 +106,27 @@ class RWWidget(Widget):
         if successful updates the IndexAbstractor and notifies all other
         widgets that the Ontology has been modified. """
         self.ontologyChanged.emit()
+        
+    def getActiveOntology(self):
+        pass
+        
+    def _save_(self):
+        ontology = self.getActiveOntology()
+        if ontology is None :
+            return 
+        if type(ontology) is Ontology :
+            ontology.save()
+            
+    def _redo_(self):
+        ontology = self.getActiveOntology()
+        if not ontology is None and type(ontology) == Ontology :
+            action_log = ontology.action_log
+            action_log.redo()
+            self.commit()
+            
+    def _undo_(self):
+        ontology = self.getActiveOntology()
+        if not ontology is None and type(ontology) == Ontology :
+            action_log = ontology.action_log
+            action_log.undo()
+            self.commit()

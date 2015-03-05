@@ -64,13 +64,21 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.setTextCursor(
             self.plainTextEdit.cursorForPosition(QPoint(0, 0)))
         self.plainTextEdit.textChanged.connect(self.expandIfBracketRemoved)
+<<<<<<< HEAD
         self.plainTextEdit.textChanged.connect(self.setTextChanged)
         self._updateOntologySelector()
+=======
+        self.canUndo = False
+        self.canRedo = False
+        self.plainTextEdit.undoAvailable.connect(self.setCanUndo)
+        self.plainTextEdit.redoAvailable.connect(self.setCanRedo)
+>>>>>>> the rw widgets is can now save the ontology, undo and redo from action log.
         self.ontologySelector.currentIndexChanged[int].connect(
             self.showOtherOntology)
 
         self.ontologySelector.setCurrentIndex(-1)
         
+<<<<<<< HEAD
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.commit)
@@ -88,6 +96,14 @@ class TextEditor(RWWidget, Ui_Form):
         self.showOtherOntology(self.ontologySelector.currentText())
         super(TextEditor, self).refresh()
              
+=======
+    def setCanUndo(self, b):
+        self.canUndo = b
+        
+    def setCanRedo(self, b):
+        self.canRedo = b
+        
+>>>>>>> the rw widgets is can now save the ontology, undo and redo from action log.
     def _print_(self):
         """ Creates a print dialog with the latest text"""
         dialog = QPrintDialog()
@@ -116,13 +132,27 @@ class TextEditor(RWWidget, Ui_Form):
             return 
         if type(ontology) is Ontology :
             ontology.save()
-            
+
+    def getActiveOntology(self):
+        idx = self.ontologySelector.currentIndex()
+        return self.ontologySelector.itemData(idx)
+    
     def _undo_(self):
-        self.plainTextEdit.undo()
+        if self.canUndo :
+            self.plainTextEdit.undo()
+            self.SyntaxController.add_ontology(self.getActiveOntology(), self.plainTextEdit.toPlainText())
+            self.commit()
+            return 
+        # RWWidget._undo_(self)
         
     def _redo_(self):
-        self.plainTextEdit.redo()
-
+        if self.canRedo :
+            self.plainTextEdit.redo()
+            self.SyntaxController.add_ontology(self.getActiveOntology(), self.plainTextEdit.toPlainText())
+            self.commit()
+            return
+        # RWWidget._redo_(self)
+        
     def _initNumberBar(self):
         """ Init the number bar"""
         self.number_bar = NumberBar(self)

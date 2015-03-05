@@ -126,6 +126,10 @@ class GraphWidget(RWWidget, Ui_Form):
             action_log = ontology.action_log
             action_log.undo()
             self.commit()
+
+    def getActiveOntology(self):
+        idx = self.activeOntology.currentIndex()
+        return self.activeOntology.itemData(idx)
     
     def _updateActiveOntology(self):
         currentText = self.activeOntology.currentText()
