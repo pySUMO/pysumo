@@ -1,7 +1,10 @@
 """ The PyUnit test framework for the parser. """
 
+import atexit
 import unittest
 import subprocess
+import pysumo
+pysumo.PACKAGE_DATA = 'data/'
 
 from tempfile import mkdtemp
 from shutil import rmtree
@@ -30,12 +33,19 @@ class wParseTestCase(unittest.TestCase):
 wParseSuit = unittest.makeSuite(wParseTestCase, 'test')
 
 class kifParseSerilizeTest(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = mkdtemp()
+
+    def tearDown(self):
+        rmtree(self.tmpdir)
+
     def test0ParseSerilize(self):
         tempd = mkdtemp()
         out1 = "/".join([tempd, "out1"])
         out2 = "/".join([tempd, "out2"])
         f = "data/Merge.kif"
-        o = Ontology(f)
+        o = Ontology(f, lpath=self.tmpdir)
+        atexit.unregister(o.action_log.log_io.flush_write_queues)
         with open(o.path) as f:
             a = parser.kifparse(f, o)
         self.assertNotEqual(a.children, [])
@@ -48,12 +58,15 @@ class kifParseSerilizeTest(unittest.TestCase):
         ret = subprocess.call(["diff", out1, out2])
         rmtree(tempd)
         assert ret == 0
+        o.action_log.log_io.flush_write_queues()
 
     def test1ParseGoverment(self):
         f = "data/Government.kif"
-        o = Ontology(f)
+        o = Ontology(f, lpath=self.tmpdir)
+        atexit.unregister(o.action_log.log_io.flush_write_queues)
         with open(o.path) as f:
             parser.kifparse(f, o)
+        o.action_log.log_io.flush_write_queues()
 
 kifParseSuit = unittest.makeSuite(kifParseSerilizeTest, 'test')
 

@@ -4,6 +4,8 @@ import atexit
 import os
 import subprocess
 import unittest
+import pysumo
+pysumo.PACKAGE_DATA = 'data/'
 
 from io import BytesIO
 from pysumo.logger import actionlog

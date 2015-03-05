@@ -18,17 +18,17 @@ import pysumo
 from .logger import actionlog
 from . import parser
 
-def get_ontologies():
+def get_ontologies(lpath=None):
     """ Returns a set of all ontologies provided by pysumo as well as local ontologies. """
     ret = set()
     if isdir(pysumo.PACKAGE_DATA):
         for f in listdir(pysumo.PACKAGE_DATA):
             if f.endswith(".kif"):
-                ret.add(Ontology(join(pysumo.PACKAGE_DATA, f)))
+                ret.add(Ontology(join(pysumo.PACKAGE_DATA, f), lpath=lpath))
     if isdir(pysumo.CONFIG_PATH):
         for f in listdir(pysumo.CONFIG_PATH):
             if f.endswith(".kif"):
-                ret.add(Ontology(join(pysumo.CONFIG_PATH, f)))
+                ret.add(Ontology(join(pysumo.CONFIG_PATH, f), lpath=lpath))
     return ret
 
 class SyntaxController:
