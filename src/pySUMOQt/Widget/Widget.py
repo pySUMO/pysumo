@@ -109,6 +109,9 @@ class RWWidget(Widget):
         
     def getActiveOntology(self):
         pass
+    
+    def setActiveOntology(self, ontology):
+        pass
         
     def _save_(self):
         ontology = self.getActiveOntology()

@@ -37,6 +37,7 @@ from pysumo import logger
 from pysumo.logger.infolog import InfoLog
 from pysumo.updater import update
 from _io import BytesIO
+from builtins import dict
 
 QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
@@ -446,7 +447,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         actionRevert.setData(ontology)
         actionRevert.setIcon(icon)
         actionRevert.setIconVisibleInMenu(True)
-        actionRevert.triggered.connect(partial(self._revertOntology_, ontology))
+        actionRevert.triggered.connect(partial(self._revertOntology_, ontology, ontologyMenu))
         icon = QIcon()
         icon.addPixmap(QPixmap(":/actions/gfx/actions/document-properties.png"), QIcon.Normal, QIcon.Off)
         actionProperties = ontologyMenu.addAction("Properties")
@@ -484,17 +485,29 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         update(ontology, lambda x: RWWidget.SyntaxController.add_ontology(ontology, newversion=x.getvalue().decode('utf8')))
         self.synchronize()
 
-    def _revertOntology_(self, ontology):
-        ''' TODO: '''
-        pass
+    def _revertOntology_(self, ontology, ontologyMenu=None):
+        # save the state of the active ontologies.
+        state = dict()
+        for widget in self.widgets :
+            if isinstance(widget, RWWidget) and widget.getActiveOntology() is not None and widget.getActiveOntology() == ontology :
+                state[widget] = ontology
+        self._closeOntology_(ontology, ontologyMenu)
+        self.addOntology(ontology)
+        # restore the state of the active ontologies.
+        for widget in state.keys() :
+            if widget.getActiveOntology() is None :
+                widget.setActiveOntology(ontology) 
 
     def _showOntologyProperties_(self, ontology):
         ''' TODO: '''
         pass
-
-    def _closeOntology_(self, ontology, ontologyMenu):
+    
+    def removeOntology(self, ontology):
         RWWidget.SyntaxController.remove_ontology(ontology)
         self.ontologyRemoved.emit(ontology)
+
+    def _closeOntology_(self, ontology, ontologyMenu):
+        self.removeOntology(ontology)
         # remove ontology in active ones.
         ontologyMenu.deleteLater()
 

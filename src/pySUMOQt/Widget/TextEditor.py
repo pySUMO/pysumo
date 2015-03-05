@@ -180,7 +180,20 @@ class TextEditor(RWWidget, Ui_Form):
         # if index == -1 :
             # the ontology was removed.
         #    self.showOtherOntology(index)
+        if index == -1 :
+            self.plainTextEdit.setEnabled(False)
+            self.plainTextEdit.clear()
         self.ontologySelector.currentIndexChanged[int].connect(self.showOtherOntology)
+
+    def setActiveOntology(self, ontology):
+        index = -1
+        count = 0
+        for i in self.getIndexAbstractor().ontologies :
+            if ontology.name == i.name :
+                index = count
+                break
+            count = count + 1
+        self.ontologySelector.setCurrentIndex(index)
 
     @Slot(int)
     def showOtherOntology(self, idx):
@@ -465,6 +478,7 @@ class TextEditor(RWWidget, Ui_Form):
         RWWidget.commit(self)
         
     def refresh(self):
+        textCursor = self.plainTextEdit.textCursor()
         RWWidget.refresh(self)
         self.plainTextEdit.textChanged.disconnect(self.commit)
         idx = self.ontologySelector.currentIndex()
@@ -473,6 +487,7 @@ class TextEditor(RWWidget, Ui_Form):
             f = self.IA.get_ontology_file(ontology)
             self.plainTextEdit.setPlainText(f.getvalue())
         self.plainTextEdit.textChanged.connect(self.commit)
+        self.plainTextEdit.setTextCursor(textCursor)
 
 class SyntaxHighlightSetting():
     """ This class contains a single Setting for a code block in the SyntaxHighlighter. 
