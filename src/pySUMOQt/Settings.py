@@ -91,11 +91,11 @@ class LayoutManager(QSettings):
         size = self.beginReadArray("RecentOntologies")
         for i in range(size) :
             self.setArrayIndex(i)
-            name = self.value("value")
+            name = self.value("name")
             path = self.value("path")
             url = self.value("url")
             lpath = self.value("lpath")
-            ontology = Ontology(path, name, url, lpath)
+            ontology = Ontology(path=path, name=name, url=url, lpath=lpath)
             self.mainwindow.addOntology(ontology)
         self.endArray()
 
