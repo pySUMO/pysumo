@@ -219,6 +219,18 @@ WordNet
 * Check functionality of locate_term
 * Check functionality of find_synonym
 
+GUI
+---------
+
+GraphWidget
+^^^^^^^^^^^^^^^^
+   #. Open pySUMO
+   #. Open GraphWidget
+   #. Select instance on Variant selector
+   #. Add a node in Graph Widget
+
+Coverage of GraphWidget.py: bla 
+
 Errors
 ==========
 +-------------------+--------------------------------------------+
