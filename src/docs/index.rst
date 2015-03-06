@@ -149,13 +149,21 @@ Detail: Modules
    pysumo
    pySUMOQt
 
-Changes
+Changes in Version 1.0
 ====================================
 
 .. toctree::
    :maxdepth: 4
    
    Changes
+
+Feature Request
+===================================
+
+.. toctree::
+   :maxdepth: 4
+
+   FeatureRequest
 
 Tests
 =====
