@@ -490,7 +490,7 @@ class TextEditor(RWWidget, Ui_Form):
         if not ontology is None and type(ontology) == Ontology :
             f = self.IA.get_ontology_file(ontology)
             self.plainTextEdit.setPlainText(f.getvalue())
-        self.plainTextEdit.textChanged.connect(self.commit)
+        self.plainTextEdit.textChanged.connect(self.setTextChanged)
         self.plainTextEdit.setTextCursor(textCursor)
 
 class SyntaxHighlightSetting():
