@@ -45,9 +45,21 @@ QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
 
 class PySUMOWidget(QDockWidget):
-    """This wrapper widget holds a pysumo widget."""
+    """This wrapper widget holds a pysumo widget.
+    
+    It catches the focus event on components in widget to 
+    connect them the application actions like cut, copy, 
+    paste, or undo, ...
+    """
 
     def __init__(self, parent):
+        """ 
+        Initializes a pysumo widget with the parent which is the main window.
+        
+        Parameter: 
+        
+        - parent : The main window.
+        """
         super(PySUMOWidget, self).__init__(parent)
         self.mainWindow = parent
         self.isPopedOut = False
@@ -58,6 +70,13 @@ class PySUMOWidget(QDockWidget):
         self.suffixName = None
 
     def _setSuffixName_(self, s):
+        """ QT Slot which sets a suffix name to the title of the dock widget, 
+        like the name of the active ontology in the widget.
+        
+        Parameter:
+        
+        - s : The suffix name as a string.
+        """
         if s is None :
             return
         s = s.strip()
@@ -67,6 +86,13 @@ class PySUMOWidget(QDockWidget):
         self.updateTitle()
 
     def setPrefixName(self, s):
+        """ 
+        Sets the prefix name which is the default title of a pysumo widget.
+        
+        Parameter:
+        
+        - s : The prefix or default name as a string.
+        """
         if s is None :
             return
         s = s.strip()
@@ -76,6 +102,9 @@ class PySUMOWidget(QDockWidget):
         self.updateTitle()
 
     def updateTitle(self):
+        """ 
+        Updates the title of the pysumo widget according to it'S prefix and suffix name.
+        """
         assert self.prefixName is not None
         title = self.prefixName
         if self.suffixName is not None :
@@ -84,6 +113,9 @@ class PySUMOWidget(QDockWidget):
 
     @Slot()
     def setPopedOut(self):
+        """ 
+        Qt Slot which customizes the pop out of a pysumo widget.
+        """
         if not self.isPopedOut :
             self.setWindowFlags(Qt.Window)
             self.show()
@@ -92,6 +124,11 @@ class PySUMOWidget(QDockWidget):
             self.isPopedOut = False
 
     def eventFilter(self, source, event):
+        """
+        Filters event on a component where the pysumo was installed as event filter.
+        
+        Override from QObject.
+        """
         if event.type() == QEvent.FocusIn:
             self.callback = self.mainWindow.connectWidget(self.wrappedWidget)
         elif event.type() == QEvent.FocusOut:
@@ -158,16 +195,33 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.show()
         
     def _showOptionDialog_(self):
+        """ 
+        QT Slot to open the option dialog.
+        """
         self.optionDialog.initialize()
         self.optionDialog.show()
 
     def _addWidget_(self, widgetType, widgetMenu):
-        '''Add a widget into the layout with the given widget type as string.'''
+        """ 
+        Add a widget into the layout with the given widget type as string.
+        
+        Parameter:
+        
+        - widgetType : The widget type as a string. Can be TextEditorWidget, DocumentationWidget, HierarchyWidget or GraphWidget.
+        - widgetMenu : The QMenu from where the widget can be hidden.
+        """
         widget = self.createPySumoWidget(widgetType, widgetMenu)
         self.addOrRestoreWidget(widget, widgetMenu, True)
         
     def createPySumoWidget(self, widgetType, widgetMenu):
-        '''Create a widget wrapper containing the given widget type.'''
+        """
+        Create a widget wrapper containing the given widget type.
+        
+        Parameter:
+        
+        - widgetType : The widget type as a string. Can be TextEditorWidget, DocumentationWidget, HierarchyWidget or GraphWidget.
+        - widgetMenu : The QMenu from where the widget can be hidden.
+        """
         widget = PySUMOWidget(self)
         wrappedWidget = None
         if widgetType == "TextEditorWidget" :
@@ -206,7 +260,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         return widget
 
     def addDeleteWidgetAction(self, widget):
-        '''Add the delete action for the given widget in the delete menu.'''
+        """
+        Add the delete action for the given widget in the delete widget menu.
+        
+        Parameter:
+        
+        - widget: The pysumo widget which will be deleted on action triggered.
+        """
         action = QAction(widget)
         action.setText(widget.windowTitle())
         callback = partial(self._deleteWidget_, widget)
@@ -216,7 +276,15 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.menuDelete.addAction(action)
 
     def addOrRestoreWidget(self, widget, menu, directAdd=False):
-        '''Restore a widget on the layout or place it, if restore failed.'''
+        """
+        Restore a widget on the layout or place it, if restore failed.
+        
+        Parameter:
+        
+        - widget : The pysumo widget to add in the window layout.
+        - menu : The QMenu from where the widget can be hidden.
+        - directAdd : If true, force add without restoring the pysumo widget.
+        """
         restored = False
         if not directAdd:
             restored = self.restoreDockWidget(widget)
@@ -232,6 +300,12 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.widgets.append(widget.wrappedWidget)
 
     def closeEvent(self, event):
+        """ 
+        Called when the main window is closing, and meaning that the application is exiting.
+        The application then saves the layout, and then check for unsaved documents.
+        
+        Override from QWidget.
+        """
         self.userLayout.saveLayout()
         # check for unsaved files.
         for o in Widget.IA.ontologies :
@@ -249,13 +323,26 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         super(MainWindow, self).closeEvent(event)
         
     def ontologyChanged(self, ontology):
+        """
+        Check if an ontology is different from the on disk file representation of this ontology.
+        
+        Parameter :
+        
+        - ontology : The ontology to check whether it changed or not.
+        
+        Return changed, diff. changed is whether true or false accordingly to the change state. If 
+        the ontology has been changed, return diff which is the string diff of the old with the new version 
+        of the ontology. If the ontology wasn't changed, return an empty string as diff.
+        """
         with open(ontology.path) as f :
             b = BytesIO(f.read().encode('utf8'))
         diff = ontology.action_log.log_io.diff(ontology.action_log.current, b).getvalue()
         return diff != b'', diff.decode(encoding="utf-8", errors="strict")
 
     def createStatusBar(self):
-        '''Create the status bar.'''
+        """
+        Create the status bar.
+        """
         statusbar = self.statusBar
         # line and column number
         self.lineColNumber = QLabel(statusbar)
@@ -269,11 +356,21 @@ class MainWindow(Ui_mainwindow, QMainWindow):
 
     @Slot()
     def setupStatusConnection(self):
+        """
+        Qt slot which sets up a status connection in the status bar.
+        """
         socket = self.statusBar.socketServer.nextPendingConnection()
         socket.readyRead.connect(partial(self.displayLog, socket))
 
     @Slot()
     def displayLog(self, socket):
+        """
+        Qt slot which displays a log message.
+        
+        Parameter:
+        
+        - socket : The socket on which the log message must be read.
+        """
         data = socket.read(4).data()
         slen = unpack(">L", data)[0]
         data = socket.read(slen).data()
@@ -283,8 +380,14 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         logrecord = logging.makeLogRecord(loads(data))
         self.statusBar.showMessage(logrecord.getMessage())
 
-    def _updateStatusbar_(self, wrappedWidget = None):
-        '''Update the status bar.'''
+    def _updateStatusbar_(self, wrappedWidget=None):
+        """
+        Update the status bar.
+        
+        Parameter:
+        
+        - wrappedWidget: a wrapped widget which will provide some information. Here we just use the TextEditor widget.
+        """
         # arg1 and arg2 are used to resolve an argument number error.
         plainTextEdit = None
         if wrappedWidget is None :
@@ -310,7 +413,13 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.synchronizeRequested.emit()
 
     def _deleteWidget_(self, widget):
-        '''Delete a widget from the layout.'''
+        """
+        QT Slot to delete a widget from the layout.
+        
+        Parameter :
+        
+        - widget : The pysumo widget to delete.
+        """
         self.widgets.remove(widget.wrappedWidget)
         widget.deleteLater()
         QMenu = None
@@ -331,6 +440,15 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             self.menuDelete.setEnabled(False)
 
     def connectWidget(self, widget):
+        """
+        Connects a pysumo widget to mainwindow global actions, like expand, undo, ...
+        
+        Parameter :
+        
+        - widget : The widget to connect in the maindow.
+        
+        Returns a callback for TextEditor widgets with the status bar to disconnect them later.
+        """
         widgetType = type(widget)
         self.actionPrint.triggered.connect(widget._print_)
         self.actionPrintPreview.triggered.connect(widget._printPreview_)
@@ -353,6 +471,14 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             return callback
 
     def disconnectWidget(self, widget, callback=None):
+        """
+        Disconnects a widget from the main window global actions.
+        
+        Parameter :
+        
+        - widget : The pysumo widget to disconnect form the main window.
+        - callback: The callback with the statusbar if the widget is a TextEditor widget.
+        """
         widgetType = type(widget)
         self.actionPrint.triggered.disconnect(widget._print_)
         self.actionQuickPrint.triggered.disconnect(widget._quickPrint_)
@@ -374,16 +500,23 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             self.actionSelectAll.triggered.disconnect(widget.plainTextEdit.selectAll)
 
     def getDefaultOutputPath(self):
+        """
+        Returns the default output path as a string.
+        """
         return self.settings.value("configPath")
 
     def _newOntology_(self):
-        '''Handles the new ontology action when it is triggered.'''
+        """
+        QT Slot which handles the new ontology action when it is triggered.
+        """
         defPath = self.getDefaultOutputPath()
         dialog = NewOntologyDialog(self, defPath)
         dialog.show()
 
     def _openLocalOntology_(self):
-        '''Handles the open local ontology action when it is triggered.'''
+        """
+        QT Slot which handles the open local ontology action when it is triggered.
+        """
         defPath = self.getDefaultOutputPath()
         x, y = QFileDialog.getOpenFileName(self, "Open Ontology File",
                                                 defPath, "SUO KIF Files (*.kif)")
@@ -396,18 +529,33 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.addOntology(ontology)
 
     def _openRemoteOntology_(self):
-        '''Handles the open remote ontology action when it is triggered.'''
+        """
+        QT Slot which handles the open remote ontology action when it is triggered.
+        """
         defPath = self.getDefaultOutputPath()
         dialog = OpenRemoteOntologyDialog(self, defPath)
         dialog.show()
 
     def addOntology(self, ontology, newversion=None):
-        '''Adds an ontology to index and notify all components required.'''
+        """
+        Adds an ontology to index and notify all components required.
+        
+        Parameter :
+        
+        - ontology : The ontology to add.
+        - newversion : The new version of the ontology.
+        """
         RWWidget.SyntaxController.add_ontology(ontology, newversion)
         self.ontologyAdded.emit(ontology)
 
     def notifyOntologyAdded(self, ontology):
-        '''Notify that an ontology was added to index.'''
+        """
+        Notify that an ontology was added to the index.
+        
+        Parameter :
+        
+        - ontology : The added ontology.
+        """
         if ontology is None:
             return
         count = len(self.menuRecent_Ontologies.actions())
@@ -471,16 +619,33 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.menuOntology.addMenu(ontologyMenu)
 
     def _ClearRecentOntologiesHistory_(self):
-        '''Handles the clear recent ontologies action when it is triggered.'''
+        """
+        QT Slot which handles the clear recent ontologies action when it is triggered.
+        """
         self.menuRecent_Ontologies.clear()
         self.menuRecent_Ontologies.addSeparator()
         self.menuRecent_Ontologies.addAction(self.clearHistoryAction)
 
     def _deleteOntology_(self, ontology, ontologyMenu=None):
+        """
+        QT Slot which handles the delete ontology action when it is triggered.
+        
+        Parameter :
+        
+        - ontology : The ontology to delete.
+        - ontologyMenu : The QMenu where the ontology could be managed. It should be remove too.
+        """
         self._closeOntology_(ontology, ontologyMenu)
         os.remove(ontology.path)
 
     def _updateOntology_(self, ontology):
+        """
+        QT Slot which handles the update ontology action when it is triggered.
+        
+        Parameter :
+        
+        - ontology : The ontology to update.
+        """
         if not ontology is None and ontology.url is None :
             QMessageBox.warning(self, "Can not perform an update.", "The ontology " + ontology.name + " has no url specified in it's configuration to perform an update.", QMessageBox.Ok, QMessageBox.Ok)
             return 
@@ -488,6 +653,14 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         self.synchronize()
 
     def _revertOntology_(self, ontology, ontologyMenu=None):
+        """
+        QT Slot which handles the revert ontology action when it is triggered.
+        
+        Parameter :
+        
+        - ontology : the ontology to revert.
+        - ontologyMenu : The QMenu where the ontology could be managed.
+        """
         # save the state of the active ontologies.
         state = dict()
         for widget in self.widgets :
@@ -501,18 +674,42 @@ class MainWindow(Ui_mainwindow, QMainWindow):
                 widget.setActiveOntology(ontology) 
 
     def _showOntologyProperties_(self, ontology):
+        """
+        QT Slot which handles the show ontology property action when it is triggered.
+        
+        Parameter :
+        
+        - ontology : The ontology which properties should be displayed.
+        """
         OntologyPropertyDialog(self, ontology).show()
     
     def removeOntology(self, ontology):
+        """ Removes an ontology form the index and notifies the required components.
+        
+        Parameter :
+        
+        - ontology : The ontology to remove.
+        """
         RWWidget.SyntaxController.remove_ontology(ontology)
         self.ontologyRemoved.emit(ontology)
 
     def _closeOntology_(self, ontology, ontologyMenu):
+        """ 
+        QT Slot which handles the close ontology action when it is triggered.
+        
+        Parameter :
+        
+        - ontology : The ontology to delete.
+        - ontologyMenu : The QMenu where the ontology could be managed. It should be remove too.
+        """
         self.removeOntology(ontology)
         # remove ontology in active ones.
         ontologyMenu.deleteLater()
         
     def _showAboutBox_(self):
+        """
+        QT Slot which handles the show about pysumo action when it is triggered.
+        """
         QMessageBox.about(self, "About PySumo", "PSE TEAM Project")
 
 def main():
@@ -523,6 +720,9 @@ def main():
     sys.exit(app.exec_())
 
 def quit_handler(signum, frame):
+    """
+    Handler for the SIGINT signal.
+    """
     QApplication.closeAllWindows()
     sys.exit()
 

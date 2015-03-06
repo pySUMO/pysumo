@@ -1,56 +1,35 @@
 class MainWindow {
+
+	+ ontologyAdded : Signal
+	+ ontologyRemoved : Signal
+	+ updateRequested : Signal
 	- widgets : Widget[]
 
-	+ loadOptions()
-	+ synchronize()
-	+ addWidget(widget : Widget)
-	+ deleteWidget(widget : Widget)
-	
-	+ openFile()
-	+ saveFile()
-	+ showHelp()
-	
-}
-class Statusbar {
-  - log : InfoLog
-  - statusBar : QStatusBar
-  + __init__(QStatusBar, InfoLog) : Statusbar
-  + initialize()
-  + update()
-  + clear()
-  + setProgressBarActivated(activated : Boolean)
-  + setProgressBarText(msg : String)
-  + clearProgressBarText()
-  + setProgressValue(val : Integer)
-}
-
-class Toolbar {
-  - mainWindow : QMainWindow
-  + __init__(mainWindow : QMainWindow) : Toolbar
-  + initFileToolBar()
-  + initEditToolBar()
-  + initOntologyToolBar()
-  + initViewToolBar()
-  + initToolsToolBar()
-  + initHelpToolBar()
+	# synchronize()
+	# _showOptionDialog_()
+	# _addWidget_(widgetType : String, widgetMenu : QMenu)
+	+ createPySumoWidget(widgetType : String, widgetMenu : QMenu)
+	+ addDeleteWidgetAction(widget : PySUMOWidget)
+	+ addOrRestoreWidget(widget : PySUMOWidget, menu : QMenu, directAdd : Boolean)
+	+ closeEvent(event : QEvent)
+	+ createStatusBar()
+	+ setupStatusConnection()
+	+ displayLog(socket)
+	# _updateStatusbar_(wrappedWidget : Widget)
+	# _deleteWidget_(widget : PySUMOWidget)
+	+ connectWidget(widget : PySUMOWidget)
+	+ disconnectWidget(widget : PySUMOWidget, callback)
+	+ getDefaultOutputPath()
+	# _newOntology_()
+	# _openLocalOntology_()
+	# _openRemoteOntology_()
+	+ addOntology(ontology : Ontology, newversion : String)
+	+ notifyOntologyAdded(ontology : Ontology)
+	# _ClearRecentOntologiesHistory_()
+	# _deleteOntology_(ontology : Ontology, ontologyMenu : QMenu)
+	# _updateOntology_(ontology : Ontology)
+	# _revertOntology_(ontology : Ontology, ontologyMenu : QMenu)
+	# _showOntologyProperties_(ontology : Ontology)
+	# _closeOntology(ontology : Ontology, ontologyMenu : QMenu)
 }
 
-class Menubar {
- - menuBar : QMenuBar
- + __init__(menuBar : QMenuBar) : Menubar
- + initFileMenu()
- + initEditMenu()
- + initOntologyMenu()
- + initViewMenu()
- + initToolsMenu()
- + initHelpMenu()
-}
-
-class HelpDialog {
- + initView()
-}
-
-Toolbar -* MainWindow 
-MainWindow *- Statusbar
-MainWindow *- Menubar
-MainWindow o-- HelpDialog
