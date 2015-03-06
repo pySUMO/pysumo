@@ -15,6 +15,7 @@ end note
   }
   !include Settings.iuml
   !include MainWindow.iuml
+  !include Dialog.iuml
 }
 
 RWidget <|-- DocumentationWidget
@@ -26,6 +27,6 @@ RWWidget <|-- GraphWidget
 
 MainWindow o-- OptionDialog
 
-MainWindow *-- Widget
+MainWindow *-- "*" Widget
 MainWindow "1" -- "1" LayoutManager
 MainWindow "1" -- "1" PySumoSettings

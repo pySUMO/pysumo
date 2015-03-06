@@ -1,0 +1,50 @@
+class OptionDialog {
+	- settings : PySumoSettings
+	- changes : dict
+	
+	+ __init__(parent : MainWindow, settings : PySumoSettings)
+	+ initialize()
+	+ onApplyClicked()
+	+ onResetClicked()
+	+ onRestoreDefaultsClicked()
+	+ loadBoolSetting(checkbox : QCheckBox)
+	+ loadComboBoxSetting(combobox : QComboBox)
+	+ loadColorSetting(textfield : QLineEdit)
+	+ loadIntSetting(spinbox : QSpinBox)
+	+ loadTextSetting(textfield : QLineEdit)
+	+ colorChooserClicked(textfield : QLineEdit)
+	+ updateColorField(textfield : QLineEdit, color : String)
+	+ directoryPathChooserClicked(textfield : QLineEdit)
+	+ onOptionChanged(qItem : QWidget, newValue : object)
+	+ accept()
+	+ setSelectedPage(pageIndex : integer)
+	+ changePage(current : integer, previous : integer)
+	+ save()
+}
+
+class HelpDialog {
+	+ __init__()
+	+ initView()
+}
+
+class OntologyPropertyDialog {
+	+ __init__(parent : MainWindow, ontology : Ontology)
+}
+
+class OpenRemoteOntologyDialog {
+	- defPath : String
+	
+	+ __init__(parent : MainWindow, defPath : String)
+	+ chooseOntologyPath()
+	+ restoreDefaults()
+	+ accept()
+}
+
+class NewOntologyDialog {
+	- defPath : String
+	
+	+ __init__(parent : MainWindow, defPath : String)
+	+ chooseOntologyPath()
+	+ restoreDefaults()
+	+ accept()
+}
