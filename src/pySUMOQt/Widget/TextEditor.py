@@ -16,6 +16,7 @@ from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
 import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
+from pysumo.parser import ParseError
 from pySUMOQt.Dialog import str_to_bool
 import logging
 
@@ -140,20 +141,26 @@ class TextEditor(RWWidget, Ui_Form):
         return self.ontologySelector.itemData(idx)
     
     def _undo_(self):
-        if self.canUndo :
+        if self.canUndo:
             self.plainTextEdit.undo()
-            self.SyntaxController.add_ontology(self.getActiveOntology(), self.plainTextEdit.toPlainText())
+            try:
+                self.SyntaxController.add_ontology(self.getActiveOntology(), self.plainTextEdit.toPlainText())
+            except ParseError:
+                return
             self.commit()
-            return 
-        # RWWidget._undo_(self)
+        else:
+            super(TextEditor, self)._undo_()
         
     def _redo_(self):
-        if self.canRedo :
+        if self.canRedo:
             self.plainTextEdit.redo()
-            self.SyntaxController.add_ontology(self.getActiveOntology(), self.plainTextEdit.toPlainText())
+            try:
+                self.SyntaxController.add_ontology(self.getActiveOntology(), self.plainTextEdit.toPlainText())
+            except ParseError:
+                return
             self.commit()
-            return
-        # RWWidget._redo_(self)
+        else:
+            super(TextEditor, self)._undo_()
         
     def _initNumberBar(self):
         """ Init the number bar"""
@@ -467,6 +474,7 @@ class TextEditor(RWWidget, Ui_Form):
         """ Return the QPlainTextEdit Widget"""
         return self.plainTextEdit
 
+    @Slot()
     def commit(self):
         """ Overrides commit from RWWidget. """
 
@@ -476,21 +484,29 @@ class TextEditor(RWWidget, Ui_Form):
         ontology = self.ontologySelector.itemData(idx)
         if ontology is None :
             return
-        self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
-        RWWidget.commit(self)
+        try:
+            self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
+        except ParseError:
+            return
+        super(TextEditor, self).commit()
         
     @Slot()    
     def refresh(self):
         """ Refreshes the content of the TextEditor (syncing with other widgets)"""
         textCursor = self.plainTextEdit.textCursor()
         super(TextEditor, self).refresh()
-        self.plainTextEdit.textChanged.disconnect(self.setTextChanged)
+        dced = False
+        try:
+            self.plainTextEdit.textChanged.disconnect(self.setTextChanged)
+        except RuntimeError:
+            dced = True
         idx = self.ontologySelector.currentIndex()
         ontology = self.ontologySelector.itemData(idx)
-        if not ontology is None and type(ontology) == Ontology :
+        if ontology in self.IA.ontologies:
             f = self.IA.get_ontology_file(ontology)
             self.plainTextEdit.setPlainText(f.getvalue())
-        self.plainTextEdit.textChanged.connect(self.setTextChanged)
+        if not dced:
+            self.plainTextEdit.textChanged.connect(self.setTextChanged)
         self.plainTextEdit.setTextCursor(textCursor)
 
 class SyntaxHighlightSetting():

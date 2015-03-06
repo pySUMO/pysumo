@@ -122,14 +122,12 @@ class RWWidget(Widget):
             
     def _redo_(self):
         ontology = self.getActiveOntology()
-        if not ontology is None and type(ontology) == Ontology :
-            action_log = ontology.action_log
-            action_log.redo()
+        if ontology in self.IA.ontologies:
+            self.SyntaxController.undo(ontology)
             self.commit()
             
     def _undo_(self):
         ontology = self.getActiveOntology()
-        if not ontology is None and type(ontology) == Ontology :
-            action_log = ontology.action_log
-            action_log.undo()
+        if ontology in self.IA.ontologies:
+            self.SyntaxController.undo(ontology)
             self.commit()
