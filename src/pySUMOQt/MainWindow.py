@@ -334,10 +334,10 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         the ontology has been changed, return diff which is the string diff of the old with the new version 
         of the ontology. If the ontology wasn't changed, return an empty string as diff.
         """
-        with open(ontology.path) as f :
-            b = BytesIO(f.read().encode('utf8'))
+        with open(ontology.path) as f:
+            b = BytesIO(f.read().encode('utf8', errors='replace'))
         diff = ontology.action_log.log_io.diff(ontology.action_log.current, b).getvalue()
-        return diff != b'', diff.decode(encoding="utf-8", errors="strict")
+        return diff != b'', diff.decode(encoding="utf-8", errors="replace")
 
     def createStatusBar(self):
         """
