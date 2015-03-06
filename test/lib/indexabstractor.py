@@ -55,6 +55,7 @@ class indexTestCase(unittest.TestCase):
     def test3WordNet(self):
         self.assertEqual(self.indexabstractor.wordnet, None)
         self.assertEqual(len(self.indexabstractor.wordnet_locate('   enTiTy     ')), 31)
+        self.assertIn('electric_chair (n): an instrument of execution by electrocution; resembles an ordinary seat for one person; "the murderer was sentenced to die in the chair"', self.indexabstractor.wordnet_locate('chair'))
         self.assertNotEqual(self.indexabstractor.wordnet, None)
 
     def test4AbstractGraph(self):

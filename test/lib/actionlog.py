@@ -182,6 +182,19 @@ class actionLogTestCase(unittest.TestCase):
         assert sorted(os.listdir('/'.join([self.tmpdir, 'test', 'undo']))) == sorted(['%03d' % x for x in range(0, 110)]), 'undo is %s, but should be %s' % (sorted(os.listdir('/'.join([self.tmpdir, 'test', 'undo']))), sorted(['%03d' % x for x in range(0, 110)]))
         assert sorted(os.listdir('/'.join([self.tmpdir, 'test', 'redo']))) == []
 
+    def test10FalseOk(self):
+        num = self.al.queue_log(SUMO)
+        self.assertRaises(KeyError, self.al.ok_log_item, num + 1)
+
+    def test11ReadLogPath(self):
+        self.add_and_ok(SUMO)
+        self.al.log_io.flush_write_queues()
+        current = self.al.current.getvalue()
+        del self.al
+        self.al = actionlog.ActionLog('test', path=self.tmpdir)
+        atexit.unregister(self.al.log_io.flush_write_queues)
+        self.assertEqual(self.al.current.getvalue(), current)
+
 
 actionLogSuit = unittest.makeSuite(actionLogTestCase, 'test')
 CORRUPTDIR = mkdtemp()

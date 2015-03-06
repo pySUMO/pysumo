@@ -212,8 +212,6 @@ class AbstractGraph:
                     return False
                 elif pos != 0 and node.children[pos - 1].name != val:
                     return False
-                else:
-                    continue
             return True
         except IndexError:
             return False

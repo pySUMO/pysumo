@@ -285,11 +285,8 @@ class LogIO:
         """ Append entry to self.rwrite_queue. """
         self.rwrite_queue.append(entry)
         self.pop('undo')
-        if len(self.rwrite_queue) < self.max_size:
-            signal.signal(signal.SIGALRM, self.flush_write_queues)
-            signal.alarm(self.timeout)
-        else:
-            self.flush_write_queues()
+        signal.signal(signal.SIGALRM, self.flush_write_queues)
+        signal.alarm(self.timeout)
         return self._patch(current, entry, reverse=True)
 
     def redo(self, current, entry, clean=False):
