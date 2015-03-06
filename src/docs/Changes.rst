@@ -116,3 +116,52 @@ GraphWidget
 -----------
 Komplette Änderung der API, um an pygraphviz anzupassen
 
+MainWindow
+----------
+
+* Added 
+	* _showOptionDialog_()
+	* _addWidget_(widgetType, widgetMenu)
+	* createPySumoWidget(widgetType, widgetMenu)
+	* addDeleteWidgetAction(widget)
+	* addOrRestoreWidget(widget, menu, directAdd=False)
+	* closeEvent(event)
+	* createStatusBar()
+	* setupStatusConnection()
+	* displayLog(socket)
+	* _updateStatusbar_(wrappedWidget=None)
+	* _deleteWidget_(widget)
+	* connectWidget(widget)
+	* disconnectWidget(widget, callback=None)
+	* getDefaultOutputPath()
+	* _newOntology_()
+	* _openLocalOntology_()
+	* _openRemoteOntology_()
+	* addOntology(ontology, newversion=None)
+	* notifyOntologyAdded(ontology)
+	* _ClearRecentOntologiesHistory_()
+	* _deleteOntology_(ontology)
+	* _updateOntology_(ontology)
+	* _revertOntology_(ontology)
+	* _showOntologyProperties_(ontology)
+	* _closeOntology(ontology)
+	
+* Added quit_handler(signum, frame) to capture SIGINT signal.
+
+* Introduced class PySUMOWidget which wrappes the application widgets.
+
+class PySUMOWidget(QDockWidget)
+__init__(parent)
+_setSuffixName_(s)
+setPrefixName(s)
+updateTitle()
+setPopedOut()
+eventFilter(source, event)
+
+* Removed class Statusbar, it became useless towards createStatusBar in MainWindow.
+
+* Removed class Menubar, because the menu bar is already created by the designer.
+
+* Removed class Toolbar, because the tool bar is already created by the designer.
+
+* Moved class HelpDialog to module Dialog
