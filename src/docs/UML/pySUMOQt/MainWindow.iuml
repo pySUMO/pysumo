@@ -5,7 +5,7 @@ class MainWindow {
 	+ updateRequested : Signal
 	- widgets : Widget[]
 
-	# synchronize()
+	+ synchronize()
 	# _showOptionDialog_()
 	# _addWidget_(widgetType : String, widgetMenu : QMenu)
 	+ createPySumoWidget(widgetType : String, widgetMenu : QMenu)

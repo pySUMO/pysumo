@@ -1,18 +1,26 @@
-class PluginManager {
- - plugins : (path : String, widget : Widget)[]
- + get_plugins() : Widget[]
- + add_plugin(path : String) : Boolean
- + remove_plugin(name : String) : Boolean
- + show_options()
+class LayoutManager {
+	- mainwindow : MainWindow
+	
+	+ __init__(mainwindow : MainWindow)
+	+ saveLayout()
+	+ restoreLayout()
+	+ saveRecentOntologyHistory()
+	+ restoreRecentOntologyHistory()
+	+ restoreGraphWidgets()
+	+ restoreTextEditorWidgets()
+	+ restoreDocumentationWidgets()
+	+ restoreHierarchyWidgets()
+	+ saveVisibilityState(qItem : QWidget)
+	+ restoreVisibilityState(qItem : QWidget, qAction : QAction)
+	+ savePositionState(qItem : QWidget)
+	+ restorePositionState(qItem : QWidget)
+	+ saveSizeState(qItem : QWidget)
+	+ restoreSizeState(qItem : QWidget)
+	+ saveStatusBarState()
+	+ restoreStatusBarState()
 }
 
-class WSettings {
-	+ __init__(widget : Widget) : WSettings
-}
-
-class OptionDialog {
-  - options : Dictionary
-  + createView()
-  + save(path : String)
-  + load(path : String)
+class PySumoSettings {
+	+ __init__(mainwindow : MainWindow, filepath : String)
+	+ loadDefaults()
 }

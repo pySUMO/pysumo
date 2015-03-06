@@ -150,14 +150,6 @@ MainWindow
 
 * Introduced class PySUMOWidget which wrappes the application widgets.
 
-class PySUMOWidget(QDockWidget)
-__init__(parent)
-_setSuffixName_(s)
-setPrefixName(s)
-updateTitle()
-setPopedOut()
-eventFilter(source, event)
-
 * Removed class Statusbar, it became useless towards createStatusBar in MainWindow.
 
 * Removed class Menubar, because the menu bar is already created by the designer.
@@ -165,3 +157,17 @@ eventFilter(source, event)
 * Removed class Toolbar, because the tool bar is already created by the designer.
 
 * Moved class HelpDialog to module Dialog
+
+Settings
+--------
+
+* Introduced class LayoutManager.
+
+* Introduced class PySumoSettings.
+
+* Removed class PluginManager.
+
+* Removed class WSettings.
+
+* Moved class OptionDialog to module Dialog.
+
