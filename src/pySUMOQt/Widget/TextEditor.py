@@ -97,11 +97,6 @@ class TextEditor(RWWidget, Ui_Form):
         self.timer.stop()
         self.timer.start(3000)
     
-    @Slot()
-    def refresh(self):
-        """ Updates the TextEditor regarding to latest indexabstractor changes"""
-        self.showOtherOntology(self.ontologySelector.currentText())
-        super(TextEditor, self).refresh()
              
 
     def setCanUndo(self, b):
@@ -484,10 +479,12 @@ class TextEditor(RWWidget, Ui_Form):
         self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
         RWWidget.commit(self)
         
+    @Slot()    
     def refresh(self):
+        """ Refreshes the content of the TextEditor (syncing with other widgets)"""
         textCursor = self.plainTextEdit.textCursor()
-        RWWidget.refresh(self)
-        self.plainTextEdit.textChanged.disconnect(self.commit)
+        super(TextEditor, self).refresh(self)
+        self.plainTextEdit.textChanged.disconnect(self.setTextChanged)
         idx = self.ontologySelector.currentIndex()
         ontology = self.ontologySelector.itemData(idx)
         if not ontology is None and type(ontology) == Ontology :
