@@ -8,7 +8,7 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 """
 
 from PySide.QtCore import QLineF, Slot, Qt
-from PySide.QtGui import QColor, QPen, QMenu, QInputDialog, QMessageBox
+from PySide.QtGui import QColor, QPen, QMenu, QInputDialog, QMessageBox, QCompleter
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
 from PySide.QtGui import QPrintPreviewDialog, QPainter
 import pygraphviz
@@ -85,6 +85,10 @@ class GraphWidget(RWWidget, Ui_Form):
         self.nodesToQNodes = {}
         self.qLines = []
         self.qpens = {}
+        self.completer = QCompleter(list(""))
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setWidget(self.lineEdit)
+
         self.lastScale = 1
         self.initMenu()
         self.roots = set()
@@ -146,6 +150,8 @@ class GraphWidget(RWWidget, Ui_Form):
     def searchNode(self, search):
         """Search the node and focus the GraphicView to the node """
         try:
+            #self.completer.setCompletionPrefix(search)
+            #self.completer.complete()
             node = self.nodesToQNodes[search]
             self.graphicsView.centerOn(node)
         except KeyError:
@@ -267,7 +273,13 @@ class GraphWidget(RWWidget, Ui_Form):
             scene.addItem(qnode)
 
             self.nodesToQNodes[node] = qnode
-
+            
+        
+        
+        self.completer = QCompleter(list(self.nodesToQNodes.keys()))
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setWidget(self.lineEdit)
+        self.lineEdit.setCompleter(self.completer)
         self.renewplot()
 
     def createQtNode(self, node, posx, posy, color = QColor(255,150,150)):
