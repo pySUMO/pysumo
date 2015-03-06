@@ -479,10 +479,10 @@ class TextEditor(RWWidget, Ui_Form):
         """ Overrides commit from RWWidget. """
 
         idx = self.ontologySelector.currentIndex()
-        if idx == -1 :
+        if idx == -1:
             return
         ontology = self.ontologySelector.itemData(idx)
-        if ontology is None :
+        if ontology is None:
             return
         try:
             self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
@@ -493,7 +493,7 @@ class TextEditor(RWWidget, Ui_Form):
     @Slot()    
     def refresh(self):
         """ Refreshes the content of the TextEditor (syncing with other widgets)"""
-        textCursor = self.plainTextEdit.textCursor()
+        textCursorPos = self.plainTextEdit.textCursor().position()
         super(TextEditor, self).refresh()
         dced = False
         try:
@@ -507,7 +507,10 @@ class TextEditor(RWWidget, Ui_Form):
             self.plainTextEdit.setPlainText(f.getvalue())
         if not dced:
             self.plainTextEdit.textChanged.connect(self.setTextChanged)
-        self.plainTextEdit.setTextCursor(textCursor)
+        cursor = self.plainTextEdit.textCursor()
+        cursor.setPosition(textCursorPos)
+        self.plainTextEdit.setTextCursor(cursor)
+        self.plainTextEdit.centerCursor()
 
 class SyntaxHighlightSetting():
     """ This class contains a single Setting for a code block in the SyntaxHighlighter. 
