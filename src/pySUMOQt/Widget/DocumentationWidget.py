@@ -3,6 +3,8 @@ Ontology. For example you can search WordNet for synonyms or
 print the definition for a selected term
 """
 
+import logging
+
 from PySide.QtCore import Slot, QTimer
 from PySide.QtGui import QApplication, QMainWindow
 from multiprocessing import Process, Pipe
@@ -27,6 +29,7 @@ class DocumentationWidget(RWidget, Ui_Form):
         super(DocumentationWidget, self).__init__(mainwindow)
         self.setupUi(self.mw)
         self.lineEdit.returnPressed.connect(self.search)
+        self.log = logging.getLogger('.' + __name__)
         if len(DocumentationWidget._WN_TROOL) == 0:
             DocumentationWidget._WN_TROOL.append(1)
             (DocumentationWidget._WN_RECV, DocumentationWidget._WN_SEND) = Pipe(False)
@@ -49,6 +52,7 @@ class DocumentationWidget(RWidget, Ui_Form):
             if not DocumentationWidget._WN_RECV.poll():
                 self._TIMER.timeout.connect(self.search)
                 self._TIMER.start(3000)
+                self.log.info('Searching')
                 return
             DocumentationWidget._WN_TROOL.append(2)
             RWidget.IA.wordnet = DocumentationWidget._WN_RECV.recv()
