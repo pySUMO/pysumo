@@ -31,12 +31,12 @@ WordNet
 * completely get rid of all dependencies on NLToolkit - extending upon it is a nightmare
 * locate_term() returns a tuple of String, SSType, String
 
-SyntaxControler
----------------
+SyntaxController
+----------------
 * Add an optional argument newversion to add_ontology()
 * Remove parse_graph(), the user now has to edit the file self
 * Remove parse_add(), we can use add_ontology() now
-* Moved Ontology to syntaxcontroler module
+* Moved Ontology to syntaxcontroller module
 
 Logger
 ======
