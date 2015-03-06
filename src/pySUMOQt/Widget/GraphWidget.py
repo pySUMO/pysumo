@@ -320,9 +320,11 @@ class GraphWidget(RWWidget, Ui_Form):
                     #User clicked on ok. Otherwise do nothing
                     self.gv.add_node(text)
                     node = self.gv.get_node(text)
-                    qnode = self.createQtNode(node, pos.x(), pos.y(), QColor(204, 255, 255))
+                    qnode = self.createQtNode(node, 0, 0, QColor(204, 255, 255))
+
                     self.graphicsView.scene().addItem(qnode)
-    
+                    qnode.setPos(self.graphicsView.mapToScene(gpos))
+                    qnode.setPos(qnode.x(), qnode.y() - 200)
                     self.nodesToQNodes[node] = qnode
                 else:
                     msg = QMessageBox()
