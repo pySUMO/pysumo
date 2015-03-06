@@ -483,7 +483,7 @@ class TextEditor(RWWidget, Ui_Form):
     def refresh(self):
         """ Refreshes the content of the TextEditor (syncing with other widgets)"""
         textCursor = self.plainTextEdit.textCursor()
-        super(TextEditor, self).refresh(self)
+        super(TextEditor, self).refresh()
         self.plainTextEdit.textChanged.disconnect(self.setTextChanged)
         idx = self.ontologySelector.currentIndex()
         ontology = self.ontologySelector.itemData(idx)
