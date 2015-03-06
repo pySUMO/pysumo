@@ -13,28 +13,25 @@ from PySide.QtCore import QSettings, Qt
 from PySide.QtGui import QApplication, QColor
 from pysumo.syntaxcontroller import Ontology
 
-class WSettings(QSettings):
-    """ This class represents the settings of the widgets in pySUMO's GUI.  The
-    settings are stored in a local file for persistence and are loaded from
-    there at init. """
-
-    def __init__(self, widget):
-        """ Initializes the widget's settings.
-
-        Argument:
-
-        - widget: The widget which owns the settings.
-
-        """
-        pass
-    
 class LayoutManager(QSettings):
-    
+    """
+    The layout manager handles the save and restore state of the main window and it's components.
+    """
     def __init__(self, MainWindow):
+        """
+        Initializes the layout manager.
+        
+        Parameter :
+        
+        - MainWindow : The main window which owns the manager.
+        """
         super(LayoutManager, self).__init__(pysumo.CONFIG_PATH + "/user-layout.ini", QSettings.IniFormat)
         self.mainwindow = MainWindow
     
     def saveLayout(self):
+        """ 
+        Save layout of the main window and persist it in a setting file.
+        """
         self.clear()
         self.savePositionState(self.mainwindow)
         self.saveSizeState(self.mainwindow)
@@ -55,6 +52,9 @@ class LayoutManager(QSettings):
         self.saveRecentOntologyHistory()
     
     def restoreLayout(self):
+        """
+        Restore the layout of the main window from the persitent setting file.
+        """
         self.mainwindow.restoreState(self.value("mainWindow/state"))
         self.restoreSizeState(self.mainwindow)
         self.restorePositionState(self.mainwindow)
@@ -70,6 +70,9 @@ class LayoutManager(QSettings):
         self.restoreRecentOntologyHistory()
         
     def saveRecentOntologyHistory(self):
+        """
+        Save the list recently opened ontologies.
+        """
         actions = self.mainwindow.menuRecent_Ontologies.actions()
         self.beginWriteArray("RecentOntologies")
         idx = 0
@@ -88,6 +91,9 @@ class LayoutManager(QSettings):
         self.endArray()
 
     def restoreRecentOntologyHistory(self):
+        """
+        Restore the recent opened ontologies and add them to index.
+        """
         size = self.beginReadArray("RecentOntologies")
         for i in range(size) :
             self.setArrayIndex(i)
@@ -100,6 +106,9 @@ class LayoutManager(QSettings):
         self.endArray()
 
     def restoreGraphWidgets(self):
+        """
+        Restore the graph widgets in the main window layout.
+        """
         graphWidgetsCount = self.value("GraphWidgets/count")
         if graphWidgetsCount is None :
             graphWidgetsCount = 0
@@ -111,6 +120,9 @@ class LayoutManager(QSettings):
             count = count + 1
         
     def restoreTextEditorWidgets(self):
+        """ 
+        Restore the text editor widgets in the main window layout.
+        """
         textEditorWidgetsCount = self.value("TextEditorWidgets/count")
         if textEditorWidgetsCount == None:
             textEditorWidgetsCount = 0
@@ -122,6 +134,9 @@ class LayoutManager(QSettings):
             count = count + 1
             
     def restoreDocumentationWidgets(self):
+        """
+        Restore the documentation widgets in the main window layout.
+        """
         documentationWidgetsCount = self.value("DocumentationWidgets/count")
         if documentationWidgetsCount == None:
             documentationWidgetsCount = 0
@@ -133,6 +148,9 @@ class LayoutManager(QSettings):
             count = count + 1
 
     def restoreHierarchyWidgets(self):
+        """
+        Restore the hierarchy widgets in the main window layout.
+        """
         hierarchyWidgetsCount = self.value("HierarchyWidgets/count")
         if hierarchyWidgetsCount == None:
             hierarchyWidgetsCount = 0
@@ -144,10 +162,25 @@ class LayoutManager(QSettings):
             count = count + 1
 
     def saveVisibilityState(self, qItem):
+        """
+        Saves the visibility state of a QWidget.
+        
+        Parameter :
+        
+        - qItem : The QWidget which visibility has to be saved.
+        """
         objName = qItem.objectName()
         self.setValue(objName + "/visible", qItem.isVisible())
 
     def restoreVisibilityState(self, qItem, qAction=None):
+        """
+        Restores the visibility state of a QWidget.
+        
+        Parameter :
+        
+        - qItem : The QWidget which visibility has to be saved.
+        - qAction : The action which toggles the visibility state of the qItem.
+        """
         objName = qItem.objectName()
         visible = self.value(objName + "/visible")
         visible = str(visible).lower()
@@ -166,6 +199,13 @@ class LayoutManager(QSettings):
             qItem.setVisible(visible)
 
     def savePositionState(self, qItem):
+        """
+        Saves the position state of a QWidget.
+        
+        Parameter :
+        
+        - qItem : The QWidget which position state has to be saved.
+        """
         objName = qItem.objectName()
         pos = qItem.pos()
         xPos = pos.x()
@@ -174,6 +214,13 @@ class LayoutManager(QSettings):
         self.setValue(objName + "/y", yPos)
 
     def restorePositionState(self, qItem):
+        """
+        Restores the position state of a QWidget.
+        
+        Parameter :
+        
+        - qItem : The QWidget which position state should be restored.
+        """
         objName = qItem.objectName()
         xPos = self.value(objName + "/x")
         yPos = self.value(objName + "/y")
@@ -184,6 +231,13 @@ class LayoutManager(QSettings):
         qItem.move(xPos, yPos)
 
     def saveSizeState(self, qItem):
+        """
+        Saves the size state of a QWidget.
+        
+        Parameter :
+        
+        - qItem : The QWidget which size state has to be saved.
+        """
         objName = qItem.objectName()
         size = qItem.size()
         width = size.width()
@@ -192,6 +246,13 @@ class LayoutManager(QSettings):
         self.setValue(objName + "/height", height)
 
     def restoreSizeState(self, qItem):
+        """
+        Restore the size state of a QWidget.
+        
+        Parameter :
+        
+        - qItem : The QWidget which size state has to be restored.
+        """
         objName = qItem.objectName()
         width = self.value(objName + "/width")
         height = self.value(objName + "/height")
@@ -202,17 +263,33 @@ class LayoutManager(QSettings):
         qItem.resize(width, height)
 
     def saveStatusBarState(self):
+        """ Save the status bar state. """
         self.saveVisibilityState(self.mainwindow.statusBar)
 
     def restoreStatusBarState(self):
+        """ Restore the status bar state. """
         self.restoreVisibilityState(self.mainwindow.statusBar, self.mainwindow.actionStatusbar)
 
 class PySumoSettings(QSettings):
+    """ 
+    Settings of PySumo.
+    """
     
     def __init__(self, MainWindow, filepath):
+        """
+        Initializes the settings of pysumo.
+        
+        Parameter :
+        
+        - MainWindow : The main window of pysumo.
+        - filepath : The path where to save settings.
+        """
         super(PySumoSettings, self).__init__(filepath, QSettings.IniFormat)
         
     def loadDefaults(self):
+        """ 
+        Loads defaults settings of pysumo.
+        """
         self.setValue("configPath", pysumo.CONFIG_PATH)
         self.setValue("maxQueueSize", 10)
         self.setValue("maxUndoRedoQueueSize", 10)
@@ -255,53 +332,3 @@ class PySumoSettings(QSettings):
         self.setValue("defaultFontColor", QApplication.palette().text().color().name())
         self.setValue("useHighlightingFontSize", False)
     
-class PluginManager():
-    """ The PluginManager handles all loadabel plugins. At startup it loads all
-    plugins and restores their settings from the persistence file.  It also
-    manages unloading of plugins from the current application instance. The
-    PluginManager also maintains the list of active plugins which is used on
-    initialization of pySUMO to check which plugins should be loaded.
-    """
-
-    def __init__(self):
-        """ Initializes the PluginManager. """
-        self.plugins = []
-
-    def get_plugins(self):
-        """ Returns a list of the currently active plugins.
-
-        Returns:
-
-        - Widget[]
-
-        """
-        pass
-
-    def add_plugin(self, path):
-        """ Adds a plugin to the list of managed plugins.
-
-        Argument:
-
-        - path: The path where the plugin is located.
-
-        Returns:
-
-        - Boolean
-
-        """
-        pass
-
-    def remove_plugin(self, name):
-        """ Removes a plugin from the list of managed plugins.
-
-        Argument:
-
-        - name: The name of the plugin to remove.
-
-        Returns:
-
-        - Boolean
-
-        """
-        pass
-

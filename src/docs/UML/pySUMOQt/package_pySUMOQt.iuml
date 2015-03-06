@@ -27,4 +27,5 @@ RWWidget <|-- GraphWidget
 MainWindow o-- OptionDialog
 
 MainWindow *-- Widget
-PluginManager -- MainWindow
+MainWindow "1" -- "1" LayoutManager
+MainWindow "1" -- "1" PySumoSettings
