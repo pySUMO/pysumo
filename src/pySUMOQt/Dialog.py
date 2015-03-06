@@ -11,8 +11,17 @@ from pySUMOQt.Designer import OntologyPropertyDialog
 
 
 class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
+    """ Dialog to create a new ontology. """
 
     def __init__(self, parent, defPath):
+        """ 
+        Initializes the new ontology dialog. 
+        
+        Parameter :
+        
+        - parent : The main window.
+        - defPath : The default output path as a string.
+        """
         super(NewOntologyDialog, self).__init__(parent)
         self.setupUi(self)
         self.defPath = defPath
@@ -22,14 +31,23 @@ class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
         restoreDefsBtn.clicked.connect(self.restoreDefaults)
 
     def chooseOntologyPath(self):
+        """
+        Chooses a path in from the QFileDialog.
+        """
         path = self.ontologyPath.text()
         path = QFileDialog.getExistingDirectory(self, 'Choose Directory', path)
         self.ontologyPath.setText(path)
 
     def restoreDefaults(self):
+        """
+        Restore default values in fields.
+        """
         self.ontologyPath.setText(self.defPath)
 
     def accept(self):
+        """ 
+        Commit the input and dispose the dialog.
+        """
         path = self.ontologyPath.text()
         if not os.path.exists(path):
             os.makedirs(path)
@@ -54,8 +72,17 @@ class NewOntologyDialog(QDialog, Ui_NewOntologyDialog):
         super(NewOntologyDialog, self).accept()
 
 class OpenRemoteOntologyDialog(QDialog, Ui_OpenRemoteOntologyDialog):
+    """ The dialog to open a remote ontology. """
 
     def __init__(self, parent, defPath):
+        """ 
+        Initializes the open remote ontology dialog.
+        
+        Parameter :
+        
+        - parent : The main window.
+        - defPath : The default output path.
+        """
         super(OpenRemoteOntologyDialog, self).__init__(parent)
         self.setupUi(self)
         self.defPath = defPath
@@ -65,14 +92,23 @@ class OpenRemoteOntologyDialog(QDialog, Ui_OpenRemoteOntologyDialog):
         restoreDefsBtn.clicked.connect(self.restoreDefaults)
 
     def chooseOntologyPath(self):
+        """
+        Choose a path from the QFileDialog.
+        """
         path = self.path.text()
         path = QFileDialog.getExistingDirectory(self, 'Choose Directory', path)
         self.path.setText(path)
 
     def restoreDefaults(self):
+        """
+        Restore default values in fields.
+        """
         self.path.setText(self.defPath)
 
     def accept(self):
+        """
+        Commit the input and dispose the dialog.
+        """
         path = self.path.text()
         if not os.path.exists(path) :
             os.makedirs(path)
@@ -100,8 +136,20 @@ class OpenRemoteOntologyDialog(QDialog, Ui_OpenRemoteOntologyDialog):
         super(OpenRemoteOntologyDialog, self).accept()
         
 class OntologyPropertyDialog(QDialog, OntologyPropertyDialog.Ui_Dialog):
+    """
+    The ontology property dialog.
+    """
     
     def __init__(self, parent, ontology):
+        """
+        Initializes an ontology property dialog.
+        
+        Parameter :
+        
+        - parent : The main window.
+        - ontology : The ontology.
+        """
+        
         super(OntologyPropertyDialog, self).__init__(parent)
         self.setupUi(self)
         self.ontologyName.setText(ontology.name)
@@ -126,6 +174,12 @@ class HelpDialog(QDialog):
         pass
     
 def str_to_bool(s):
+    """ Convert a string value of a boolean in boolean.
+    
+    Parameter : 
+    
+    - s : A boolean as String.
+    """
     s = str(s)
     if s.lower() == 'true':
         return True
@@ -214,6 +268,9 @@ class OptionDialog(QDialog, Ui_Dialog):
         button.clicked.connect(self.onRestoreDefaultsClicked)
         
     def initialize(self):
+        """
+        Fill the dialog fields with the value from the setting file.
+        """
         self.loadTextSetting(self.configPath)
         self.loadIntSetting(self.maxQueueSize)
         self.loadIntSetting(self.maxUndoRedoQueueSize)
@@ -255,34 +312,85 @@ class OptionDialog(QDialog, Ui_Dialog):
         self.loadBoolSetting(self.useHighlightingFontSize)
         
     def onApplyClicked(self):
+        """
+        QT Slot to handle the click on apply button.
+        """
         self.save()
         
     def onResetClicked(self):
+        """
+        QT Slot to handle the click on reset button.
+        """
         self.changes.clear()
         self.initialize()
         
     def onRestoreDefaultsClicked(self):
+        """
+        QT Slot to handle click on restore defaults button.
+        """
         self.changes.clear()
         self.settings.loadDefaults()
         self.initialize()
     
     def loadBoolSetting(self, checkbox):
+        """ 
+        Load setting in the checkbox.
+        
+        Parameter :
+        
+        - checkbox : The QCheckBox where to load the setting with the object name as property key.
+        """
         checkbox.setChecked(str_to_bool(self.settings.value(checkbox.objectName())))
     
     def loadComboBoxSetting(self, combobox):
+        """
+        Load setting in the combo box.
+        
+        Parameter :
+        
+        - combobox : The QComboBox where to load the setting with the object name as property key.
+        """ 
         idx = combobox.findText(self.settings.value(combobox.objectName()))
         combobox.setCurrentIndex(idx)
         
     def loadColorSetting(self, textfield):
+        """
+        Load color setting in the text field.
+        
+        Parameter :
+        
+        - textfield : The QLineEdit where to load the setting with the object name as property key.
+        """
         self.updateColorField(textfield, self.settings.value(textfield.objectName()))
 
     def loadIntSetting(self, spinbox):
+        """
+        Load integer setting in the spinbox.
+        
+        Parameter :
+        
+        - spinbox : The QSpinBox where to load the setting with the object name as property.
+        """
         spinbox.setValue(int(self.settings.value(spinbox.objectName())))
         
     def loadTextSetting(self, textField):
+        """
+        Load text setting in the textfield.
+        
+        Parameter :
+        
+        - textfield : The QLineEdit where to load the setting with the object name as property.
+        """
         textField.setText(self.settings.value(textField.objectName()))
         
     def colorChooserClicked(self, textfield):
+        """
+        QT Slot handles when a color chooser is clicked.
+        
+        Parameter :
+        
+        - textfield : The QLineEdit where to output the name of the choosen color.
+        """
         color = textfield.text()
         colorChooser = QColorDialog(self)
         if color :
@@ -294,6 +402,14 @@ class OptionDialog(QDialog, Ui_Dialog):
         self.updateColorField(textfield, color)
         
     def updateColorField(self, textfield, color):
+        """
+        Update the color field by seting it's text color with the given color.
+        
+        Parameter :
+        
+        - textfield : The QLineEdit to output the choosen color.
+        - color :  The color name.
+        """
         stylesheet = "QLineEdit { color: ";
         stylesheet += color
         stylesheet += "}"
@@ -301,11 +417,26 @@ class OptionDialog(QDialog, Ui_Dialog):
         textfield.setStyleSheet(stylesheet)
         
     def directoryPathChooserClicked(self, textfield):
+        """ 
+        QT Slot handles when the directory chooser is clicked.
+        
+        Parameter : 
+        
+        - textfield : The QLineEdit where to output the choosen path.
+        """
         path = textfield.text()
         path = QFileDialog.getExistingDirectory(self, "Select Folder", path)
         textfield.setText(path)
         
     def onOptionChanged(self, qItem, newValue):
+        """
+        QT Slot handles when an option field changed.
+        
+        Parameter :
+        
+        - qItem : The QWidget which changed, which the object name as property key.
+        - newValue : The new value of the changed option.
+        """
         optionName = qItem.objectName()
         if type(newValue) is QFont :
             newValue = newValue.family()
@@ -319,20 +450,34 @@ class OptionDialog(QDialog, Ui_Dialog):
         self.changes[optionName] = newValue
         
     def accept(self, *args, **kwargs):
+        """
+        Commit changes and disposes the dialog.
+        """
         # Save the options.
         self.save()
         return QDialog.accept(self, *args, **kwargs)
         
     def setSelectedPage(self, pageIndex):
+        """
+        QT Slot handles when a page is selected.
+        
+        Parameter :
+        
+        - pageIndex : The index of the page selected.
+        """
         self.listWidget.setCurrentRow(pageIndex)
         
     def changePage(self, current, previous):
+        """
+        QT Slot handles when a page is selected.
+        
+        Parameter :
+        
+        - current : The index of the page selected.
+        - previous : The index of the old selected page.
+        """
         if not current is None :
             self.stackedWidget.setCurrentIndex(self.listWidget.row(current))
-
-    def createView(self):
-        """ Initializes the view of the OptionDialog. """
-        pass
 
     def save(self):
         """ Saves the settings to the given path.
@@ -349,17 +494,3 @@ class OptionDialog(QDialog, Ui_Dialog):
         for key in self.changes.keys() :
             self.settings.setValue(key, self.changes.get(key))
         self.changes.clear()
-
-    def load(self, path):
-        """ Reads the settings from the given path.
-
-        Arguments:
-
-        - path: The path from which the settings will be read.
-
-        Raises:
-
-        - IOError
-
-        """
-        pass

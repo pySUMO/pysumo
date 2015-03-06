@@ -171,3 +171,10 @@ Settings
 
 * Moved class OptionDialog to module Dialog.
 
+OptionDialog
+------------
+
+* Remove createView() and load(path) methods.
+
+* Added other methods to the OptionDialog.
+
