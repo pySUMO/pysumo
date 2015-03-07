@@ -27,10 +27,10 @@ def _tokenize_docstring(chars, f):
         chars = "".join([chars, line])
     chars = chars.split('"')
     while len(chars) > 1:
-        c = _tokenize(chars.pop(0))
+        c = _tokenize(_cleanup(chars.pop(0)))
         ret.extend(c)
         ret.append("".join(['"',chars.pop(0),'"']))
-    ret.extend(_tokenize(chars.pop(0)))
+    ret.extend(_tokenize(_cleanup(chars.pop(0))))
     return (ret, n)
 
 
