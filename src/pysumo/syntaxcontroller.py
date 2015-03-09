@@ -8,6 +8,8 @@ This module contains:
 
 """
 
+import logging
+
 from io import StringIO, BytesIO
 from os import listdir, fdopen, remove
 from os.path import basename, isdir, join
@@ -52,6 +54,7 @@ class SyntaxController:
     def __init__(self, index):
         """ Initializes the SyntaxController object. """
         self.index = index
+        self.log = logging.getLogger('.' + __name__)
 
     def parse_partial(self, code_block, ontology=None):
         """ Tells self.parser to check code_block for syntactical correctness.
@@ -163,12 +166,14 @@ class SyntaxController:
 
     def undo(self, ontology):
         """ Undoes the last action in ontology """
-        kif = ontology.action_log.undo().getvalue().decode()
+        self.log.info('Undoing change to %s' % str(ontology))
+        kif = ontology.action_log.undo().getvalue().decode('utf8')
         self._update_asts(ontology, kif)
 
     def redo(self, ontology):
         """ Redoes the last action in ontology """
-        kif = ontology.action_log.redo().getvalue().decode()
+        self.log.info('Redoing change to %s' % str(ontology))
+        kif = ontology.action_log.redo().getvalue().decode('utf8')
         self._update_asts(ontology, kif)
 
     def _update_asts(self, ontology, kif):

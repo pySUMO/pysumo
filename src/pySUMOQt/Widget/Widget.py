@@ -35,7 +35,6 @@ class Widget(QObject):
 
     def refresh(self):
         """ Uses the IndexAbstractor to refresh the widget. """
-        logging.info("refreshing " + self.parent().windowTitle())
 
     def getWidget(self):
         pass
@@ -100,6 +99,7 @@ class RWWidget(Widget):
     def __init__(self, mainwindow):
         """ Initializes the read/write widget """
         super(RWWidget, self).__init__(mainwindow)
+        self.log = logging.getLogger('.' + __name__)
 
     def commit(self):
         """ Commits modifications to the ontology to the SyntaxController, and
@@ -115,9 +115,8 @@ class RWWidget(Widget):
         
     def _save_(self):
         ontology = self.getActiveOntology()
-        if ontology is None :
-            return 
-        if type(ontology) is Ontology :
+        if ontology in self.IA.ontologies:
+            self.log.info('Saving Ontology: %s' % str(ontology))
             ontology.save()
             
     def _redo_(self):

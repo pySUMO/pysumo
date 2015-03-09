@@ -29,7 +29,6 @@ class DocumentationWidget(RWidget, Ui_Form):
         super(DocumentationWidget, self).__init__(mainwindow)
         self.setupUi(self.mw)
         self.lineEdit.returnPressed.connect(self.search)
-        self.log = logging.getLogger('.' + __name__)
         if len(DocumentationWidget._WN_TROOL) == 0:
             DocumentationWidget._WN_TROOL.append(1)
             (DocumentationWidget._WN_RECV, DocumentationWidget._WN_SEND) = Pipe(False)
@@ -50,9 +49,9 @@ class DocumentationWidget(RWidget, Ui_Form):
         string in the Ontology and displays them.  """
         if len(DocumentationWidget._WN_TROOL) == 1:
             if not DocumentationWidget._WN_RECV.poll():
+                self.log.info('Searching')
                 self._TIMER.timeout.connect(self.search)
                 self._TIMER.start(3000)
-                self.log.info('Searching')
                 return
             DocumentationWidget._WN_TROOL.append(2)
             RWidget.IA.wordnet = DocumentationWidget._WN_RECV.recv()
