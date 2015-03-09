@@ -378,7 +378,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             data = data + socket.read(slen - len(data))
         assert len(data) == slen, "%d data read does not equal %d data expected." % (len(data), slen)
         logrecord = logging.makeLogRecord(loads(data))
-        self.statusBar.showMessage(logrecord.getMessage())
+        self.statusBar.showMessage(logrecord.getMessage(), 10)
 
     def _updateStatusbar_(self, wrappedWidget=None):
         """
@@ -409,7 +409,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     def synchronize(self):
         """ Performs synchronization of the main window by reporting changes in
         all the others widgets. """
-        self.log.info("synchronizing")
         self.synchronizeRequested.emit()
 
     def _deleteWidget_(self, widget):
