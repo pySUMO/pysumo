@@ -23,6 +23,7 @@ class syntaxTestCase(unittest.TestCase):
         atexit.unregister(self.milo.action_log.log_io.flush_write_queues)
 
     def tearDown(self):
+        atexit._clear()
         self.sumo.action_log.log_io.flush_write_queues()
         self.milo.action_log.log_io.flush_write_queues()
         rmtree(self.tmpdir)
@@ -81,15 +82,15 @@ class syntaxTestCase(unittest.TestCase):
         ontologies = get_ontologies(lpath=self.tmpdir)
         for o in ontologies:
             atexit.unregister(o.action_log.log_io.flush_write_queues)
-            o.action_log.log_io.flush_write_queues
+            o.action_log.log_io.flush_write_queues()
         a = Ontology('data/Merge.kif', lpath=self.tmpdir)
+        atexit.unregister(a.action_log.log_io.flush_write_queues)
         b = Ontology('data/MILO.kif', lpath=self.tmpdir)
+        atexit.unregister(b.action_log.log_io.flush_write_queues)
         self.assertIn(a, ontologies)
         self.assertIn(b, ontologies)
-        atexit.unregister(a.action_log.log_io.flush_write_queues)
-        a.action_log.log_io.flush_write_queues
-        atexit.unregister(b.action_log.log_io.flush_write_queues)
-        b.action_log.log_io.flush_write_queues
+        a.action_log.log_io.flush_write_queues()
+        b.action_log.log_io.flush_write_queues()
 
     def test5ParseAdd(self):
         self.syntaxcontroller.add_ontology(self.sumo)
