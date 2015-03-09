@@ -41,11 +41,11 @@ class SyntaxController:
     Methods:
 
     - parse_partial: Checks a code block for syntax errors.
-    - parse_add: Checks a code for correctness and adds it to the Ontology.
-    - parse_graph: Modifies the current Ontology according to an AbstractGraph.
+    - parse_patch: Checks a code for correctness and adds it to the Ontology.
     - add_ontology: Adds an Ontology to the in-memory Ontology.
     - remove_ontology: Removes an Ontology from the in-memory Ontology.
-    - serialize: Writes an Ontology out as Kif.
+    - undo: Undoes the most recent change to the ontology.
+    - redo: Redoes the most recent change to the ontology.
 
     """
 

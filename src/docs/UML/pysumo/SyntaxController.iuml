@@ -3,11 +3,11 @@ class SyntaxController {
 	- index : IndexAbstractor
 	+ __init__(index : IndexAbstractor) : SyntaxController
 	+ parse_partial(code_block)
-	+ parse_add(code_block)
-	+ parse_graph(graph)
+	+ parse_patch(code_block)
 	+ add_ontology(ontology)
 	+ remove_ontology(ontology)
-	+ serialize(ontology, path=None)
+	+ undo(ontology)
+	+ redo(ontology)
 }
 
 class Ontology {
