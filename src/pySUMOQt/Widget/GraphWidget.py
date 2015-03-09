@@ -170,7 +170,11 @@ class GraphWidget(RWWidget, Ui_Form):
                 if i.name == self.activeOntology.currentText():
                     ontology = i
                     
-            assert ontology is not None
+            if ontology is None:
+                msg = QMessageBox()
+                msg.setText("Please choose a valid Ontology to write to.")
+                msg.exec_()
+                return
             
             x = self.getIndexAbstractor().get_ontology_file(ontology)
             x.seek(0, 2)
