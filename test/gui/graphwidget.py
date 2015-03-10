@@ -16,9 +16,9 @@ Steps:
 7. Add a node "bla" in Graph Widget
 8. Add a node "bla2"
 9. Add a node "bla" (error)
-10. Add a relation instance between "bla" and "bla2"
+10. Add a relation instance between "bla" and "bla2" (error)
 11. Change scale
-12. Choose a valid selector (there was an messagebox)
+12. Choose a valid selector (there was a messagebox)
 13. Add a relation instance between "bla" and "bla2"
 14. Undo
 15. Redo
