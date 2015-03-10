@@ -150,6 +150,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
     ontologyAdded = Signal(Ontology)
     ontologyRemoved = Signal(Ontology)
     synchronizeRequested = Signal()
+    jumpRequested = Signal(int, str)
     def __init__(self):
         """ Constructs the main window.  """
         super(MainWindow, self).__init__()
@@ -232,9 +233,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             wrappedWidget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(wrappedWidget._updateOntologySelector)
             self.ontologyRemoved.connect(wrappedWidget._updateOntologySelector)
+            self.jumpRequested.connect(wrappedWidget.jumpToLocation)
         elif widgetType == "DocumentationWidget" :
             wrappedWidget = DocumentationWidget(widget)
             widget.setPrefixName("Documentation Widget")
+            wrappedWidget.OntologyText.anchorClicked.connect(self.jumpToLocation)
         elif widgetType == "HierarchyWidget" :
             wrappedWidget = HierarchyWidget(widget)
             widget.setPrefixName("Hierarchy Widget")
@@ -405,6 +408,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         cursorPos = str(lineNbr + 1) + " : " + str(textCursor.columnNumber())
         self.lineColNumber.setText(cursorPos)
 
+    def jumpToLocation(self, var):
+        l = var.path().split(' ')
+        loc = l.pop(0)
+        ont = ' '.join(l)
+        self.jumpRequested.emit(int(loc), ont)
 
     def synchronize(self):
         """ Performs synchronization of the main window by reporting changes in

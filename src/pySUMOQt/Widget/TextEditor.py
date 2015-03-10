@@ -173,6 +173,16 @@ class TextEditor(RWWidget, Ui_Form):
         self.plainTextEdit.updateRequest.connect(
             self.number_bar.updateContents)
 
+    @Slot(int)
+    def jumpToLocation(self, location, ontology):
+        if ontology == str(self.getActiveOntology()):
+            textBlock = self.plainTextEdit.document().findBlockByNumber(location)
+            pos = textBlock.position()
+            textCursor = self.plainTextEdit.textCursor()
+            textCursor.setPosition(pos)
+            self.plainTextEdit.setTextCursor(textCursor)
+            self.plainTextEdit.centerCursor()
+
     def _updateOntologySelector(self):
         """ Update the ontology selector where you can select which Ontology to show in the editor"""
         current = self.ontologySelector.currentText()

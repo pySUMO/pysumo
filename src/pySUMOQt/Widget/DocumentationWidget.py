@@ -29,6 +29,7 @@ class DocumentationWidget(RWidget, Ui_Form):
         super(DocumentationWidget, self).__init__(mainwindow)
         self.setupUi(self.mw)
         self.lineEdit.returnPressed.connect(self.search)
+        self.log = logging.getLogger('.' + __name__)
         if len(DocumentationWidget._WN_TROOL) == 0:
             DocumentationWidget._WN_TROOL.append(1)
             (DocumentationWidget._WN_RECV, DocumentationWidget._WN_SEND) = Pipe(False)
@@ -62,7 +63,7 @@ class DocumentationWidget(RWidget, Ui_Form):
         try:
             searchOntology = self.getIndexAbstractor().search(
             self.lineEdit.text())
-            self.OntologyText.setPlainText(_searchToText(searchOntology))
+            self.OntologyText.setHtml(_searchToText(searchOntology))
         except KeyError:
             self.OntologyText.setPlainText('')
         try:
@@ -73,10 +74,24 @@ class DocumentationWidget(RWidget, Ui_Form):
             self.WordNetText.setPlainText('')
 
 def _searchToText(search_results):
-    string = ''
+    string = HTML_HEADER
     for ontology in search_results.keys():
-        string = ''.join([string, str(ontology), ':\n', '\n'.join(search_results[ontology]), '\n'])
-    return string
+        string = ''.join([string, '<h2>', str(ontology), '</h2>\n<ul>', '\n'.join([_resultToLink(x, ontology) for x in search_results[ontology]]), '\n</ul>\n'])
+    return ''.join([string, HTML_FOOTER])
+
+def _resultToLink(result, ontology):
+    return ''.join(['<li><a href="', str(result[1]), ' ', str(ontology), '">', result[0], '</a></li>'])
 
 def _locateToText(locate_results):
     return '\n'.join(locate_results)
+
+HTML_HEADER = """\
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html><head><meta name="qrichtext" content="1" /><style type="text/css">
+p, li { white-space: pre-wrap; }
+</style></head><body style=" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;">
+"""
+
+HTML_FOOTER = """\
+</body></html>
+"""

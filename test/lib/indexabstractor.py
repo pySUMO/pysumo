@@ -45,7 +45,7 @@ class indexTestCase(unittest.TestCase):
                             self.indexabstractor.search('InvalidDeductiveArgument'))
         result = self.indexabstractor.search(' ContentbearingObJect')
         self.assertIn(self.sumo, result)
-        definition = result[self.sumo]
+        definition = [x[0] for x in result[self.sumo]]
         self.assertListEqual(sorted(definition),
                 sorted(['( relatedInternalConcept ContentBearingObject containsInformation )',
                  '( subclass ContentBearingObject CorpuscularObject )',

@@ -74,9 +74,9 @@ class syntaxTestCase(unittest.TestCase):
         self.syntaxcontroller.add_ontology(self.milo)
         self.assertNotEqual(self.syntaxcontroller.index.root, old_ast)
         sterm = self.syntaxcontroller.index.search('raNgesubclass')
-        self.assertListEqual(sterm[self.sumo], ['( instance rangeSubclass BinaryPredicate )', '( instance rangeSubclass AsymmetricRelation )', '( domain rangeSubclass 1 Function )', '( domainSubclass rangeSubclass 2 SetOrClass )', '( documentation rangeSubclass EnglishLanguage "(&%rangeSubclass ?FUNCTION ?CLASS) means thatall of the values assigned by ?FUNCTION are &%subclasses of ?CLASS." )'])
+        self.assertListEqual(sterm[self.sumo], [('( instance rangeSubclass BinaryPredicate )', 324), ('( instance rangeSubclass AsymmetricRelation )', 325), ('( domain rangeSubclass 1 Function )', 326), ('( domainSubclass rangeSubclass 2 SetOrClass )', 327), ('( documentation rangeSubclass EnglishLanguage "(&%rangeSubclass ?FUNCTION ?CLASS) means thatall of the values assigned by ?FUNCTION are &%subclasses of ?CLASS." )', 329)])
         mterm = self.syntaxcontroller.index.search('organISMRemains')
-        self.assertListEqual(mterm[self.milo], ['( subclass OrganismRemains OrganicObject )', '( documentation OrganismRemains EnglishLanguage "An&%instance of &%OrganismRemains is &%Dead matter of aformerly &%Living &%Organism: &%Plant, &%Animal, or&%Microorganism.  An &%instance of &%OrganismRemains mightor might not be recognizable as the remains of a particularkind or species of organism, depending on the cause of the&%Organism\'s &%Death (heart failure, stroke, roadkill,dismemberment, etc.), the elapsed time since death, thespeed of decomposition, and any post-mortem processing ofthe dead organism (embalming, cremation, mummification,boiling, consumption as food, etc.)." )'])
+        self.assertListEqual(mterm[self.milo], [('( subclass OrganismRemains OrganicObject )', 138), ('( documentation OrganismRemains EnglishLanguage "An&%instance of &%OrganismRemains is &%Dead matter of aformerly &%Living &%Organism: &%Plant, &%Animal, or&%Microorganism.  An &%instance of &%OrganismRemains mightor might not be recognizable as the remains of a particularkind or species of organism, depending on the cause of the&%Organism\'s &%Death (heart failure, stroke, roadkill,dismemberment, etc.), the elapsed time since death, thespeed of decomposition, and any post-mortem processing ofthe dead organism (embalming, cremation, mummification,boiling, consumption as food, etc.)." )', 149)])
 
     def test4GetOntologies(self):
         ontologies = get_ontologies(lpath=self.tmpdir)
@@ -101,7 +101,7 @@ class syntaxTestCase(unittest.TestCase):
         code_block.write('(instance foo Entity)\n(documentation foo EnglishLanguage "&%foo is an object of type foo")\n')
         self.syntaxcontroller.add_ontology(self.sumo, code_block.getvalue())
         sterm = self.syntaxcontroller.index.search('foo')
-        self.assertListEqual(sterm[self.sumo], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
+        self.assertListEqual([x[0] for x in sterm[self.sumo]], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
         sio = StringIO('(instance foo Entity)\n(documentation foo EnglishLanguage "&%foo is an object of type foo")\n')
         ast = kifparse(sio, self.sumo)
         old_ast.children.extend(ast.children)
@@ -113,25 +113,25 @@ class syntaxTestCase(unittest.TestCase):
         code_block = StringIO(_DIFF_ADD)
         self.syntaxcontroller.parse_patch(self.sumo, _DIFF_ADD)
         sterm = self.syntaxcontroller.index.search('foo')
-        self.assertListEqual(sterm[self.sumo], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
+        self.assertListEqual([x[0] for x in sterm[self.sumo]], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
         sio = StringIO('(instance foo Entity)\n(documentation foo EnglishLanguage "&%foo is an object of type foo")\n')
         ast = kifparse(sio, self.sumo)
         old_ast.children.extend(ast.children)
         self.assertEqual(len(self.syntaxcontroller.index.root.children), len(old_ast.children))
         self.syntaxcontroller.parse_patch(self.sumo, _DIFF_SUB)
         sterm = self.syntaxcontroller.index.search('foo')
-        self.assertListEqual(sterm[self.sumo], list())
+        self.assertListEqual([x[0] for x in sterm[self.sumo]], list())
         self.assertRaises(KeyError, self.syntaxcontroller.index._find_term, 'foo')
 
     def test7UndoRedo(self):
         self.test5ParseAdd()
         self.syntaxcontroller.undo(self.sumo)
         sterm = self.syntaxcontroller.index.search('foo')
-        self.assertListEqual(sterm[self.sumo], list())
+        self.assertListEqual([x[0] for x in sterm[self.sumo]], list())
         self.assertRaises(KeyError, self.syntaxcontroller.index._find_term, 'foo')
         self.syntaxcontroller.redo(self.sumo)
         sterm = self.syntaxcontroller.index.search('foo')
-        self.assertListEqual(sterm[self.sumo], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
+        self.assertListEqual([x[0] for x in sterm[self.sumo]], ['( instance foo Entity )', '( documentation foo EnglishLanguage "&%foo is an object of type foo" )'])
 
 _DIFF_ADD = """
 --- dev/kit/pse/pysumo/data/Merge.kif   2015-02-12 17:07:26.991461485 +0100

@@ -89,13 +89,13 @@ class IndexAbstractor:
 
         Returns:
 
-        - {Ontology : String[]}
+        - {Ontology : (String, int)[]}
 
         """
         term = normalize(term)
         ret = {x: list() for x in self.ontologies}
         for ast in self.index.get(term, []):
-            ret[ast.ontology].append(repr(ast))
+            ret[ast.ontology].append((repr(ast), ast.line))
         return ret
 
     def _find_term(self, term):
