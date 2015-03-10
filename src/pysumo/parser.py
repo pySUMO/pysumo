@@ -178,7 +178,7 @@ def _wtokenize(line, pos):
     synset = list()
     for i in range(0, w_cnt):
         word = items.pop(0)
-        if pos == Pos.adj and word[:-1] == ')':
+        if pos == Pos.adj and word[-1] == ')':
             listy = word.split('(')
             syn_marker = listy.pop()[:-1]
             word = listy.pop()
