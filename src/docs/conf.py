@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pySUMO'
-copyright = '2014, Kent, Konstantin, Philipp, Simon'
+copyright = '2015, Kent, Konstantin, Philipp, Simon'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
