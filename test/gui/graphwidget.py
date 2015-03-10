@@ -19,8 +19,9 @@ Steps:
 10. Add a relation instance between "bla" and "bla2"
 11. Change scale
 12. Choose a valid selector (there was an messagebox)
-13. Undo
-14. Redo
+13. Add a relation instance between "bla" and "bla2"
+14. Undo
+15. Redo
 """
 if __name__ == "__main__":
     tmpdir = mkdtemp()

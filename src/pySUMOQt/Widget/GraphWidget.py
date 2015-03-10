@@ -79,7 +79,7 @@ class GraphWidget(RWWidget, Ui_Form):
         self.setupUi(self.mw)
         self.startRelation = None
         self.abstractGraph = None
-        self.gv = None
+        self.gv = pygraphviz.AGraph(strict = False)
         self.widget = self.layoutWidget
         self.log = logging.getLogger('.' + __name__)
         self.nodesToQNodes = {}
@@ -107,7 +107,7 @@ class GraphWidget(RWWidget, Ui_Form):
     
     def refresh(self):
         """ Override Widget
-        Updates the TextEditor regarding to latest indexabstractor changes
+        Updates the GraphWidget regarding to latest indexabstractor changes
         """
         self.newVariant()
         super(GraphWidget, self).refresh()
@@ -163,6 +163,11 @@ class GraphWidget(RWWidget, Ui_Form):
         """
         if self.startRelation != None: # yeah a new relation
             self.log.info("Add relation from " + self.startRelation.node + " to " + qnode.node )
+            if self.relations.currentText() == "---":
+                msg = QMessageBox()
+                msg.setText("Please choose a valid variant.")
+                msg.exec_()
+                return
             addstr = "\n(" + self.relations.currentText() + " " + self.startRelation.node + " " + qnode.node + ")\n"
             self.startRelation = None
             ontology = None

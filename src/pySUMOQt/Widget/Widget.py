@@ -122,11 +122,11 @@ class RWWidget(Widget):
     def _redo_(self):
         ontology = self.getActiveOntology()
         if ontology in self.IA.ontologies:
-            self.SyntaxController.undo(ontology)
-            self.commit()
-            
+            self.SyntaxController.redo(ontology)
+            self.ontologyChanged.emit()
+                        
     def _undo_(self):
         ontology = self.getActiveOntology()
         if ontology in self.IA.ontologies:
             self.SyntaxController.undo(ontology)
-            self.commit()
+            self.ontologyChanged.emit()
