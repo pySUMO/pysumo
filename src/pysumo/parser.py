@@ -63,13 +63,14 @@ def kifparse(infile, ontology, ast=None):
     root = AbstractSyntaxTree(ontology)
     oldline = None
     linenumber = -1
+    offset = 0
     for i, line in enumerate(infile):
         line = _cleanup(line)
         if line == "":
             continue
         if '"' in line:
             line, n = _tokenize_docstring(line, infile)
-            i += n
+            offset += n
         else:
             line = _tokenize(line)
         if oldline != None:
@@ -79,11 +80,11 @@ def kifparse(infile, ontology, ast=None):
             raise ParseError(" ".join(line),  i+1)
         if line.count('(') != line.count(')'):
             if linenumber == -1:
-                linenumber = i
+                linenumber = i + offset
             oldline = line
             continue
         if linenumber == -1:
-            linenumber = i
+            linenumber = i + offset
         while line != [] and line.count('(') == line.count(')'):
             node = AbstractSyntaxTree(ontology, line=linenumber)
             parsed = node.parse(line)

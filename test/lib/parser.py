@@ -78,6 +78,20 @@ class kifParseSerilizeTest(unittest.TestCase):
             parser.kifparse(StringIO(text2), None)
 
 
+    def test3lineNumber(self):
+        f = "data/Merge.kif"
+        a = None
+        node = None
+        with open(f, errors='replace') as of:
+            a = parser.kifparse(of, None)
+        for n in a.children:
+            if str(n) != "( instance domain TernaryPredicate )":
+                continue
+            node = n
+            break
+        self.assertEqual(n.line, 199)
+
+
 kifParseSuit = unittest.makeSuite(kifParseSerilizeTest, 'test')
 
 parseSuit = unittest.TestSuite((wParseSuit, kifParseSuit))
