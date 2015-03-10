@@ -10,6 +10,7 @@ from tempfile import mkdtemp
 from shutil import rmtree
 from pysumo import parser
 from pysumo.syntaxcontroller import Ontology
+from io import StringIO
 
 class wParseTestCase(unittest.TestCase):
     def test0Tokenize(self):
@@ -67,6 +68,15 @@ class kifParseSerilizeTest(unittest.TestCase):
         with open(o.path) as f:
             parser.kifparse(f, o)
         o.action_log.log_io.flush_write_queues()
+
+    def test2InvalideSyntax(self):
+        text1 = "( bla"
+        text2 = "bla ("
+        with self.assertRaises(parser.ParseError):
+            parser.kifparse(StringIO(text1), None)
+        with self.assertRaises(parser.ParseError):
+            parser.kifparse(StringIO(text2), None)
+
 
 kifParseSuit = unittest.makeSuite(kifParseSerilizeTest, 'test')
 
