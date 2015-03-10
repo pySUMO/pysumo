@@ -317,10 +317,12 @@ class TextEditor(RWWidget, Ui_Form):
 
     def _hideLines(self, lines):
         for line in lines:
+            if line == 0:
+                continue
             block = self.getWidget().document().findBlockByNumber(line - 1)
             assert block.isVisible()
             block.setVisible(False)
-            assert not block.isVisible()
+            assert not block.isVisible(), "Problem with line %r" % (line)
 
     def _showLines(self, lines):
         """ Show the lines not visible starting by lines

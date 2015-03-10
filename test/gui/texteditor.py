@@ -9,6 +9,7 @@ Steps:
 1. Open pySUMO
 2. Open TextEditor
 3. Open Merge.kif
+3a. Choose Merge.kif
 4. Collapse Line 289
 5. Collapse Line 137
 6. Collapse Line 135
