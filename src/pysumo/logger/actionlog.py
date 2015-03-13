@@ -188,9 +188,9 @@ class LogIO:
 
     def _patch(self, current, diff, reverse=False):
         """ Returns current after diff has been applied to it. """
-        args = ['patch', '-u', '-N', self.current]
+        args = ['patch', '-N', '-u', self.current]
         if reverse:
-            args.append('-R')
+            args.insert(1, '-R')
         with open(self.current, 'w+b') as cur:
             cur.write(current.getbuffer())
             cur.flush()
