@@ -21,13 +21,13 @@ ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n'
 def corrupt(source, dest, number=200):
     random = SystemRandom()
     sbuf = source.getbuffer()
-    length = len(sbuf)
+    length = len(source.getvalue().decode('utf8', errors='replace').split('\n'))
     waitlist = set()
     for i in range(0, number):
         f = '/'.join([dest, '%03d.kif' % i])
         lines = set()
         for j in range(0, random.randint(0, int(length / 1000))):
-            line = random.randint(1, length)
+            line = random.randint(1, length - j)
             lines.add('%dd' % line)
         deletes = ';'.join(lines)
         args = ['sed', deletes]
