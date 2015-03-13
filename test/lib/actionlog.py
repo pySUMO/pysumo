@@ -118,8 +118,8 @@ class actionLogTestCase(unittest.TestCase):
         self.assertEqual(sorted(os.listdir('/'.join([self.tmpdir, 'test', 'redo']))), [])
 
     def test5SizeFlush(self):
-        self.add_and_ok(SUMO)
         randomize.join()
+        self.add_and_ok(SUMO)
         for kif in os.listdir(CORRUPTDIR)[:9]:
             with open('/'.join([CORRUPTDIR, kif]), 'r+b') as mkif:
                 new = BytesIO(mkif.read())
