@@ -25,25 +25,35 @@ def corrupt(source, dest, number=200):
     waitlist = set()
     for i in range(0, number):
         f = '/'.join([dest, '%03d.kif' % i])
-        with open(f, 'w+b') as cur:
-            cur.write(sbuf)
-            cur.flush()
         lines = set()
         for j in range(0, random.randint(0, int(length / 1000))):
             line = random.randint(1, length)
             lines.add('%dd' % line)
         deletes = ';'.join(lines)
-        args = ['sed', '-i', deletes, f]
-        popen = subprocess.Popen(args)
+        args = ['sed', deletes]
+        popen = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        stdout, _ = popen.communicate(sbuf)
         popen.wait()
+        with open(f, 'w+b') as cur:
+            cur.write(sbuf)
+            cur.flush()
         if random.choice([True, False]):
             count = random.randint(1, 6)
             src = ''.join(random.sample(ALPHABET, count))
             dst = ''.join(random.sample(ALPHABET, count))
-            args = ['sed', '-i', 'y/%s/%s/' % (src, dst), f]
-            waitlist.add(subprocess.Popen(args))
-    for proc in waitlist:
+            args = ['sed', 'y/%s/%s/' % (src, dst)]
+            cur = open(f, 'w+b')
+            waitlist.add((subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE), cur, stdout))
+        else:
+            with open(f, 'w+b') as cur:
+                cur.write(stdout)
+                cur.flush()
+    for proc, cur, content in waitlist:
+        stdout, _ = proc.communicate(content)
         proc.wait()
+        cur.write(stdout)
+        cur.flush()
+        cur.close()
 
 class actionLogTestCase(unittest.TestCase):
     def setUp(self):
