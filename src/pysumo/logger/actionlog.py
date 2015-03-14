@@ -94,7 +94,7 @@ class ActionLog:
         if not num == log_queue_ok_num:
             raise KeyError(num)
         if self.current is None:
-            self.current = entry
+            self.current = BytesIO()
         diff = self.log_io.diff(self.current, entry)
         self.current = self.log_io.redo(self.current, diff)
         self.actionlog.append(diff)
@@ -190,13 +190,14 @@ class LogIO:
         """ Returns current after diff has been applied to it. """
         args = ['patch', '-N', '-u', self.current]
         if reverse:
-            args.insert(1, '-R')
+            args[1] = '-NR'
         with open(self.current, 'w+b') as cur:
             cur.write(current.getbuffer())
             cur.flush()
         popen = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL)
         popen.communicate(diff.getbuffer())
-        popen.wait()
+        ret = popen.wait()
+        assert ret == 0
         with open(self.current, 'r+b') as cur:
             return BytesIO(cur.read())
 
