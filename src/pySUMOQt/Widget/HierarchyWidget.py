@@ -147,10 +147,3 @@ class HierarchyWidget(RWWidget, Ui_Form):
 
         """
         pass
-
-if __name__ == "__main__":
-    application = QApplication(sys.argv)
-    mainwindow = QMainWindow()
-    x = HierarchyWidget(mainwindow)
-    mainwindow.show()
-    sys.exit(application.exec_())
