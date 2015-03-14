@@ -80,28 +80,40 @@ class actionLogTestCase(unittest.TestCase):
 
     def test1OKQueue(self):
         self.add_and_ok(SUMO)
+        self.assertEqual(self.al.current.getvalue(), SUMO.getvalue())
         assert len(self.al.actionlog) == 1
         assert isinstance(self.al.actionlog.pop(), BytesIO)
 
     def test2AddAction(self):
+        randomize.join()
         self.add_and_ok(SUMO)
-        while not isfile('/'.join([CORRUPTDIR, '000.kif'])):
+        while not isfile('/'.join([CORRUPTDIR, '003.kif'])):
             sleep(1)
         with open('/'.join([CORRUPTDIR, '000.kif']), 'r+b') as kif:
             new = BytesIO(kif.read())
         self.add_and_ok(new)
+        diff = self.al.actionlog[1].getvalue().decode('utf8')
+        self.assertNotEqual(diff, '')
+        diff0 = self.al.actionlog[0].getvalue().decode('utf8')
+        self.assertNotEqual(diff, diff0)
         self.assertEqual(len(self.al.actionlog), 2)
         self.al.log_io.flush_write_queues()
         self.assertEqual(os.listdir(self.tmpdir), ['test'])
         self.assertEqual(sorted(os.listdir('/'.join([self.tmpdir, 'test']))), sorted(['current', 'redo', 'undo']))
         self.assertEqual(sorted(os.listdir('/'.join([self.tmpdir, 'test', 'undo']))), sorted(['000', '001']))
+        with open('/'.join([self.tmpdir, 'test', 'undo', '001'])) as patchfile:
+            patch = patchfile.read()
+            self.assertNotEqual(patch, '')
+            self.assertEqual(patch, diff)
 
     def test3Undo(self):
         self.add_and_ok(SUMO)
         with open('/'.join([CORRUPTDIR, '000.kif']), 'r+b') as kif:
             new = BytesIO(kif.read())
         self.add_and_ok(new)
-        self.assertEqual(self.al.undo().getvalue(), SUMO.getvalue())
+        undoed = self.al.undo().getvalue()
+        self.assertEqual(undoed.decode('utf8', errors='replace'), SUMO.getvalue().decode('utf8', errors='replace'))
+        self.assertEqual(undoed, SUMO.getvalue())
         self.al.log_io.flush_write_queues()
         self.assertEqual(sorted(os.listdir('/'.join([self.tmpdir, 'test', 'undo']))), sorted(['000']))
         self.assertEqual(sorted(os.listdir('/'.join([self.tmpdir, 'test', 'redo']))), sorted(['000']))
@@ -118,7 +130,6 @@ class actionLogTestCase(unittest.TestCase):
         self.assertEqual(sorted(os.listdir('/'.join([self.tmpdir, 'test', 'redo']))), [])
 
     def test5SizeFlush(self):
-        randomize.join()
         self.add_and_ok(SUMO)
         for kif in os.listdir(CORRUPTDIR)[:9]:
             with open('/'.join([CORRUPTDIR, kif]), 'r+b') as mkif:
@@ -152,7 +163,7 @@ class actionLogTestCase(unittest.TestCase):
             self.add_and_ok(new)
         for i in range(0, 10):
             self.al.undo()
-        self.assertEqual(self.al.undo().getvalue(), SUMO.getvalue())
+        self.assertEqual(self.al.redo().getvalue(), SUMO.getvalue())
 
     def test8ExcessiveRedo(self):
         self.add_and_ok(SUMO)
