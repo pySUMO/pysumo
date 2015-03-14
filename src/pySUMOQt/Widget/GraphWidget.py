@@ -122,15 +122,6 @@ class GraphWidget(RWWidget, Ui_Form):
             action_log.redo()
             self.commit()
             
-    def _undo_(self):
-        self.log.info("undoing from graph widget")
-        idx = self.activeOntology.currentIndex()
-        ontology = self.activeOntology.itemData(idx)
-        if not ontology is None and type(ontology) == Ontology :
-            action_log = ontology.action_log
-            action_log.undo()
-            self.commit()
-
     def getActiveOntology(self):
         idx = self.activeOntology.currentIndex()
         return self.activeOntology.itemData(idx)
