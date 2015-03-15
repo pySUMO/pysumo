@@ -1,5 +1,7 @@
-* Add a completer to GraphWidget "Search for Node"
+Feature Requests
+===========================
+
 * Search in Text Editor
 * Hyperlinks to TextEditor from GraphWidget, Hierachy, Documentation
-* Documentation Widget sync to GraphWidget, TextEditor
 * Better position for GraphNode
+* Documentation Widget to Graph Widget Links
