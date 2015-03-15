@@ -9,14 +9,14 @@ Steps:
 1. Open pySUMO
 2. Open TextEditor
 3. Open Merge.kif
-3a. Choose Merge.kif
-4. Collapse Line 289
-5. Collapse Line 137
-6. Collapse Line 135
-6. Uncollapse Line 135
-7. Uncollapse Line 289
-8. Collapse all
-9. Expand all
+4. Choose Merge.kif
+5. Collapse Line 288
+6. Collapse Line 136
+7. Collapse Line 134
+8. Uncollapse Line 134
+9. Uncollapse Line 288
+10. Collapse all
+11. Expand all
 """
 if __name__ == "__main__":
     tmpdir = mkdtemp()
