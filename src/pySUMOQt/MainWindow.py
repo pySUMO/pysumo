@@ -719,6 +719,17 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         - ontology : The ontology to delete.
         - ontologyMenu : The QMenu where the ontology could be managed. It should be remove too.
         """
+        changed , diff = self.ontologyChanged(ontology)
+        if changed :
+            msgBox = QMessageBox(self)
+            msgBox.setText("The ontology file \"" + ontology.name + "\" has been modified.")
+            msgBox.setInformativeText("Do you want to save your changes?")
+            msgBox.setDetailedText(diff)
+            msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard)
+            msgBox.setDefaultButton(QMessageBox.Save)
+            ret = msgBox.exec_()
+            if ret == QMessageBox.Save :
+                ontology.save()
         self.removeOntology(ontology)
         # remove ontology in active ones.
         ontologyMenu.deleteLater()
