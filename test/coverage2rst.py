@@ -15,5 +15,6 @@ f1.close()
 rst = tabulate(data[1:], headers=data[0],tablefmt='rst')
 
 f2 = open(argv[2], "w")
+f2.write("Statement Coverage of pysumo and pySUMOQt\n======================================================\n")
 f2.write(rst)
 f2.close()
