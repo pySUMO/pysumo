@@ -111,16 +111,6 @@ class GraphWidget(RWWidget, Ui_Form):
         """
         self.newVariant()
         super(GraphWidget, self).refresh()
-
-        
-    def _redo_(self):
-        self.log.info("redoing from graph widget")
-        idx = self.activeOntology.currentIndex()
-        ontology = self.activeOntology.itemData(idx)
-        if not ontology is None and type(ontology) == Ontology :
-            action_log = ontology.action_log
-            action_log.redo()
-            self.commit()
             
     def getActiveOntology(self):
         idx = self.activeOntology.currentIndex()
