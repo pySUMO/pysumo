@@ -9,3 +9,4 @@ do
 		echo "hit enter to continue"
 		read i
 done
+coverage report --include='src/*' > $1
