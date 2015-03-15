@@ -19,6 +19,7 @@ Steps:
 if __name__ == "__main__":
     tmpdir = mkdtemp()
     pysumo.CONFIG_PATH = tmpdir
+    pysumo.PACKAGE_DATA = './data'
     MainWindow.main()
     MainWindow.main()
     shutil.rmtree(tmpdir, ignore_errors=True)

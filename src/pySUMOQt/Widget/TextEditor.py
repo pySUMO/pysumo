@@ -334,11 +334,7 @@ class TextEditor(RWWidget, Ui_Form):
         """
         for line in lines:
             block = self.getWidget().document().findBlockByNumber(line - 1)
-            assert not block.isVisible(), "%r %r %r %r %r" % (
-                line, lines, block.text(), block.isValid(), self.hidden)
             block.setVisible(True)
-            assert block.isVisible(
-            ), "there was an error hide/unhide line %r %r" % (line, block.text())
 
     def getLayoutWidget(self):
         """ Returns the layout widget"""
