@@ -587,9 +587,19 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             callback = partial(self.addOntology, ontology)
             action.triggered.connect(callback)
             self.menuRecent_Ontologies.insertAction(befAction, action)
-        ontologyMenu = QMenu(self)
-        ontologyMenu.setTitle(ontology.name)
-        
+        i = len(self.menuOntology.actions()) - 3
+        ontologyMenu = None
+        for x in range(i, len(self.menuOntology.actions())) :
+            a = self.menuOntology.actions()[x]
+            if a.text() == ontology.name :
+                # Don't need to add menu.
+                ontologyMenu = a.menu()
+                break
+            
+        if ontologyMenu is None :
+            ontologyMenu = QMenu(self)
+            ontologyMenu.setTitle(ontology.name)
+        ontologyMenu.clear()
         # Update action
         icon = QIcon()
         icon.addPixmap(QPixmap(":/actions/gfx/actions/update-product.png"), QIcon.Normal, QIcon.Off)
