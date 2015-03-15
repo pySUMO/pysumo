@@ -179,6 +179,7 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 test:
-	export PATH=../../:$(PATH)
-	../../test/coverage.sh coverage.txt
-	../../test/coverage2rst.py coverage.txt tests.rst
+	cd ../../ && \
+	sh test/coverage.sh coverage.txt && \
+	python3 test/coverage2rst.py coverage.txt src/docs/tests.rst
+	

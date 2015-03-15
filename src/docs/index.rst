@@ -229,7 +229,14 @@ GraphWidget
    #. Select instance on Variant selector
    #. Add a node in Graph Widget
 
-Coverage of GraphWidget.py: bla 
+Test Results
+==================
+
+.. toctree::
+   :maxdepth: 4 
+
+   tests
+
 
 Errors
 ==========
