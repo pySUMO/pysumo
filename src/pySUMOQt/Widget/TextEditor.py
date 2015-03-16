@@ -160,7 +160,7 @@ class TextEditor(RWWidget, Ui_Form):
                 return
             self.commit()
         else:
-            super(TextEditor, self)._undo_()
+            super(TextEditor, self)._redo_()
         
     def _initNumberBar(self):
         """ Init the number bar"""

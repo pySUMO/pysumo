@@ -381,7 +381,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             data = data + socket.read(slen - len(data))
         assert len(data) == slen, "%d data read does not equal %d data expected." % (len(data), slen)
         logrecord = logging.makeLogRecord(loads(data))
-        self.statusBar.showMessage(logrecord.getMessage(), 10)
+        self.statusBar.showMessage(logrecord.getMessage(), 5000)
 
     def _updateStatusbar_(self, wrappedWidget=None):
         """
