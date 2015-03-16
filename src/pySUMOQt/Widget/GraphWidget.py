@@ -111,7 +111,7 @@ class GraphWidget(RWWidget, Ui_Form):
         """
         self.newVariant()
         super(GraphWidget, self).refresh()
-            
+
     def getActiveOntology(self):
         idx = self.activeOntology.currentIndex()
         return self.activeOntology.itemData(idx)
