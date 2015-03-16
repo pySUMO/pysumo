@@ -554,17 +554,8 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """
         RWWidget.SyntaxController.add_ontology(ontology, newversion)
         self.ontologyAdded.emit(ontology)
-
-    def notifyOntologyAdded(self, ontology):
-        """
-        Notify that an ontology was added to the index.
         
-        Parameter :
-        
-        - ontology : The added ontology.
-        """
-        if ontology is None:
-            return
+    def addRecentOntology(self, ontology):
         count = len(self.menuRecent_Ontologies.actions())
         count = count - 2  # remove the separator action and the clear history action.
         name = str(count + 1)
@@ -587,6 +578,18 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             callback = partial(self.addOntology, ontology)
             action.triggered.connect(callback)
             self.menuRecent_Ontologies.insertAction(befAction, action)
+
+    def notifyOntologyAdded(self, ontology):
+        """
+        Notify that an ontology was added to the index.
+        
+        Parameter :
+        
+        - ontology : The added ontology.
+        """
+        if ontology is None:
+            return
+        self.addRecentOntology(ontology)
         i = len(self.menuOntology.actions()) - 3
         ontologyMenu = None
         for x in range(i, len(self.menuOntology.actions())) :

@@ -102,7 +102,7 @@ class LayoutManager(QSettings):
             url = self.value("url")
             lpath = self.value("lpath")
             ontology = Ontology(path=path, name=name, url=url, lpath=lpath)
-            self.mainwindow.addOntology(ontology)
+            self.mainwindow.addRecentOntology(ontology)
         self.endArray()
 
     def restoreGraphWidgets(self):
