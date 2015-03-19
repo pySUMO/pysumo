@@ -8,7 +8,7 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 """
 
 from PySide.QtCore import QLineF, Slot, Qt
-from PySide.QtGui import QColor, QPen, QMenu, QInputDialog, QMessageBox, QCompleter
+from PySide.QtGui import QColor, QPen, QMenu, QInputDialog, QMessageBox, QCompleter, QFontMetricsF
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
 from PySide.QtGui import QPrintPreviewDialog, QPainter
 import pygraphviz
@@ -259,7 +259,10 @@ class GraphWidget(RWWidget, Ui_Form):
         self.qLines = []
         for node in self.gv.nodes_iter():
             (x, y) = node.attr['pos'].split(',')
-            qnode = self.createQtNode(node, float(x) * 4, float(y) * 4)
+            x = float(x)
+            y = float(y)
+            point = self.graphicsView.mapToScene(int(x),int(y))
+            qnode = self.createQtNode(node, point.x(), point.y())
             scene.addItem(qnode)
 
             self.nodesToQNodes[node] = qnode
@@ -283,7 +286,11 @@ class GraphWidget(RWWidget, Ui_Form):
             - color: The color of circle (red by default)
         
         """
-        qnode = QtNode(-40, -40, 80, 80)
+        #dpi = float(self.gv.graph_attr['dpi'])
+        dpi = 96
+        width = float(node.attr['width'])
+        height = float(node.attr['height'])
+        qnode = QtNode(-width * dpi / 2, -height * dpi / 2, width* dpi,  height * dpi)
         qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
         qnode.setPos(posx, posy)
         qnode.setFlag(QGraphicsItem.ItemIsMovable)
@@ -291,11 +298,17 @@ class GraphWidget(RWWidget, Ui_Form):
         qnode.setNode(node)
         qnode.setBrush(color)
         txt = QGraphicsSimpleTextItem(qnode)
-        txt.setPos(-35, -25)
         font = txt.font()
         font.setPointSize(14)
         txt.setFont(font)
-        txt.setText(insert_newlines(node, 8))
+        txt.setText(node)
+        txtwidth = QFontMetricsF(font).width(node)
+        txtheight = QFontMetricsF(font).height()
+        toLeft = (-width * dpi/ 2) + (width * dpi - txtwidth) / 2
+        toBottom = (-height * dpi/ 2) + (height * dpi - txtheight) / 2
+        txt.setPos(toLeft, toBottom)
+
+
         
         return qnode
 
@@ -369,7 +382,7 @@ class GraphWidget(RWWidget, Ui_Form):
             - d: The depth (none for infinite depth
         
         """
-        gv = pygraphviz.AGraph(strict=False)
+        gv = pygraphviz.AGraph(strict=False,overlap="scale")
         y = self.getIndexAbstractor().get_graph(variant, root=r, depth=d)
         colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
                   "yellow", "turquoise", "sienna", "darkgreen"]
