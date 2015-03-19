@@ -10,7 +10,7 @@ GraphWidget: Displays and allows modification of a graph of the Ontology.
 from PySide.QtCore import QLineF, Slot, Qt
 from PySide.QtGui import QColor, QPen, QMenu, QInputDialog, QMessageBox, QCompleter, QFontMetricsF
 from PySide.QtGui import QGraphicsEllipseItem, QGraphicsSimpleTextItem, QGraphicsScene, QGraphicsItem
-from PySide.QtGui import QPrintPreviewDialog, QPainter
+from PySide.QtGui import QPrintPreviewDialog, QPainter, QApplication
 import pygraphviz
 import random
 import logging
@@ -165,7 +165,9 @@ class GraphWidget(RWWidget, Ui_Form):
             x = self.getIndexAbstractor().get_ontology_file(ontology)
             x.seek(0, 2)
             x.write(addstr)
+            QApplication.setOverrideCursor(Qt.BusyCursor)
             self.SyntaxController.add_ontology(ontology, newversion=x.getvalue())
+            QApplication.setOverrideCursor(Qt.ArrowCursor)
             self.commit()
         else:
             self.log.info("Starting node is " + qnode.node)
@@ -251,8 +253,6 @@ class GraphWidget(RWWidget, Ui_Form):
         Creates a QGraphicScene for the layouted graph in self.gv
         This function has to be called every time, a node change happened.
         """
-        #scene = QGraphicsScene()
-        #self.graphicsView.setScene(scene)
         scene = self.graphicsView.scene()
         scene.clear()
         self.nodesToQNodes = {}
@@ -382,6 +382,7 @@ class GraphWidget(RWWidget, Ui_Form):
             - d: The depth (none for infinite depth
         
         """
+        QApplication.setOverrideCursor(Qt.BusyCursor)
         gv = pygraphviz.AGraph(strict=False,overlap="scale")
         y = self.getIndexAbstractor().get_graph(variant, root=r, depth=d)
         colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
@@ -392,3 +393,4 @@ class GraphWidget(RWWidget, Ui_Form):
         gv.layout("sfdp")
 
         self.gv = gv
+        QApplication.setOverrideCursor(Qt.ArrowCursor)

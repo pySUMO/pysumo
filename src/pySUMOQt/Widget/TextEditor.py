@@ -493,7 +493,9 @@ class TextEditor(RWWidget, Ui_Form):
         if ontology is None:
             return
         try:
+            QApplication.setOverrideCursor(Qt.BusyCursor)
             self.SyntaxController.add_ontology(ontology, self.plainTextEdit.toPlainText())
+            QApplication.setOverrideCursor(Qt.ArrowCursor)
         except ParseError:
             return
         super(TextEditor, self).commit()
