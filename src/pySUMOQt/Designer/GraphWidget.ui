@@ -127,13 +127,6 @@
       </item>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>+</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="2">
      <spacer name="horizontalSpacer">
       <property name="orientation">

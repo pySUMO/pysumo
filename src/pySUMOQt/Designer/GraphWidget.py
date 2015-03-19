@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GraphWidget.ui'
 #
-# Created: Thu Mar 19 23:10:53 2015
+# Created: Fri Mar 20 00:00:31 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,6 +43,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.rootSelector.sizePolicy().hasHeightForWidth())
         self.rootSelector.setSizePolicy(sizePolicy)
+        self.rootSelector.setInsertPolicy(QtGui.QComboBox.InsertAlphabetically)
         self.rootSelector.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
         self.rootSelector.setObjectName("rootSelector")
         self.rootSelector.addItem("")
@@ -63,9 +64,6 @@ class Ui_Form(object):
         self.relations.addItem("")
         self.relations.addItem("")
         self.gridLayout.addWidget(self.relations, 0, 3, 1, 1)
-        self.pushButton = QtGui.QPushButton(self.layoutWidget)
-        self.pushButton.setObjectName("pushButton")
-        self.gridLayout.addWidget(self.pushButton, 0, 0, 1, 1)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem1, 0, 2, 1, 1)
         self.label2 = QtGui.QLabel(self.layoutWidget)
@@ -92,7 +90,6 @@ class Ui_Form(object):
         self.relations.setItemText(0, QtGui.QApplication.translate("Form", "---", None, QtGui.QApplication.UnicodeUTF8))
         self.relations.setItemText(1, QtGui.QApplication.translate("Form", "instance", None, QtGui.QApplication.UnicodeUTF8))
         self.relations.setItemText(2, QtGui.QApplication.translate("Form", "subclass", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("Form", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.label2.setText(QtGui.QApplication.translate("Form", "Select root node", None, QtGui.QApplication.UnicodeUTF8))
         self.depth.setStatusTip(QtGui.QApplication.translate("Form", "-1 for infinity depth", None, QtGui.QApplication.UnicodeUTF8))
 
