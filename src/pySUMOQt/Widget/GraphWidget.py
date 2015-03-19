@@ -362,6 +362,7 @@ class GraphWidget(RWWidget, Ui_Form):
         
         self.createGV(variant, root, depth)
         self.plot()
+        self.searchNode(root)
         
     def newVariant(self):
         """ Change to new variant set in the widget and redraw"""

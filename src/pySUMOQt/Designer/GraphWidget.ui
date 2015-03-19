@@ -76,6 +76,9 @@
       <property name="whatsThis">
        <string>Root selector</string>
       </property>
+      <property name="insertPolicy">
+       <enum>QComboBox::InsertAlphabetically</enum>
+      </property>
       <property name="sizeAdjustPolicy">
        <enum>QComboBox::AdjustToContents</enum>
       </property>
