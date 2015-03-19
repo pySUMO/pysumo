@@ -161,7 +161,7 @@ class GraphWidget(RWWidget, Ui_Form):
                 msg.setText("Please choose a valid Ontology to write to.")
                 msg.exec_()
                 return
-            
+            self.lineEdit.setText(qnode.node)
             x = self.getIndexAbstractor().get_ontology_file(ontology)
             x.seek(0, 2)
             x.write(addstr)
@@ -274,7 +274,7 @@ class GraphWidget(RWWidget, Ui_Form):
         self.completer.setWidget(self.lineEdit)
         self.lineEdit.setCompleter(self.completer)
         self.renewplot()
-
+        self.searchNode(self.lineEdit.text())
     def createQtNode(self, node, posx, posy, color = QColor(255,150,150)):
         """ Create a QtNode with given position, color for given node
         
@@ -288,8 +288,14 @@ class GraphWidget(RWWidget, Ui_Form):
         """
         #dpi = float(self.gv.graph_attr['dpi'])
         dpi = 96
-        width = float(node.attr['width'])
-        height = float(node.attr['height'])
+        try:
+            width = float(node.attr['width'])
+            height = float(node.attr['height'])
+        except ValueError:
+            #New created node
+            width = 300 / 96
+            height = 40 / 96
+            
         qnode = QtNode(-width * dpi / 2, -height * dpi / 2, width* dpi,  height * dpi)
         qnode.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
         qnode.setPos(posx, posy)
