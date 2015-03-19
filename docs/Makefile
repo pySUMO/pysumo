@@ -179,7 +179,9 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 test:
-	cd ../../ && \
+	cd ../ && \
 	sh test/coverage.sh coverage.txt && \
-	python3 test/coverage2rst.py coverage.txt src/docs/tests.rst
+	python3 test/coverage2rst.py coverage.txt docs/tests.rst && \
+	coverage html && \
+	cp -r htmlcov docs/
 	
