@@ -76,6 +76,9 @@
       <property name="whatsThis">
        <string>Root selector</string>
       </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToContents</enum>
+      </property>
       <item>
        <property name="text">
         <string>---</string>
@@ -98,6 +101,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
       <property name="sizeAdjustPolicy">
        <enum>QComboBox::AdjustToMinimumContentsLength</enum>
       </property>
@@ -114,11 +120,6 @@
       <item>
        <property name="text">
         <string>subclass</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>domain</string>
        </property>
       </item>
      </widget>

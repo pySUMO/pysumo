@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GraphWidget.ui'
 #
-# Created: Thu Mar  5 16:14:58 2015
+# Created: Thu Mar 19 23:10:53 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,6 +43,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.rootSelector.sizePolicy().hasHeightForWidth())
         self.rootSelector.setSizePolicy(sizePolicy)
+        self.rootSelector.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
         self.rootSelector.setObjectName("rootSelector")
         self.rootSelector.addItem("")
         self.gridLayout.addWidget(self.rootSelector, 0, 11, 1, 1)
@@ -55,9 +56,9 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.relations.sizePolicy().hasHeightForWidth())
         self.relations.setSizePolicy(sizePolicy)
+        self.relations.setEditable(True)
         self.relations.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToMinimumContentsLength)
         self.relations.setObjectName("relations")
-        self.relations.addItem("")
         self.relations.addItem("")
         self.relations.addItem("")
         self.relations.addItem("")
@@ -91,7 +92,6 @@ class Ui_Form(object):
         self.relations.setItemText(0, QtGui.QApplication.translate("Form", "---", None, QtGui.QApplication.UnicodeUTF8))
         self.relations.setItemText(1, QtGui.QApplication.translate("Form", "instance", None, QtGui.QApplication.UnicodeUTF8))
         self.relations.setItemText(2, QtGui.QApplication.translate("Form", "subclass", None, QtGui.QApplication.UnicodeUTF8))
-        self.relations.setItemText(3, QtGui.QApplication.translate("Form", "domain", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("Form", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.label2.setText(QtGui.QApplication.translate("Form", "Select root node", None, QtGui.QApplication.UnicodeUTF8))
         self.depth.setStatusTip(QtGui.QApplication.translate("Form", "-1 for infinity depth", None, QtGui.QApplication.UnicodeUTF8))

@@ -382,14 +382,17 @@ class GraphWidget(RWWidget, Ui_Form):
             - d: The depth (none for infinite depth
         
         """
-        QApplication.setOverrideCursor(Qt.BusyCursor)
         gv = pygraphviz.AGraph(strict=False,overlap="scale")
         y = self.getIndexAbstractor().get_graph(variant, root=r, depth=d)
+        if y is None or len(y.relations) == 0:
+            return
+        QApplication.setOverrideCursor(Qt.BusyCursor)
         colors = ["black", "red", "blue", "green", "darkorchid", "gold2",
                   "yellow", "turquoise", "sienna", "darkgreen"]
         for k in y.relations.keys():
             l = [(k, v) for v in y.relations[k]]
             gv.add_edges_from(l, color=random.choice(colors))
+
         gv.layout("sfdp")
 
         self.gv = gv
