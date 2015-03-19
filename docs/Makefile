@@ -180,8 +180,10 @@ pseudoxml:
 
 test:
 	cd ../ && \
+	export PYTHONPATH=src && \
 	sh test/coverage.sh coverage.txt && \
 	python3 test/coverage2rst.py coverage.txt docs/tests.rst && \
 	coverage html && \
-	cp -r htmlcov docs/
+	mv -r htmlcov docs/ && \
+	rm coverage.txt
 	
