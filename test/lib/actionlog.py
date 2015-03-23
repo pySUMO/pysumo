@@ -5,7 +5,6 @@ import os
 import subprocess
 import unittest
 import pysumo
-pysumo.PACKAGE_DATA = 'data/'
 
 from io import BytesIO
 from pysumo.logger import actionlog
@@ -220,7 +219,7 @@ class actionLogTestCase(unittest.TestCase):
 actionLogSuit = unittest.makeSuite(actionLogTestCase, 'test')
 CORRUPTDIR = mkdtemp()
 atexit.register(rmtree, CORRUPTDIR)
-with open('data/Merge.kif', 'r+b') as kif:
+with open('src/pysumo/data/Merge.kif', 'r+b') as kif:
     SUMO = BytesIO(kif.read())
 randomize = Thread(target=corrupt, name='kif-randomizer', args=(SUMO, CORRUPTDIR))
 randomize.start()

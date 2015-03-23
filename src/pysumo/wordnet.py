@@ -6,6 +6,8 @@ This module contains:
 
 """
 
+from pkg_resources import resource_stream
+
 import pysumo
 from . import parser
 
@@ -23,9 +25,9 @@ class WordNet:
 
     def __init__(self):
         try:
-            self.mapping = parser.wparse(pysumo.CONFIG_PATH)
+            self.mapping = parser.wparse([(open('%s/wordnet/sdata.%s' % (pysumo.CONFIG_PATH, pos.name), 'r+b'), pos) for pos in parser.Pos])
         except FileNotFoundError:
-            self.mapping = parser.wparse(pysumo.PACKAGE_DATA)
+            self.mapping = parser.wparse([(resource_stream('pysumo', '/'.join(['data', 'wordnet', 'sdata.%s' % pos.name])), pos) for pos in parser.Pos])
 
 
     def locate_term(self, term):

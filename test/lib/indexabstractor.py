@@ -5,7 +5,6 @@ import unittest
 from tempfile import mkdtemp
 from shutil import rmtree
 import pysumo
-pysumo.PACKAGE_DATA = 'data/'
 
 from io import StringIO
 from pysumo import parser
@@ -15,7 +14,7 @@ from pysumo.syntaxcontroller import Ontology
 class indexTestCase(unittest.TestCase):
     def setUp(self):
         self.tmpdir = mkdtemp()
-        self.sumo = Ontology('data/Merge.kif', name='SUMO', lpath=self.tmpdir)
+        self.sumo = Ontology('src/pysumo/data/Merge.kif', name='SUMO', lpath=self.tmpdir)
         atexit.unregister(self.sumo.action_log.log_io.flush_write_queues)
         with open(self.sumo.path) as f:
             self.kif = parser.kifparse(f, self.sumo)
@@ -87,7 +86,7 @@ class indexTestCase(unittest.TestCase):
         self.assertEqual(o_ast, s_ast)
 
     def test6MultipleOntologies(self):
-        milo = Ontology('data/MILO.kif', lpath=self.tmpdir)
+        milo = Ontology('src/pysumo/data/MILO.kif', lpath=self.tmpdir)
         atexit.unregister(milo.action_log.log_io.flush_write_queues)
         with open(milo.path) as f:
             milo_kif = parser.kifparse(f, milo)
@@ -102,7 +101,7 @@ class indexTestCase(unittest.TestCase):
         completions = self.indexabstractor.get_completions()
         self.assertIn('TwoDimensionalFigure', completions)
         self.assertEqual(len(completions), 1168)
-        milo = Ontology('data/MILO.kif', lpath=self.tmpdir)
+        milo = Ontology('src/pysumo/data/MILO.kif', lpath=self.tmpdir)
         atexit.unregister(milo.action_log.log_io.flush_write_queues)
         with open(milo.path) as f:
             milo_kif = parser.kifparse(f, milo)

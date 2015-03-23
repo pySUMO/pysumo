@@ -11,13 +11,12 @@ from pysumo.syntaxcontroller import *
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.parser import kifparse, AbstractSyntaxTree, astmerge
 import pysumo
-pysumo.PACKAGE_DATA = 'data/'
 
 class syntaxTestCase(unittest.TestCase):
     def setUp(self):
         self.tmpdir = mkdtemp()
-        self.sumo = Ontology('data/Merge.kif', name='SUMO', lpath=self.tmpdir)
-        self.milo = Ontology('data/MILO.kif', name='MILO', lpath=self.tmpdir)
+        self.sumo = Ontology('src/pysumo/data/Merge.kif', name='SUMO', lpath=self.tmpdir)
+        self.milo = Ontology('src/pysumo/data/MILO.kif', name='MILO', lpath=self.tmpdir)
         self.syntaxcontroller = SyntaxController(IndexAbstractor())
         atexit.unregister(self.sumo.action_log.log_io.flush_write_queues)
         atexit.unregister(self.milo.action_log.log_io.flush_write_queues)
@@ -83,9 +82,9 @@ class syntaxTestCase(unittest.TestCase):
         for o in ontologies:
             atexit.unregister(o.action_log.log_io.flush_write_queues)
             o.action_log.log_io.flush_write_queues()
-        a = Ontology('data/Merge.kif', lpath=self.tmpdir)
+        a = Ontology('src/pysumo/data/Merge.kif', lpath=self.tmpdir)
         atexit.unregister(a.action_log.log_io.flush_write_queues)
-        b = Ontology('data/MILO.kif', lpath=self.tmpdir)
+        b = Ontology('src/pysumo/data/MILO.kif', lpath=self.tmpdir)
         atexit.unregister(b.action_log.log_io.flush_write_queues)
         self.assertIn(a, ontologies)
         self.assertIn(b, ontologies)

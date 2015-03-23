@@ -2,8 +2,6 @@ import os
 import unittest
 import pysumo
 
-pysumo.PACKAGE_DATA = 'data/'
-
 try:
     py_path = os.environ['PYTHONPATH']
 except KeyError:

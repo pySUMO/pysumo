@@ -6,5 +6,3 @@ validates input and keeps the Ontologies in a consistent state.
 from os import environ
 
 CONFIG_PATH = '/'.join([environ['HOME'], '.pysumo'])
-
-PACKAGE_DATA = '/usr/local/share/pysumo'

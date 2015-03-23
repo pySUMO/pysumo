@@ -13,6 +13,7 @@ import logging
 from io import StringIO, BytesIO
 from os import listdir, fdopen, remove
 from os.path import basename, isdir, join
+from pkg_resources import resource_filename
 from tempfile import mkstemp
 from subprocess import Popen, PIPE, DEVNULL
 
@@ -23,10 +24,10 @@ from . import parser
 def get_ontologies(lpath=None):
     """ Returns a set of all ontologies provided by pysumo as well as local ontologies. """
     ret = set()
-    if isdir(pysumo.PACKAGE_DATA):
-        for f in listdir(pysumo.PACKAGE_DATA):
-            if f.endswith(".kif"):
-                ret.add(Ontology(join(pysumo.PACKAGE_DATA, f), lpath=lpath))
+    pdata = resource_filename('pysumo', 'data')
+    for f in listdir(resource_filename('pysumo', 'data')):
+        if f.endswith(".kif"):
+            ret.add(Ontology(join(pdata, f), lpath=lpath))
     if isdir(pysumo.CONFIG_PATH):
         for f in listdir(pysumo.CONFIG_PATH):
             if f.endswith(".kif"):

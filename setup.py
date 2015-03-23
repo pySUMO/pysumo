@@ -2,25 +2,23 @@ from setuptools import setup
 
 setup(
     name='pySUMO',
-    version='0.0.0a1',
+    version='1.0.0',
     description='A graphical IDE for Ontologies written in SUO-Kif',
     long_description='A graphical IDE for Ontologies written in SUO-Kif',
     url='',
     author='',
     author_email='',
-    license='',
-    classifiers=['Development Status :: 3 - Alpha',
+    license='BSD',
+    classifiers=['Development Status :: 5 - Production/Stable',
                  'Intended Audience :: Developers',
-                 'License :: ',
+                 'License :: OSI Approved :: BSD License',
                  'Programming Language :: Python :: 3.4',
                 ],
     keywords='SUMO Ontologies SUO-Kif',
     package_dir={'':'src'},
     packages=['pysumo', 'pysumo.logger', 'pySUMOQt', 'pySUMOQt.Designer', 'pySUMOQt.Widget'],
-    install_requires=['pyside'],
-    data_files=[('data', ['data/Merge.kif', 'data/MILO.kif']),
-                ('data/wordnet', [''.join(['data/wordnet/sdata.', x]) for x in
-                                  ['adj', 'adv', 'noun', 'verb']]),],
+    package_data={'pysumo':['data/*.kif', 'data/wordnet/sdata.*']},
+    install_requires=['pyside', 'pygraphviz>=1.3rc2'],
     entry_points={'gui_scripts': ['pySUMOQt = pySUMOQt.MainWindow:main']},
 )
 

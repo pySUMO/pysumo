@@ -11,6 +11,7 @@ This module contains:
 """
 
 import re
+from io import StringIO
 
 from .logger import actionlog
 from enum import Enum
@@ -135,7 +136,7 @@ def kifserialize(ast, ontology, out):
 
 WORDNET_REGEX = re.compile(r'^(\d{8}) (\d{2}) ([nvasr]) ([0-9a-zA-Z]{2})(?: (\S+ ([0-9a-zA-Z])))+ (\d{3})(?: ((\S{1,2}) \d{8} [nvasr] [0-9a-zA-Z]{4}))*(?: \d{2} (\+ \d{2} [0-9a-zA-Z]{2} )+)? ?\| .+ &%.+[\][@+:=]$')
 
-def wparse(path):
+def wparse(datafiles):
     """ Parses the file containing the SUMO-WordNet mapping.
 
     Args:
@@ -149,19 +150,20 @@ def wparse(path):
     """
     mapping = dict()
     total, processed = 0, 0
-    for pos in Pos:
-        with open('%s/wordnet/sdata.%s' % (path, pos.name)) as data:
-            for line in data:
-                total += 1
-                #Syntactical validation
-                if WORDNET_REGEX.match(line):
-                    items = _wtokenize(line.rstrip('\n'), pos)
-                    processed += 1
-                    for item in items:
-                        try:
-                            mapping[item.sumo_concept].add(item)
-                        except KeyError:
-                            mapping[item.sumo_concept] = {item}
+    for data, pos in datafiles:
+        data.seek(0)
+        sdata = StringIO(data.read().decode('utf8'))
+        for line in sdata:
+            total += 1
+            #Syntactical validation
+            if WORDNET_REGEX.match(line):
+                items = _wtokenize(line.rstrip('\n'), pos)
+                processed += 1
+                for item in items:
+                    try:
+                        mapping[item.sumo_concept].add(item)
+                    except KeyError:
+                        mapping[item.sumo_concept] = {item}
     #TODO: Remove the fixed assertions/replace with dynamic assertions
     assert total == 117939, '%d lines were read, but %d lines should have been read' % (total, 117939)
     assert processed >= 117659 - 2000, 'processed %d, should have processed %d' % (processed, 117659)

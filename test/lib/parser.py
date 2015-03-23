@@ -4,7 +4,6 @@ import atexit
 import unittest
 import subprocess
 import pysumo
-pysumo.PACKAGE_DATA = 'data/'
 
 from tempfile import mkdtemp
 from shutil import rmtree
@@ -28,7 +27,7 @@ class wParseTestCase(unittest.TestCase):
 
 
     def test1Full(self):
-        parser.wparse('data')
+        parser.wparse([(open('%s/wordnet/sdata.%s' % ('src/pysumo/data', pos.name), 'r+b'), pos) for pos in parser.Pos])
 
 
 wParseSuit = unittest.makeSuite(wParseTestCase, 'test')
@@ -44,7 +43,7 @@ class kifParseSerilizeTest(unittest.TestCase):
         tempd = mkdtemp()
         out1 = "/".join([tempd, "out1"])
         out2 = "/".join([tempd, "out2"])
-        f = "data/Merge.kif"
+        f = "src/pysumo/data/Merge.kif"
         o = Ontology(f, lpath=self.tmpdir)
         atexit.unregister(o.action_log.log_io.flush_write_queues)
         with open(o.path) as f:
@@ -62,7 +61,7 @@ class kifParseSerilizeTest(unittest.TestCase):
         o.action_log.log_io.flush_write_queues()
 
     def test1ParseGoverment(self):
-        f = "data/Government.kif"
+        f = "src/pysumo/data/Government.kif"
         o = Ontology(f, lpath=self.tmpdir)
         atexit.unregister(o.action_log.log_io.flush_write_queues)
         with open(o.path) as f:
@@ -79,7 +78,7 @@ class kifParseSerilizeTest(unittest.TestCase):
 
 
     def test3lineNumber(self):
-        f = "data/Merge.kif"
+        f = "src/pysumo/data/Merge.kif"
         a = None
         node = None
         with open(f, errors='replace') as of:

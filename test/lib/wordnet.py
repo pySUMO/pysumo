@@ -2,7 +2,6 @@
 
 import unittest
 import pysumo
-pysumo.PACKAGE_DATA = 'data/'
 
 from pysumo.parser import SSType
 from pysumo.wordnet import WordNet

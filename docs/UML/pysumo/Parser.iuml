@@ -2,7 +2,7 @@ class Parser << (M,#FF7700) >>{
 	+ kifparse(Ontology, Graph=None) : AST
 	+ astmerge((AST1, AST2)) : AST
 	+ kifserialize(AST, Ontology)
-	+ wparse(mapping) : Dictionary
+	+ wparse(datafiles) : (File, Pos)[]
 }
 
 class AbstractSyntaxTree {
