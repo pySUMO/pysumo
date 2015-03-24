@@ -18,7 +18,7 @@ setup(
     package_dir={'':'src'},
     packages=['pysumo', 'pysumo.logger', 'pySUMOQt', 'pySUMOQt.Designer', 'pySUMOQt.Widget'],
     package_data={'pysumo':['data/*.kif', 'data/wordnet/sdata.*']},
-    install_requires=['pyside', 'pygraphviz>=1.3rc2'],
+    install_requires=['pyside', 'pygraphviz>=1.3rc2','sphinxcontrib-plantuml'],
     entry_points={'gui_scripts': ['pySUMOQt = pySUMOQt.MainWindow:main']},
 )
 
