@@ -305,6 +305,7 @@ Test Results
 
    tests
 
+For a more detailled view on our testing please visit `our github Page <http://pysumo.github.io/docs/htmlcov>`_
 
 Errors
 ==========
