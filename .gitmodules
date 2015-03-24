@@ -1,0 +1,3 @@
+[submodule "docs/htmlcov"]
+	path = docs/htmlcov
+	url = https://github.com/pySUMO/pysumo-htmlcov.git
