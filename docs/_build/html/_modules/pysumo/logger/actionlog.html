@@ -1,0 +1,396 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pysumo.logger.actionlog &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pysumo.logger.actionlog</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; The pySUMO action log handler. This module handles undo and redo operations.</span>
+
+<span class="sd">This module contains:</span>
+
+<span class="sd">- ActionLog: The action log handler.</span>
+<span class="sd">- LogIO: The action log io interface.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="kn">from</span> <span class="nn">atexit</span> <span class="kn">import</span> <span class="n">register</span> <span class="k">as</span> <span class="n">atexit</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">SystemRandom</span>
+
+<span class="kn">from</span> <span class="nn">pysumo</span> <span class="kn">import</span> <span class="n">CONFIG_PATH</span>
+
+<div class="viewcode-block" id="ActionLog"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.ActionLog">[docs]</a><span class="k">class</span> <span class="nc">ActionLog</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; The pySUMO action log. The SyntaxController queues a new log entry before every</span>
+<span class="sd">    operation that makes changes to an Ontology, if the change is successful it OKs the</span>
+<span class="sd">    entry in the log queue and the entry is written out. Log entries that are not OKed</span>
+<span class="sd">    time out and are removed from the queue.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - log_io: The io object for this log.</span>
+<span class="sd">    - queue: A queue of actions that have not yet successfully completed.</span>
+<span class="sd">    - actionlog: A list of actions that have completed successfully.</span>
+<span class="sd">    - redolog: A list of actions that have been undone successfully.</span>
+<span class="sd">    - current: The current state of the Ontology.</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - queue_log: Create a log entry and append it to the log queue.</span>
+<span class="sd">    - ok_log_item: Move log entry from log queue to actual log.</span>
+<span class="sd">    - undo: Undoes the last action.</span>
+<span class="sd">    - redo: Redoes the last undone action.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the action log and instantiates variables. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span> <span class="o">=</span> <span class="n">LogIO</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">actionlog</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">redolog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rand</span> <span class="o">=</span> <span class="n">SystemRandom</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">del</span> <span class="n">state</span><span class="p">[</span><span class="s">&#39;_rand&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rand</span> <span class="o">=</span> <span class="n">SystemRandom</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_rand_lognum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns a log entry number that is not already in the queue. &quot;&quot;&quot;</span>
+        <span class="n">lognum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rand</span><span class="o">.</span><span class="n">getrandbits</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lognum</span> <span class="k">if</span> <span class="n">lognum</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rand_lognum</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ActionLog.queue_log"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.ActionLog.queue_log">[docs]</a>    <span class="k">def</span> <span class="nf">queue_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a log entry and queue it for addition to self.actionlog.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        - data: the data to be placed in the log</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        - int. The log_queue_ok_num</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rand_lognum</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">num</span>
+</div>
+<div class="viewcode-block" id="ActionLog.ok_log_item"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.ActionLog.ok_log_item">[docs]</a>    <span class="k">def</span> <span class="nf">ok_log_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_queue_ok_num</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Appends the item in self.queue with log_queue_ok_num to self.actionlog</span>
+<span class="sd">        and calls self.log_io.append_write_queue on it.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        - log_queue_ok_num: the number of the queue item to okay</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">        - KeyError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num</span><span class="p">,</span> <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">num</span> <span class="o">==</span> <span class="n">log_queue_ok_num</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">redo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionlog</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redolog</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="s">&#39;redo&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ActionLog.undo"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.ActionLog.undo">[docs]</a>    <span class="k">def</span> <span class="nf">undo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Undoes the last action and appends it to self.redolog. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">flush_write_queues</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actionlog</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">undo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redolog</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span>
+</div>
+<div class="viewcode-block" id="ActionLog.redo"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.ActionLog.redo">[docs]</a>    <span class="k">def</span> <span class="nf">redo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Redoes the last undone action, appends it to self.undolog</span>
+<span class="sd">        and removes it from self.redolog. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">flush_write_queues</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redolog</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">redo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionlog</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span>
+</div></div>
+<div class="viewcode-block" id="LogIO"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.LogIO">[docs]</a><span class="k">class</span> <span class="nc">LogIO</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; The IO interface for the pySUMO action log. This class provides a storage</span>
+<span class="sd">    backend for the Action Log. Entries in the write queue are written to disk</span>
+<span class="sd">    after a timeout, or when the write queue reaches a maximum size.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - default_path: The default log path.</span>
+<span class="sd">    - timeout: The time period after which if no new packets have entered the queue, the queue is flushed.</span>
+<span class="sd">    - max_size: The maximum number of actions in the write queue after which when another packet enters the queue, the queue is flushed.</span>
+<span class="sd">    - max_diffs: When the number of stored diffs exceeds max_diffs, old diffs will be deleted.</span>
+<span class="sd">    - path: The log path (defaults to default_path).</span>
+<span class="sd">    - name: The name of the Ontology.</span>
+<span class="sd">    - current: The path to the current state of the Ontology.</span>
+<span class="sd">    - uwrite_queue: The queue in which undo actions are stored before being written to disk.</span>
+<span class="sd">    - rwrite_queue: The queue in which redo actions are stored before being written to disk.</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - diff: Creates a diff between 2 Files</span>
+<span class="sd">    - read: Instantiates an Action Log with the data in the stored log at path.</span>
+<span class="sd">    - flush_write_queues: Appends all entries in the write queue to the log file.</span>
+<span class="sd">    - clear: Clears a queue in memory and on disk.</span>
+<span class="sd">    - pop: Removes the last entry from a queue.</span>
+<span class="sd">    - undo: Appends an entry to the redo write queue.</span>
+<span class="sd">    - redo: Appends an entry to the undo write queue.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">CONFIG_PATH</span><span class="p">,</span> <span class="s">&#39;actionlog&#39;</span><span class="p">])</span>
+    <span class="n">timeout</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">max_size</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">max_diffs</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">default_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the IO interface for an action log. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;undo&#39;</span><span class="p">,</span> <span class="s">&#39;redo&#39;</span><span class="p">]:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sub</span><span class="p">]),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">PermissionError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_path</span>
+            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;undo&#39;</span><span class="p">,</span> <span class="s">&#39;redo&#39;</span><span class="p">]:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">default_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sub</span><span class="p">]),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;current&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uwrite_queue</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rwrite_queue</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atexit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flush_write_queues</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LogIO.diff"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.LogIO.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns a diff between current and new. &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;diff&#39;</span><span class="p">,</span> <span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="s">&#39;w+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">getbuffer</span><span class="p">())</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">popen</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">popen</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">new</span><span class="o">.</span><span class="n">getbuffer</span><span class="p">())</span>
+        <span class="n">popen</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns current after diff has been applied to it. &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;patch&#39;</span><span class="p">,</span> <span class="s">&#39;-N&#39;</span><span class="p">,</span> <span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;-NR&#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="s">&#39;w+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">getbuffer</span><span class="p">())</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">popen</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">)</span>
+        <span class="n">popen</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">getbuffer</span><span class="p">())</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">popen</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="s">&#39;r+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">cur</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<div class="viewcode-block" id="LogIO.read"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.LogIO.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Reads the log at self.path into log. &quot;&quot;&quot;</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">undoes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">redoes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="s">&#39;r+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+                <span class="n">cur</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;undo&#39;</span><span class="p">]))</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">()</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">undo</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">undo</span><span class="p">,</span> <span class="s">&#39;r+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">u</span><span class="p">:</span>
+                    <span class="n">undoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;redo&#39;</span><span class="p">]))</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">()</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">redo</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">redo</span><span class="p">,</span> <span class="s">&#39;r+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+                    <span class="n">undoes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+        <span class="k">except</span> <span class="n">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cur</span><span class="p">,</span> <span class="n">undoes</span><span class="p">,</span> <span class="n">redoes</span>
+</div>
+<div class="viewcode-block" id="LogIO.flush_write_queues"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.LogIO.flush_write_queues">[docs]</a>    <span class="k">def</span> <span class="nf">flush_write_queues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">__</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Flush self.rwrite_queue and self.uwrite_queue to disk. &quot;&quot;&quot;</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">ucopy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uwrite_queue</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uwrite_queue</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">rcopy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rwrite_queue</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rwrite_queue</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flush_write_queue</span><span class="p">(</span><span class="n">ucopy</span><span class="p">,</span> <span class="s">&#39;undo&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flush_write_queue</span><span class="p">(</span><span class="n">rcopy</span><span class="p">,</span> <span class="s">&#39;redo&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_flush_write_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Flushes queue to disk. &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">]))</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">()</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refactor</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_diffs</span> <span class="k">else</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">queue</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%03d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="s">&#39;w+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ent</span><span class="p">:</span>
+                <span class="n">ent</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">getbuffer</span><span class="p">())</span>
+                <span class="n">ent</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_refactor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Removes excess entries in queue and reorganizes it. &quot;&quot;&quot;</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_diffs</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">new_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="s">&#39;</span><span class="si">%03d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)],</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">new_names</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">())</span>
+
+<div class="viewcode-block" id="LogIO.clear"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.LogIO.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Clears queue both in memory and on disk. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rwrite_queue</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">queue</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">():</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="LogIO.pop"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.LogIO.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Removes the last entry in queue. &quot;&quot;&quot;</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">queue</span><span class="p">]))</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">()</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LogIO.undo"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.LogIO.undo">[docs]</a>    <span class="k">def</span> <span class="nf">undo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Append entry to self.rwrite_queue. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rwrite_queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;undo&#39;</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flush_write_queues</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_patch</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LogIO.redo"><a class="viewcode-back" href="../../../pysumo.logger.html#pysumo.logger.actionlog.LogIO.redo">[docs]</a>    <span class="k">def</span> <span class="nf">redo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Append entry to self.uwrite_queue.</span>
+<span class="sd">        If clean is True, pop an object from the redo queue. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uwrite_queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;redo&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uwrite_queue</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span><span class="p">:</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flush_write_queues</span><span class="p">)</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flush_write_queues</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_patch</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

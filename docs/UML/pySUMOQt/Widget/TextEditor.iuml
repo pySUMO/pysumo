@@ -1,0 +1,49 @@
+class TextEditor {
+	__init__(mainwindow)
+	setTextChanged()
+	_initNumberBar()
+	_updateOntologySelector()
+	_hideLines(lines)
+	_showLines(lines)
+	_zoomOut_()
+	_zoomIn_()
+	showOtherOntology(ontologyname)
+	expandIfBracketRemoved()
+	increaseSize()
+	decreaseSize()
+	expandAll()
+	hideAll()
+	getLayoutWidget()
+	numberbarPaint(number_bar, event)
+	initAutocomplete()
+	searchCompletion()
+	toggleVisibility(line)
+	hideFrom(line)
+	insertCompletion(completion)
+	commit()
+}
+
+class SyntaxHighlightSetting {
+	__init__( expression, font_weight, font_color, expression_end='')
+	createFormat()
+	get_format()
+	getValues()
+	serialize()
+	deserialize( string)
+
+}
+class SyntaxHighlighter {
+	__init__( document)
+	highlightBlock( text)
+}
+
+class NumberBar {
+	__init__( edit)
+	paintEvent( event)
+	adjustWidth( count)
+	updateContents( rect, scroll)
+	mouseDoubleClickEvent( event)
+}
+TextEditor  --* NumberBar
+TextEditor --* SyntaxHighlighter
+SyntaxHighlighter -- SyntaxHighlightSetting

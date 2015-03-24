@@ -1,0 +1,31 @@
+@startuml
+page 2x1
+!include pysumo/package_pysumo.iuml
+!include pySUMOQt/package_pySUMOQt.iuml
+
+package "Extern" {
+  !include QSyntaxHighlighter.iuml
+}
+
+note as N3
+Note that all classes have an __init__() method that
+ returns a new object of that class, but only those
+ that accept arguments are listed.
+end note
+
+TextEditor *- QSyntaxHighlighter
+
+DocumentationWidget -- WordNet
+Statusbar -- InfoLog
+InfoLog --* MainWindow
+Widget o-- "1" IndexAbstractor
+RWWidget o-- "1" SyntaxController
+
+HierarchyWidget o-- AbstractGraph
+DotGraph -- AbstractGraph
+GraphWidget "1" - "1" DotGraph
+GraphWidget o-- AbstractGraph
+
+QtNode -|> QGraphicsEllipseItem
+
+@enduml

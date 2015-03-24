@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pySUMOQt.Widget.GraphWidget &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pySUMOQt.Widget.GraphWidget</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; Displays a graph-based representation of the Ontology and allows the</span>
+<span class="sd">Ontology to be modified graphically.</span>
+
+<span class="sd">This module contains:</span>
+
+<span class="sd">GraphWidget: Displays and allows modification of a graph of the Ontology.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">PySide.QtCore</span> <span class="kn">import</span> <span class="n">QLineF</span><span class="p">,</span> <span class="n">Slot</span><span class="p">,</span> <span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QColor</span><span class="p">,</span> <span class="n">QPen</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QInputDialog</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QCompleter</span><span class="p">,</span> <span class="n">QFontMetricsF</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QGraphicsEllipseItem</span><span class="p">,</span> <span class="n">QGraphicsSimpleTextItem</span><span class="p">,</span> <span class="n">QGraphicsScene</span><span class="p">,</span> <span class="n">QGraphicsItem</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QPrintPreviewDialog</span><span class="p">,</span> <span class="n">QPainter</span><span class="p">,</span> <span class="n">QApplication</span>
+<span class="kn">import</span> <span class="nn">pygraphviz</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<span class="kn">from</span> <span class="nn">pySUMOQt.Designer.GraphWidget</span> <span class="kn">import</span> <span class="n">Ui_Form</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Widget.Widget</span> <span class="kn">import</span> <span class="n">RWWidget</span>
+<span class="kn">import</span> <span class="nn">weakref</span>
+<span class="kn">from</span> <span class="nn">pysumo.syntaxcontroller</span> <span class="kn">import</span> <span class="n">Ontology</span>
+
+<div class="viewcode-block" id="insert_newlines"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.insert_newlines">[docs]</a><span class="k">def</span> <span class="nf">insert_newlines</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">every</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Insert a newline after ’every‘ characters</span>
+<span class="sd">    </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">        </span>
+<span class="sd">            - every : The amount of characters before a newline is inserted </span>
+<span class="sd">            </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">every</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">),</span> <span class="n">every</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="QtNode"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.QtNode">[docs]</a><span class="k">class</span> <span class="nc">QtNode</span><span class="p">(</span><span class="n">QGraphicsEllipseItem</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A Node representation in Qt&quot;&quot;&quot;</span>
+    <span class="n">callback</span> <span class="o">=</span> <span class="bp">None</span>
+<div class="viewcode-block" id="QtNode.setCallback"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.QtNode.setCallback">[docs]</a>    <span class="k">def</span> <span class="nf">setCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Sets a callback function to call after the position has changed&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">f</span>
+    </div>
+<div class="viewcode-block" id="QtNode.setNode"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.QtNode.setNode">[docs]</a>    <span class="k">def</span> <span class="nf">setNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save the graphviz node&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+        </div>
+<div class="viewcode-block" id="QtNode.itemChange"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.QtNode.itemChange">[docs]</a>    <span class="k">def</span> <span class="nf">itemChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">itemChange</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Override Qt</span>
+<span class="sd">        </span>
+<span class="sd">        Renew the arrows</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">itemChange</span> <span class="o">==</span> <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemPositionHasChanged</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">()</span><span class="o">.</span><span class="n">renewplot</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">itemChange</span><span class="p">(</span><span class="n">itemChange</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="QtNode.mouseDoubleClickEvent"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.QtNode.mouseDoubleClickEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Override Qt</span>
+<span class="sd">        </span>
+<span class="sd">        Add a relation or save start relation point when double clicking</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">()</span><span class="o">.</span><span class="n">addRelation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        </div></div>
+<div class="viewcode-block" id="GraphWidget"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget">[docs]</a><span class="k">class</span> <span class="nc">GraphWidget</span><span class="p">(</span><span class="n">RWWidget</span><span class="p">,</span> <span class="n">Ui_Form</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Displays a graph of the Ontology and passes all modifications to the</span>
+<span class="sd">    SyntaxController.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - abstractGraph: The currently displayed AbstractGraph.</span>
+<span class="sd">    - gv: The layouted version of the current DotGraph.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mainwindow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the GraphWidget. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GraphWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">mainwindow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startRelation</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abstractGraph</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gv</span> <span class="o">=</span> <span class="n">pygraphviz</span><span class="o">.</span><span class="n">AGraph</span><span class="p">(</span><span class="n">strict</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layoutWidget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qLines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qpens</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">QCompleter</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setCaseSensitivity</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">CaseInsensitive</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastScale</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initMenu</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roots</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox</span><span class="o">.</span><span class="n">valueChanged</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changeScale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">searchNode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">insertItem</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;---&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newRoot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relations</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newVariant</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newRoot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updateActiveOntology</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">setScene</span><span class="p">(</span><span class="n">QGraphicsScene</span><span class="p">())</span>
+<span class="c">#     def initRelationBox(self):</span>
+<span class="c">#         m = self.relations.model()</span>
+<span class="c">#         for i in self.getIndexAbstractor().get_graph(&#39;instance&#39;).relations.keys():</span>
+<span class="c">#             m.appendRow(QStandardItem(i))</span>
+    
+<div class="viewcode-block" id="GraphWidget.refresh"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Override Widget</span>
+<span class="sd">        Updates the GraphWidget regarding to latest indexabstractor changes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newVariant</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GraphWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="GraphWidget.getActiveOntology"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.getActiveOntology">[docs]</a>    <span class="k">def</span> <span class="nf">getActiveOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeOntology</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeOntology</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    </div>
+    <span class="k">def</span> <span class="nf">_updateActiveOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">currentText</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeOntology</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activeOntology</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">ontologies</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">currentText</span> <span class="o">==</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">count</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activeOntology</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activeOntology</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GraphWidget.searchNode"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.searchNode">[docs]</a>    <span class="k">def</span> <span class="nf">searchNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Search the node and focus the GraphicView to the node &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c">#self.completer.setCompletionPrefix(search)</span>
+            <span class="c">#self.completer.complete()</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span><span class="p">[</span><span class="n">search</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">centerOn</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span> <span class="c"># TODO: Mach hier einen Log</span>
+        </div>
+<div class="viewcode-block" id="GraphWidget.addRelation"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.addRelation">[docs]</a>    <span class="k">def</span> <span class="nf">addRelation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qnode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Adds a relation or save a starting point</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">startRelation</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span> <span class="c"># yeah a new relation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Add relation from &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">startRelation</span><span class="o">.</span><span class="n">node</span> <span class="o">+</span> <span class="s">&quot; to &quot;</span> <span class="o">+</span> <span class="n">qnode</span><span class="o">.</span><span class="n">node</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">relations</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;---&quot;</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">()</span>
+                <span class="n">msg</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Please choose a valid variant.&quot;</span><span class="p">)</span>
+                <span class="n">msg</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+                <span class="k">return</span>
+            <span class="n">addstr</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">(&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">relations</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">startRelation</span><span class="o">.</span><span class="n">node</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">qnode</span><span class="o">.</span><span class="n">node</span> <span class="o">+</span> <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">startRelation</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">ontology</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">ontologies</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeOntology</span><span class="o">.</span><span class="n">currentText</span><span class="p">():</span>
+                    <span class="n">ontology</span> <span class="o">=</span> <span class="n">i</span>
+                    
+            <span class="k">if</span> <span class="n">ontology</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">()</span>
+                <span class="n">msg</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Please choose a valid Ontology to write to.&quot;</span><span class="p">)</span>
+                <span class="n">msg</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">qnode</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">get_ontology_file</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">addstr</span><span class="p">)</span>
+            <span class="n">QApplication</span><span class="o">.</span><span class="n">setOverrideCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">BusyCursor</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SyntaxController</span><span class="o">.</span><span class="n">add_ontology</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="n">newversion</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+            <span class="n">QApplication</span><span class="o">.</span><span class="n">setOverrideCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">ArrowCursor</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Starting node is &quot;</span> <span class="o">+</span> <span class="n">qnode</span><span class="o">.</span><span class="n">node</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">startRelation</span> <span class="o">=</span> <span class="n">qnode</span>
+</div>
+    <span class="k">def</span> <span class="nf">_printPreview_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">QPrintPreviewDialog</span><span class="p">()</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">paintRequested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">print_</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        
+<div class="viewcode-block" id="GraphWidget.print_"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.print_">[docs]</a>    <span class="k">def</span> <span class="nf">print_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">printer</span><span class="p">):</span>
+        <span class="n">painter</span> <span class="o">=</span> <span class="n">QPainter</span><span class="p">(</span><span class="n">printer</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setRenderHint</span><span class="p">(</span><span class="n">QPainter</span><span class="o">.</span><span class="n">Antialiasing</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">painter</span><span class="p">)</span>
+        </div>
+    <span class="k">def</span> <span class="nf">_zoomIn_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">_zoomOut_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doubleSpinBox</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<div class="viewcode-block" id="GraphWidget.changeScale"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.changeScale">[docs]</a>    <span class="k">def</span> <span class="nf">changeScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Scale the GraphicView to val</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">        </span>
+<span class="sd">            - val: The value to scale to. In Designer: 0.01 &lt;= val &lt;= 5</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">toScale</span> <span class="o">=</span> <span class="n">val</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastScale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastScale</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">toScale</span><span class="p">,</span> <span class="n">toScale</span><span class="p">)</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="GraphWidget.renewplot"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.renewplot">[docs]</a>    <span class="k">def</span> <span class="nf">renewplot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Do not layout anything, but redraw all lines&quot;&quot;&quot;</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roots</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c"># scene.changed.disconnect(self.renewplot)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qLines</span><span class="p">:</span>
+            <span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">qLines</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gv</span><span class="o">.</span><span class="n">edges_iter</span><span class="p">():</span>
+
+            <span class="n">qnode1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span><span class="p">[</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">qnode2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span><span class="p">[</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">QLineF</span><span class="p">(</span><span class="n">qnode1</span><span class="o">.</span><span class="n">pos</span><span class="p">(),</span> <span class="n">qnode2</span><span class="o">.</span><span class="n">pos</span><span class="p">())</span>
+            <span class="n">line</span><span class="o">.</span><span class="n">setLength</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">length</span><span class="p">()</span> <span class="o">-</span> <span class="mi">40</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">p2</span><span class="p">()</span>
+
+            <span class="n">arrowLine1</span> <span class="o">=</span> <span class="n">QLineF</span><span class="p">()</span>
+            <span class="n">arrowLine1</span><span class="o">.</span><span class="n">setP1</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+            <span class="n">arrowLine1</span><span class="o">.</span><span class="n">setLength</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">arrowLine1</span><span class="o">.</span><span class="n">setAngle</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">angle</span><span class="p">()</span> <span class="o">+</span> <span class="mi">210</span><span class="p">)</span>
+
+            <span class="n">arrowLine2</span> <span class="o">=</span> <span class="n">QLineF</span><span class="p">()</span>
+            <span class="n">arrowLine2</span><span class="o">.</span><span class="n">setP1</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+            <span class="n">arrowLine2</span><span class="o">.</span><span class="n">setLength</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">arrowLine2</span><span class="o">.</span><span class="n">setAngle</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">angle</span><span class="p">()</span> <span class="o">-</span> <span class="mi">210</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;color&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpens</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">qpens</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;color&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">QPen</span><span class="p">(</span>
+                    <span class="n">QColor</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;color&#39;</span><span class="p">]))</span>
+
+            <span class="n">item</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">addLine</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpens</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;color&#39;</span><span class="p">]])</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setZValue</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsSelectable</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">addLine</span><span class="p">(</span><span class="n">arrowLine1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpens</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;color&#39;</span><span class="p">]])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">addLine</span><span class="p">(</span><span class="n">arrowLine2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpens</span><span class="p">[</span><span class="n">edge</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;color&#39;</span><span class="p">]])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c"># scene.changed.connect(self.renewplot)</span>
+</div>
+<div class="viewcode-block" id="GraphWidget.plot"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a QGraphicScene for the layouted graph in self.gv</span>
+<span class="sd">        This function has to be called every time, a node change happened.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qLines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gv</span><span class="o">.</span><span class="n">nodes_iter</span><span class="p">():</span>
+            <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;pos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+            <span class="n">qnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createQtNode</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+            <span class="n">scene</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">qnode</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">qnode</span>
+            
+        
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">QCompleter</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setCaseSensitivity</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">CaseInsensitive</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">setCompleter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renewplot</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">text</span><span class="p">())</span></div>
+<div class="viewcode-block" id="GraphWidget.createQtNode"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.createQtNode">[docs]</a>    <span class="k">def</span> <span class="nf">createQtNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">posx</span><span class="p">,</span> <span class="n">posy</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">QColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">150</span><span class="p">,</span><span class="mi">150</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot; Create a QtNode with given position, color for given node</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            </span>
+<span class="sd">            - node: The graphviz node</span>
+<span class="sd">            - posx: The x position from graphviz layout</span>
+<span class="sd">            - posy: The y position from graphviz layout</span>
+<span class="sd">            - color: The color of circle (red by default)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#dpi = float(self.gv.graph_attr[&#39;dpi&#39;])</span>
+        <span class="n">dpi</span> <span class="o">=</span> <span class="mi">96</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;width&#39;</span><span class="p">])</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;height&#39;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c">#New created node</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="mi">300</span> <span class="o">/</span> <span class="mi">96</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="mi">40</span> <span class="o">/</span> <span class="mi">96</span>
+            
+        <span class="n">qnode</span> <span class="o">=</span> <span class="n">QtNode</span><span class="p">(</span><span class="o">-</span><span class="n">width</span> <span class="o">*</span> <span class="n">dpi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">height</span> <span class="o">*</span> <span class="n">dpi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">*</span> <span class="n">dpi</span><span class="p">,</span>  <span class="n">height</span> <span class="o">*</span> <span class="n">dpi</span><span class="p">)</span>
+        <span class="n">qnode</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemSendsGeometryChanges</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">qnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">posx</span><span class="p">,</span> <span class="n">posy</span><span class="p">)</span>
+        <span class="n">qnode</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span><span class="p">)</span>
+        <span class="n">qnode</span><span class="o">.</span><span class="n">setCallback</span><span class="p">(</span><span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="n">qnode</span><span class="o">.</span><span class="n">setNode</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">qnode</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">QGraphicsSimpleTextItem</span><span class="p">(</span><span class="n">qnode</span><span class="p">)</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">font</span><span class="p">()</span>
+        <span class="n">font</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span>
+        <span class="n">txt</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="n">txt</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">txtwidth</span> <span class="o">=</span> <span class="n">QFontMetricsF</span><span class="p">(</span><span class="n">font</span><span class="p">)</span><span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">txtheight</span> <span class="o">=</span> <span class="n">QFontMetricsF</span><span class="p">(</span><span class="n">font</span><span class="p">)</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+        <span class="n">toLeft</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">width</span> <span class="o">*</span> <span class="n">dpi</span><span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">dpi</span> <span class="o">-</span> <span class="n">txtwidth</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">toBottom</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">height</span> <span class="o">*</span> <span class="n">dpi</span><span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">height</span> <span class="o">*</span> <span class="n">dpi</span> <span class="o">-</span> <span class="n">txtheight</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">txt</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">toLeft</span><span class="p">,</span> <span class="n">toBottom</span><span class="p">)</span>
+
+
+        
+        <span class="k">return</span> <span class="n">qnode</span>
+</div>
+<div class="viewcode-block" id="GraphWidget.initMenu"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.initMenu">[docs]</a>    <span class="k">def</span> <span class="nf">initMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configure the Widget to provide a handmade CustomContextMenu </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">setContextMenuPolicy</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">CustomContextMenu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">customContextMenuRequested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">showContextMenu</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="GraphWidget.showContextMenu"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.showContextMenu">[docs]</a>    <span class="k">def</span> <span class="nf">showContextMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shows a context menu to add a node in the graph widget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gpos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">mapToGlobal</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="n">menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">()</span>
+        <span class="n">actionAddNode</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Add Node&quot;</span><span class="p">)</span> 
+        <span class="n">QAction</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="n">gpos</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">actionAddNode</span> <span class="o">==</span> <span class="n">QAction</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">ok</span><span class="p">)</span> <span class="o">=</span> <span class="n">QInputDialog</span><span class="o">.</span><span class="n">getText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="p">,</span> <span class="s">&quot;Insert Node Name&quot;</span><span class="p">,</span> <span class="s">&quot;Please insert a name for the node&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">text</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span><span class="p">:</span>
+                    <span class="c">#User clicked on ok. Otherwise do nothing</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gv</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                    <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gv</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                    <span class="n">qnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createQtNode</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="mi">204</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">qnode</span><span class="p">)</span>
+                    <span class="n">qnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span><span class="n">gpos</span><span class="p">))</span>
+                    <span class="n">qnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">qnode</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">qnode</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="mi">200</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">nodesToQNodes</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">qnode</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">()</span>
+                    <span class="n">msg</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;The node already exists.&quot;</span><span class="p">)</span>
+                    <span class="n">msg</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">searchNode</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="GraphWidget.newRoot"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.newRoot">[docs]</a>    <span class="k">def</span> <span class="nf">newRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Change to new root set in the widget and redraw&quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="n">variant</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relations</span><span class="o">.</span><span class="n">currentText</span><span class="p">())]</span>
+        <span class="k">if</span> <span class="n">root</span> <span class="o">==</span> <span class="s">&quot;---&quot;</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="n">depth</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">variant</span> <span class="o">==</span> <span class="s">&quot;---&quot;</span><span class="p">:</span>
+            <span class="n">variant</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">createGV</span><span class="p">(</span><span class="n">variant</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchNode</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="GraphWidget.newVariant"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.newVariant">[docs]</a>    <span class="k">def</span> <span class="nf">newVariant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Change to new variant set in the widget and redraw&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newRoot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">insertItem</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;---&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newRoot</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">insertItems</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">newRoot</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="GraphWidget.createGV"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.GraphWidget.GraphWidget.createGV">[docs]</a>    <span class="k">def</span> <span class="nf">createGV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="o">=</span><span class="s">&#39;instance&#39;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a pygraphviz graph from pysumo abstract graph and layout it.</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments: </span>
+<span class="sd">            </span>
+<span class="sd">            - variant: The variant to use (e.g. instance)</span>
+<span class="sd">            - r: The root</span>
+<span class="sd">            - d: The depth (none for infinite depth</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gv</span> <span class="o">=</span> <span class="n">pygraphviz</span><span class="o">.</span><span class="n">AGraph</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">overlap</span><span class="o">=</span><span class="s">&quot;scale&quot;</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">get_graph</span><span class="p">(</span><span class="n">variant</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">relations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">QApplication</span><span class="o">.</span><span class="n">setOverrideCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">BusyCursor</span><span class="p">)</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="s">&quot;red&quot;</span><span class="p">,</span> <span class="s">&quot;blue&quot;</span><span class="p">,</span> <span class="s">&quot;green&quot;</span><span class="p">,</span> <span class="s">&quot;darkorchid&quot;</span><span class="p">,</span> <span class="s">&quot;gold2&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;yellow&quot;</span><span class="p">,</span> <span class="s">&quot;turquoise&quot;</span><span class="p">,</span> <span class="s">&quot;sienna&quot;</span><span class="p">,</span> <span class="s">&quot;darkgreen&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">y</span><span class="o">.</span><span class="n">relations</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">y</span><span class="o">.</span><span class="n">relations</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+            <span class="n">gv</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">colors</span><span class="p">))</span>
+
+        <span class="n">gv</span><span class="o">.</span><span class="n">layout</span><span class="p">(</span><span class="s">&quot;sfdp&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gv</span> <span class="o">=</span> <span class="n">gv</span>
+        <span class="n">QApplication</span><span class="o">.</span><span class="n">setOverrideCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">ArrowCursor</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

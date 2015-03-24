@@ -1,0 +1,432 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pysumo.parser &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pysumo.parser</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; The pySUMO parsing module. It contains functions to parse and serialize</span>
+<span class="sd">kif-files. It also handles the Ontology&#39;s data structure and parses the mapping</span>
+<span class="sd">of SUMO terms to WordNet.</span>
+
+
+<span class="sd">This module contains:</span>
+
+<span class="sd">- AbstractSyntaxTree: The in-memory representation of an Ontology.</span>
+<span class="sd">- Ontology: Contains basic information about an Ontology.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+
+<span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">actionlog</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">pickle</span> <span class="kn">import</span> <span class="n">dumps</span>
+
+<span class="k">def</span> <span class="nf">_tokenize_docstring</span><span class="p">(</span><span class="n">chars</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">while</span>  <span class="n">chars</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">)</span><span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">:</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">chars</span><span class="p">,</span> <span class="n">line</span><span class="p">])</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="n">chars</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">_tokenize</span><span class="p">(</span><span class="n">_cleanup</span><span class="p">(</span><span class="n">chars</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;&quot;&#39;</span><span class="p">,</span><span class="n">chars</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="s">&#39;&quot;&#39;</span><span class="p">]))</span>
+    <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_tokenize</span><span class="p">(</span><span class="n">_cleanup</span><span class="p">(</span><span class="n">chars</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))))</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_tokenize</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">chars</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">,</span> <span class="s">&#39; ( &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">,</span> <span class="s">&#39; ) &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">_cleanup</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="n">chars</span> <span class="ow">and</span> <span class="s">&#39;;&#39;</span> <span class="ow">in</span> <span class="n">chars</span> <span class="ow">and</span> <span class="n">chars</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">chars</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">chars</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="n">chars</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">chars</span> <span class="o">=</span> <span class="n">chars</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">chars</span>
+
+<div class="viewcode-block" id="kifparse"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.kifparse">[docs]</a><span class="k">def</span> <span class="nf">kifparse</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ast</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Parse an ontology and return an AbstractSyntaxTree.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">    - ontology: the ontology to parse</span>
+<span class="sd">    - graph: a modified graph of this ontology</span>
+<span class="sd">    - ast: the AST of ontologies which are needed from this ontology</span>
+<span class="sd">    - infile: the file object to parse</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    - AbstractSyntaxTree</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">AbstractSyntaxTree</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+    <span class="n">oldline</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">linenumber</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">infile</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">_cleanup</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="s">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">_tokenize_docstring</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">infile</span><span class="p">)</span>
+            <span class="n">offset</span> <span class="o">+=</span> <span class="n">n</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">_tokenize</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">oldline</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">oldline</span> <span class="o">+</span> <span class="n">line</span>
+            <span class="n">oldline</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;(&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="p">),</span>  <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">line</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">linenumber</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">linenumber</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">offset</span>
+            <span class="n">oldline</span> <span class="o">=</span> <span class="n">line</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">linenumber</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">linenumber</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">offset</span>
+        <span class="k">while</span> <span class="n">line</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">line</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">):</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">AbstractSyntaxTree</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="n">linenumber</span><span class="p">)</span>
+            <span class="n">parsed</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">parsed</span><span class="p">:]</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">linenumber</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">oldline</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">oldline</span><span class="p">),</span> <span class="n">linenumber</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">root</span>
+</div>
+<div class="viewcode-block" id="astmerge"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.astmerge">[docs]</a><span class="k">def</span> <span class="nf">astmerge</span><span class="p">(</span><span class="n">trees</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Merge two Abstract Syntax Trees</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">    - trees: a tuple of 2 AST objects</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    - AbstractSyntaxTree</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">AbstractSyntaxTree</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">trees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">trees</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+</div>
+<div class="viewcode-block" id="kifserialize"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.kifserialize">[docs]</a><span class="k">def</span> <span class="nf">kifserialize</span><span class="p">(</span><span class="n">ast</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Writes ontology to disk as kif. Parses ast and writes out all nodes</span>
+<span class="sd">    that belong to ontology.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">    - ast: the Abstract Syntax Tree</span>
+<span class="sd">    - ontology: The specific ontology with is written to disk</span>
+<span class="sd">    - f: The file object witch written in</span>
+
+<span class="sd">    Raises:</span>
+
+<span class="sd">    - OSError</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">ontology</span> <span class="o">!=</span> <span class="n">ontology</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">child</span><span class="p">),</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">])</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</div>
+<span class="n">WORDNET_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;^(\d{8}) (\d{2}) ([nvasr]) ([0-9a-zA-Z]{2})(?: (\S+ ([0-9a-zA-Z])))+ (\d{3})(?: ((\S{1,2}) \d{8} [nvasr] [0-9a-zA-Z]{4}))*(?: \d{2} (\+ \d{2} [0-9a-zA-Z]{2} )+)? ?\| .+ &amp;%.+[\][@+:=]$&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="wparse"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.wparse">[docs]</a><span class="k">def</span> <span class="nf">wparse</span><span class="p">(</span><span class="n">datafiles</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Parses the file containing the SUMO-WordNet mapping.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">    - path: The path to the SUMO-WordNet mapping files</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    - Dictionary</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">total</span><span class="p">,</span> <span class="n">processed</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">datafiles</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sdata</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf8&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">sdata</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c">#Syntactical validation</span>
+            <span class="k">if</span> <span class="n">WORDNET_REGEX</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                <span class="n">items</span> <span class="o">=</span> <span class="n">_wtokenize</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">),</span> <span class="n">pos</span><span class="p">)</span>
+                <span class="n">processed</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">mapping</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">sumo_concept</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">mapping</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">sumo_concept</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">item</span><span class="p">}</span>
+    <span class="c">#TODO: Remove the fixed assertions/replace with dynamic assertions</span>
+    <span class="k">assert</span> <span class="n">total</span> <span class="o">==</span> <span class="mi">117939</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%d</span><span class="s"> lines were read, but </span><span class="si">%d</span><span class="s"> lines should have been read&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="mi">117939</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">processed</span> <span class="o">&gt;=</span> <span class="mi">117659</span> <span class="o">-</span> <span class="mi">2000</span><span class="p">,</span> <span class="s">&#39;processed </span><span class="si">%d</span><span class="s">, should have processed </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">processed</span><span class="p">,</span> <span class="mi">117659</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mapping</span>
+</div>
+<span class="k">def</span> <span class="nf">_wtokenize</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Returns all the tokens of a WordNet data line. &quot;&quot;&quot;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+    <span class="c"># byte offset in current file</span>
+    <span class="n">synset_offset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">lex_filenum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">ss_type</span> <span class="o">=</span> <span class="n">SSType</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">w_cnt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">synset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">w_cnt</span><span class="p">):</span>
+        <span class="n">word</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pos</span> <span class="o">==</span> <span class="n">Pos</span><span class="o">.</span><span class="n">adj</span> <span class="ow">and</span> <span class="n">word</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;)&#39;</span><span class="p">:</span>
+            <span class="n">listy</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)</span>
+            <span class="n">syn_marker</span> <span class="o">=</span> <span class="n">listy</span><span class="o">.</span><span class="n">pop</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">word</span> <span class="o">=</span> <span class="n">listy</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">syn_marker</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">lex_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="n">synset</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">word</span><span class="p">,</span> <span class="n">syn_marker</span><span class="p">,</span> <span class="n">lex_id</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">synset</span><span class="p">)</span> <span class="o">==</span> <span class="n">w_cnt</span><span class="p">,</span> <span class="s">&#39;line </span><span class="si">%s</span><span class="s"> has </span><span class="si">%d</span><span class="s"> synsets, but should have </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">w_cnt</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">synset</span><span class="p">))</span>
+    <span class="n">p_cnt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">ptr_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p_cnt</span><span class="p">):</span>
+        <span class="n">pointer_symbol</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">synset_offset</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">p_pos</span> <span class="o">=</span> <span class="n">Pos</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">so_ta</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">so_ta</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">so_ta</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="n">ptr_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pointer_symbol</span><span class="p">,</span> <span class="n">p_pos</span><span class="p">,</span> <span class="n">synset_offset</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ptr_list</span><span class="p">)</span> <span class="o">==</span> <span class="n">p_cnt</span><span class="p">,</span> <span class="s">&#39;line &quot;</span><span class="si">%s</span><span class="s">&quot; has </span><span class="si">%d</span><span class="s"> pointers, but </span><span class="si">%s</span><span class="s"> only contains </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">p_cnt</span><span class="p">,</span> <span class="n">ptr_list</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ptr_list</span><span class="p">))</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">ss_type</span> <span class="o">==</span> <span class="n">SSType</span><span class="o">.</span><span class="n">verb</span><span class="p">:</span>
+        <span class="n">f_cnt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">f_cnt</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="s">&quot;Frames not separated by a &#39;+&#39;&quot;</span>
+            <span class="n">f_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">w_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+            <span class="n">frames</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">f_num</span><span class="p">,</span> <span class="n">w_num</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span> <span class="o">==</span> <span class="n">f_cnt</span><span class="p">,</span> <span class="s">&#39;line </span><span class="si">%s</span><span class="s"> has </span><span class="si">%d</span><span class="s"> frames, but should have </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">f_cnt</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;|&#39;</span><span class="p">,</span> <span class="s">&quot;Missing &#39;|&#39; separator&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;No gloss or SUMO-term in </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">line</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">string</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;&amp;%&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;: </span><span class="si">%s</span><span class="s"> should contain at least 2 items, but contains </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
+    <span class="n">gloss</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+    <span class="n">sumo_concepts</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">sumo_concepts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SUMOConceptWordNetItem</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">synset_offset</span><span class="p">,</span> <span class="n">lex_filenum</span><span class="p">,</span> <span class="n">ss_type</span><span class="p">,</span> <span class="n">synset</span><span class="p">,</span> <span class="n">ptr_list</span><span class="p">,</span> <span class="n">frames</span><span class="p">,</span> <span class="n">gloss</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">sumo_concepts</span>
+
+<div class="viewcode-block" id="SUMOConceptWordNetItem"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.SUMOConceptWordNetItem">[docs]</a><span class="k">class</span> <span class="nc">SUMOConceptWordNetItem</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; The object returned from _wtokenize containing info on the SUMO-WordNet mapping. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sumo_concept</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">synset_offset</span><span class="p">,</span> <span class="n">lex_filenum</span><span class="p">,</span>
+                 <span class="n">ss_type</span><span class="p">,</span> <span class="n">synset</span><span class="p">,</span> <span class="n">ptr_list</span><span class="p">,</span> <span class="n">frames</span><span class="p">,</span> <span class="n">gloss</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sumo_concept</span> <span class="o">=</span> <span class="n">sumo_concept</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span> <span class="o">=</span> <span class="n">suffix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synset_offset</span> <span class="o">=</span> <span class="n">synset_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lex_filenum</span> <span class="o">=</span> <span class="n">lex_filenum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ss_type</span> <span class="o">=</span> <span class="n">ss_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synset</span> <span class="o">=</span> <span class="n">synset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ptr_list</span> <span class="o">=</span> <span class="n">ptr_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">frames</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gloss</span> <span class="o">=</span> <span class="n">gloss</span>
+</div>
+<div class="viewcode-block" id="Pos"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.Pos">[docs]</a><span class="k">class</span> <span class="nc">Pos</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">noun</span> <span class="o">=</span> <span class="s">&#39;n&#39;</span>
+    <span class="n">verb</span> <span class="o">=</span> <span class="s">&#39;v&#39;</span>
+    <span class="n">adj</span> <span class="o">=</span> <span class="s">&#39;a&#39;</span>
+    <span class="n">adv</span> <span class="o">=</span> <span class="s">&#39;r&#39;</span>
+</div>
+<div class="viewcode-block" id="SSType"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.SSType">[docs]</a><span class="k">class</span> <span class="nc">SSType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">noun</span> <span class="o">=</span> <span class="s">&#39;n&#39;</span>
+    <span class="n">verb</span> <span class="o">=</span> <span class="s">&#39;v&#39;</span>
+    <span class="n">adj</span> <span class="o">=</span> <span class="s">&#39;a&#39;</span>
+    <span class="n">adv</span> <span class="o">=</span> <span class="s">&#39;r&#39;</span>
+    <span class="n">adj_sat</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
+</div>
+<div class="viewcode-block" id="AbstractSyntaxTree"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.AbstractSyntaxTree">[docs]</a><span class="k">class</span> <span class="nc">AbstractSyntaxTree</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; The AbstractSyntaxTree is a node in the abstract syntax tree. The</span>
+<span class="sd">    abstract syntax tree is defined by a root node and its children. The</span>
+<span class="sd">    AbstractSyntaxTree is the in-memory representation of the loaded Ontologies</span>
+<span class="sd">    for internal purposes only and should never be passed outside of the lib.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - parent: The parent node</span>
+<span class="sd">    - children: A list of child nodes.</span>
+<span class="sd">    - name: The name of the AbstractSyntaxTree object.</span>
+<span class="sd">    - element_type: The type of the node element.</span>
+<span class="sd">    - ontology: The Ontology object to which this node corresponds.</span>
+<span class="sd">    - is_indexed: Whether or not this node is indexed.</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - add_child: Adds a child node.</span>
+<span class="sd">    - remove_child: Removes a child node.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontology</span> <span class="o">=</span> <span class="n">ontology</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;(&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">out</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">child</span><span class="p">),</span> <span class="s">&quot; &quot;</span><span class="p">])</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">out</span><span class="p">,</span> <span class="s">&quot;)&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">dumps</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="AbstractSyntaxTree.parse"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.AbstractSyntaxTree.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="n">scip</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">token</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">scip</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">scip</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&#39;(&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">scip</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">child</span> <span class="o">=</span> <span class="n">AbstractSyntaxTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ontology</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">scip</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">:])</span>
+                    <span class="n">scip</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&#39;)&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">child</span> <span class="o">=</span> <span class="n">AbstractSyntaxTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ontology</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">child</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">token</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AbstractSyntaxTree.add_child"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.AbstractSyntaxTree.add_child">[docs]</a>    <span class="k">def</span> <span class="nf">add_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Adds entry as a child to self. &quot;&quot;&quot;</span>
+        <span class="c"># entry.parent = self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AbstractSyntaxTree.remove_child"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.AbstractSyntaxTree.remove_child">[docs]</a>    <span class="k">def</span> <span class="nf">remove_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Removes entry from the node&#39;s children. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="ParseError"><a class="viewcode-back" href="../../pysumo.html#pysumo.parser.ParseError">[docs]</a><span class="k">class</span> <span class="nc">ParseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">linenumber</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linnumber</span> <span class="o">=</span> <span class="n">linenumber</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;Parse error in line &quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linnumber</span><span class="p">),</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">])</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

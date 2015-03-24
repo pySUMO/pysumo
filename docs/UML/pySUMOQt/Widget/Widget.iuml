@@ -1,0 +1,15 @@
+abstract class Widget {
+	+ __init__(mainWindow : MainWindow, ast : IndexAbstractor) : Widget
+	+ refresh() : void
+}
+abstract class RWidget {
+	
+}
+abstract class RWWidget {
+	+ __init__( mainWindow : MainWindow, ast : IndexAbstractor, sc : SyntaxController) : RWWidget
+	+ commit() : void
+}
+
+
+Widget <|-- RWWidget
+Widget <|-- RWidget

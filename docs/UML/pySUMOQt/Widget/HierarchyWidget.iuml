@@ -1,0 +1,4 @@
+class HierarchyWidget {
+	+ hide(node : QTreeWidgetItem) : void
+	+ show(node : QTreeWidgetItem) : void
+}

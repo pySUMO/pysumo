@@ -1,0 +1,50 @@
+@startuml
+
+actor User
+activate User
+User -> GraphWidget: Adds Node
+
+activate GraphWidget
+GraphWidget -> SyntaxController: add_ontology(ontology, newversion=kif)
+
+activate SyntaxController
+SyntaxController -> Parser: kifparse(file, ontology, ast)
+activate Parser
+Parser -> AbstractSyntaxTree: add_child(entry)
+
+activate AbstractSyntaxTree
+AbstractSyntaxTree -> Parser:
+deactivate AbstractSyntaxTree
+
+Parser --> SyntaxController: return AST
+deactivate Parser
+SyntaxController --> GraphWidget: return AST
+deactivate SyntaxController
+
+GraphWidget -> GraphWidget: commit()
+activate GraphWidget
+GraphWidget -> IndexAbstractor: index.update_index(new_AST)
+
+activate IndexAbstractor
+IndexAbstractor -> GraphWidget:
+deactivate IndexAbstractor
+
+GraphWidget -> GraphWidget:
+deactivate GraphWidget
+
+GraphWidget -> IndexAbstractor: get_graph(variant, major, minor, root, depth)
+activate IndexAbstractor
+IndexAbstractor --> GraphWidget: return AbstractGraph
+deactivate IndexAbstractor
+
+
+GraphWidget -> GraphWidget: newVariant()
+GraphWidget -> GraphWidget: newRoot()
+GraphWidget -> GraphWidget: createGV()
+GraphWidget -> GraphWidget: plot()
+
+GraphWidget -> User: Display Graph
+deactivate GraphWidget
+deactivate User
+
+@enduml

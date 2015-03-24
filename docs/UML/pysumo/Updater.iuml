@@ -1,0 +1,5 @@
+class Updater {
+	+ check_for_update(ontology,
+	function=None) : Boolean
+	+ update(ontology, function=None) : Boolean
+}

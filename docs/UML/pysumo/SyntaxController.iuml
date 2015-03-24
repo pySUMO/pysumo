@@ -1,0 +1,23 @@
+class SyntaxController {
+	- actionlog : ActionLog
+	- index : IndexAbstractor
+	+ __init__(index : IndexAbstractor) : SyntaxController
+	+ parse_partial(code_block)
+	+ parse_patch(code_block)
+	+ add_ontology(ontology)
+	+ remove_ontology(ontology)
+	+ undo(ontology)
+	+ redo(ontology)
+}
+
+class Ontology {
+	- name : String
+	- revision : Float
+	- path : String
+	- url : String
+	- active : Boolean
+
+	+ __init__(path : String, name=None : String, url=None : String) : Ontology
+}
+
+SyntaxController --> Ontology : > uses

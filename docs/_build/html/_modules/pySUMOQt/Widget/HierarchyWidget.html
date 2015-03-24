@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pySUMOQt.Widget.HierarchyWidget &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pySUMOQt.Widget.HierarchyWidget</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; HierarchyWidget modul from pySUMO</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">PySide.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QTreeWidgetItem</span><span class="p">,</span> <span class="n">QAbstractItemView</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QStringListModel</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pySUMOQt.Designer.HierarchyWidget</span> <span class="kn">import</span> <span class="n">Ui_Form</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Widget.Widget</span> <span class="kn">import</span> <span class="n">RWWidget</span>
+
+
+<div class="viewcode-block" id="OntologyHierarchyNode"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.HierarchyWidget.OntologyHierarchyNode">[docs]</a><span class="k">class</span> <span class="nc">OntologyHierarchyNode</span><span class="p">(</span><span class="n">QTreeWidgetItem</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OntologyHierarchyNode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span> <span class="o">=</span> <span class="n">data</span>
+        
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span>
+        </div>
+<div class="viewcode-block" id="buildRootNode"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.HierarchyWidget.buildRootNode">[docs]</a><span class="k">def</span> <span class="nf">buildRootNode</span><span class="p">(</span><span class="n">relations</span><span class="p">,</span> <span class="n">treeview</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Build the Qtreeitem from the abstract graph and it&#39;s children.&quot;&quot;&quot;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">createdNodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">relations</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">:</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">foundNode</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">createdNodes</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">dataObj</span> <span class="o">==</span> <span class="n">i</span> <span class="p">:</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">k</span>
+                <span class="n">foundNode</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">OntologyHierarchyNode</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">createdNodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">relations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span>
+            <span class="n">subNode</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">createdNodes</span> <span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">dataObj</span> <span class="o">==</span> <span class="n">j</span> <span class="p">:</span>
+                    <span class="n">subNode</span> <span class="o">=</span> <span class="n">k</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">subNode</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+                <span class="n">subNode</span> <span class="o">=</span> <span class="n">OntologyHierarchyNode</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">j</span><span class="p">)</span>
+                <span class="n">createdNodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subNode</span><span class="p">)</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">addChild</span><span class="p">(</span><span class="n">subNode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">foundNode</span> <span class="p">:</span>
+            <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    <span class="n">treeview</span><span class="o">.</span><span class="n">addTopLevelItems</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">createdNodes</span>
+        </div>
+<div class="viewcode-block" id="HierarchyWidget"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget">[docs]</a><span class="k">class</span> <span class="nc">HierarchyWidget</span><span class="p">(</span><span class="n">RWWidget</span><span class="p">,</span> <span class="n">Ui_Form</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; The hierarchy widget displays the ontology in a tree form conformly to</span>
+<span class="sd">    the SUMO hierarchy model. The user can edit the ontology from this widget.</span>
+<span class="sd">    It can show and hide nodes in it&#39;s display.</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - hide: hides the node&#39;s content that the user selected in the widget view.</span>
+<span class="sd">    - show: shows the node&#39;s content that the user selected in the widget view.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mainwindow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the hierarchy widget. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HierarchyWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">mainwindow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relationSelector</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relationSelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_relationChanged_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createdNodes</span> <span class="o">=</span> <span class="bp">None</span>
+        
+<div class="viewcode-block" id="HierarchyWidget.refresh"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">RWWidget</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationSelector</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">variant</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="p">:</span>
+            <span class="n">variant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relationSelector</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">variant</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">abstractGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">IA</span><span class="o">.</span><span class="n">get_graph</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variant</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">abstractGraph</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">abstractGraph</span><span class="o">.</span><span class="n">relations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">createdNodes</span> <span class="o">=</span> <span class="n">buildRootNode</span><span class="p">(</span><span class="n">abstractGraph</span><span class="o">.</span><span class="n">relations</span><span class="p">,</span> <span class="n">treeview</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">QStringListModel</span><span class="p">()</span>
+        <span class="n">nodeList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">createdNodes</span> <span class="p">:</span>
+            <span class="n">nodeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">nodeList</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">setStringList</span><span class="p">(</span><span class="n">nodeList</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createdNodes</span> <span class="o">=</span> <span class="n">createdNodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="HierarchyWidget.findNodeByText"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.findNodeByText">[docs]</a>    <span class="k">def</span> <span class="nf">findNodeByText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">createdNodes</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">createdNodes</span> <span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">val</span> <span class="p">:</span>
+                    <span class="k">return</span> <span class="n">i</span>
+        <span class="k">return</span> <span class="bp">None</span>
+        </div>
+    <span class="k">def</span> <span class="nf">_relationChanged_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">clearSelection</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">collapseAll</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="n">textVal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">itemText</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findNodeByText</span><span class="p">(</span><span class="n">textVal</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">indexFromItem</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">itemFromIndex</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">setItemExpanded</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">setItemSelected</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">scrollToItem</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">QAbstractItemView</span><span class="o">.</span><span class="n">PositionAtCenter</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rootSelector</span><span class="o">.</span><span class="n">clearFocus</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_expandAll_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">expandAll</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_collapseAll_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">collapseAll</span><span class="p">()</span>
+
+<div class="viewcode-block" id="HierarchyWidget.hide"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.hide">[docs]</a>    <span class="k">def</span> <span class="nf">hide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Hides the part the user selected of the Ontology. This function is called as a slot.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        - entry: The user-selected entry.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="HierarchyWidget.show"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Shows the part the user selected of the ontolgy. This function is called as a slot.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">        - entry: The user-selected entry.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

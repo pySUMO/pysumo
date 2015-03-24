@@ -1,0 +1,17 @@
+@startuml
+
+actor User
+activate User
+
+User -> DocumentationWidget: search
+activate DocumentationWidget
+DocumentationWidget -> IndexAbstractor: search(term)
+activate IndexAbstractor
+IndexAbstractor --> DocumentationWidget: return results
+deactivate IndexAbstractor
+DocumentationWidget  --> User: display results
+deactivate DocumentationWidget
+
+deactivate User
+
+@enduml

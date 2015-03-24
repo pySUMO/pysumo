@@ -1,0 +1,24 @@
+class QtNode {
+     setCallback(f)
+     setNode(node)
+     itemChange(itemChange, val)
+     mouseDoubleClickEvent(event)
+}
+
+class GraphWidget {
+     refresh()
+     _updateActiveOntology()
+     searchNode(search)
+     addRelation(qnode)
+     changeScale(val)
+     renewplot()
+     plot()
+     createQtNode(node, posx, posy, color = QColor(255,150,150))
+     initMenu()
+     showContextMenu(pos)
+     newRoot()
+     newVariant()
+     createGV(variant='instance', r=None, d=None)
+}
+
+GraphWidget -- QtNode

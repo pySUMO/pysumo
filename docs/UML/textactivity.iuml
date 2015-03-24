@@ -1,0 +1,18 @@
+@startuml
+
+|TextEditor|
+start
+while (Text Editor is visible) is (true)
+	:Wait for Input;
+	-> input;
+	if (Check Parentheses) then (correct)
+		if (Parse) then (no error)
+		else (error)
+			:Mark Error Location;
+		endif
+	else (incorrect)
+	endif
+endwhile (false)
+stop
+
+@enduml

@@ -1,0 +1,837 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pySUMOQt.Widget package &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="index.html" />
+    <link rel="up" title="pySUMOQt package" href="pySUMOQt.html" />
+    <link rel="next" title="Changes" href="Changes.html" />
+    <link rel="prev" title="pySUMOQt package" href="pySUMOQt.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Changes.html" title="Changes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pySUMOQt.html" title="pySUMOQt package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="pySUMOQt.html" accesskey="U">pySUMOQt package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pysumoqt-widget-package">
+<h1>pySUMOQt.Widget package<a class="headerlink" href="#pysumoqt-widget-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pySUMOQt.Widget">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pySUMOQt.Widget" title="Permalink to this headline">¶</a></h2>
+<p>The pySUMO package containing all widgets that interface with the Ontology
+through the IndexAbstractor and/or the SyntaxController.</p>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pysumoqt-widget-graphwidget-module">
+<h2>pySUMOQt.Widget.GraphWidget module<a class="headerlink" href="#pysumoqt-widget-graphwidget-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-1c810a3098ba6a41b747d1c25e45c5840ad9ce5b.svg" type="image/svg+xml" style="width:382px;height:390px;">
+<img src="_images/plantuml-1c810a3098ba6a41b747d1c25e45c5840ad9ce5b.png" alt="!include ./UML/pySUMOQt/Widget/GraphWidget.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pySUMOQt.Widget.GraphWidget"></span><p>Displays a graph-based representation of the Ontology and allows the
+Ontology to be modified graphically.</p>
+<p>This module contains:</p>
+<p>GraphWidget: Displays and allows modification of a graph of the Ontology.</p>
+<dl class="class">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.GraphWidget.</tt><tt class="descname">GraphWidget</tt><big>(</big><em>mainwindow</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pySUMOQt.Widget.Widget.RWWidget" title="pySUMOQt.Widget.Widget.RWWidget"><tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Widget.Widget.RWWidget</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Designer.GraphWidget.Ui_Form</span></tt></p>
+<p>Displays a graph of the Ontology and passes all modifications to the
+SyntaxController.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>abstractGraph: The currently displayed AbstractGraph.</li>
+<li>gv: The layouted version of the current DotGraph.</li>
+</ul>
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.addRelation">
+<tt class="descname">addRelation</tt><big>(</big><em>qnode</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.addRelation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.addRelation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a relation or save a starting point</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.changeScale">
+<tt class="descname">changeScale</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.changeScale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.changeScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale the GraphicView to val</p>
+<p>Arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li>val: The value to scale to. In Designer: 0.01 &lt;= val &lt;= 5</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.createGV">
+<tt class="descname">createGV</tt><big>(</big><em>variant='instance'</em>, <em>r=None</em>, <em>d=None</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.createGV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.createGV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a pygraphviz graph from pysumo abstract graph and layout it.</p>
+<p>Arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li>variant: The variant to use (e.g. instance)</li>
+<li>r: The root</li>
+<li>d: The depth (none for infinite depth</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.createQtNode">
+<tt class="descname">createQtNode</tt><big>(</big><em>node</em>, <em>posx</em>, <em>posy</em>, <em>color=PySide.QtGui.QColor.fromRgbF(1.000000</em>, <em>0.588235</em>, <em>0.588235</em>, <em>1.000000)</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.createQtNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.createQtNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a QtNode with given position, color for given node</p>
+<p>Arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li>node: The graphviz node</li>
+<li>posx: The x position from graphviz layout</li>
+<li>posy: The y position from graphviz layout</li>
+<li>color: The color of circle (red by default)</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.getActiveOntology">
+<tt class="descname">getActiveOntology</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.getActiveOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.getActiveOntology" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.initMenu">
+<tt class="descname">initMenu</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.initMenu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.initMenu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the Widget to provide a handmade CustomContextMenu</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.newRoot">
+<tt class="descname">newRoot</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.newRoot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.newRoot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change to new root set in the widget and redraw</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.newVariant">
+<tt class="descname">newVariant</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.newVariant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.newVariant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change to new variant set in the widget and redraw</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.plot">
+<tt class="descname">plot</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a QGraphicScene for the layouted graph in self.gv
+This function has to be called every time, a node change happened.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.print_">
+<tt class="descname">print_</tt><big>(</big><em>printer</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.print_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.print_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.refresh">
+<tt class="descname">refresh</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override Widget
+Updates the GraphWidget regarding to latest indexabstractor changes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.renewplot">
+<tt class="descname">renewplot</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.renewplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.renewplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not layout anything, but redraw all lines</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.searchNode">
+<tt class="descname">searchNode</tt><big>(</big><em>search</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.searchNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.searchNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search the node and focus the GraphicView to the node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.showContextMenu">
+<tt class="descname">showContextMenu</tt><big>(</big><em>pos</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#GraphWidget.showContextMenu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.showContextMenu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows a context menu to add a node in the graph widget</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.GraphWidget.GraphWidget.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad49513b708&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.GraphWidget.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.Widget.GraphWidget.QtNode">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.GraphWidget.</tt><tt class="descname">QtNode</tt><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#QtNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.QtNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QGraphicsEllipseItem</span></tt></p>
+<p>A Node representation in Qt</p>
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.GraphWidget.QtNode.callback">
+<tt class="descname">callback</tt><em class="property"> = None</em><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.QtNode.callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.QtNode.itemChange">
+<tt class="descname">itemChange</tt><big>(</big><em>itemChange</em>, <em>val</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#QtNode.itemChange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.QtNode.itemChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override Qt</p>
+<p>Renew the arrows</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.QtNode.mouseDoubleClickEvent">
+<tt class="descname">mouseDoubleClickEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#QtNode.mouseDoubleClickEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.QtNode.mouseDoubleClickEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override Qt</p>
+<p>Add a relation or save start relation point when double clicking</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.QtNode.setCallback">
+<tt class="descname">setCallback</tt><big>(</big><em>f</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#QtNode.setCallback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.QtNode.setCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a callback function to call after the position has changed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.GraphWidget.QtNode.setNode">
+<tt class="descname">setNode</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#QtNode.setNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.QtNode.setNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the graphviz node</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pySUMOQt.Widget.GraphWidget.insert_newlines">
+<tt class="descclassname">pySUMOQt.Widget.GraphWidget.</tt><tt class="descname">insert_newlines</tt><big>(</big><em>string</em>, <em>every=64</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/GraphWidget.html#insert_newlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.GraphWidget.insert_newlines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a newline after ’every‘ characters</p>
+<p>Arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li>every : The amount of characters before a newline is inserted</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="pysumoqt-widget-hierarchywidget-module">
+<h2>pySUMOQt.Widget.HierarchyWidget module<a class="headerlink" href="#pysumoqt-widget-hierarchywidget-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-fe48680fe4ebe9b61e2060f91124814786a176d9.svg" type="image/svg+xml" style="width:251px;height:90px;">
+<img src="_images/plantuml-fe48680fe4ebe9b61e2060f91124814786a176d9.png" alt="!include ./UML/pySUMOQt/Widget/HierarchyWidget.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pySUMOQt.Widget.HierarchyWidget"></span><p>HierarchyWidget modul from pySUMO</p>
+<dl class="class">
+<dt id="pySUMOQt.Widget.HierarchyWidget.HierarchyWidget">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.HierarchyWidget.</tt><tt class="descname">HierarchyWidget</tt><big>(</big><em>mainwindow</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/HierarchyWidget.html#HierarchyWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pySUMOQt.Widget.Widget.RWWidget" title="pySUMOQt.Widget.Widget.RWWidget"><tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Widget.Widget.RWWidget</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Designer.HierarchyWidget.Ui_Form</span></tt></p>
+<p>The hierarchy widget displays the ontology in a tree form conformly to
+the SUMO hierarchy model. The user can edit the ontology from this widget.
+It can show and hide nodes in it&#8217;s display.</p>
+<p>Methods:</p>
+<ul class="simple">
+<li>hide: hides the node&#8217;s content that the user selected in the widget view.</li>
+<li>show: shows the node&#8217;s content that the user selected in the widget view.</li>
+</ul>
+<dl class="method">
+<dt id="pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.findNodeByText">
+<tt class="descname">findNodeByText</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/HierarchyWidget.html#HierarchyWidget.findNodeByText"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.findNodeByText" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.hide">
+<tt class="descname">hide</tt><big>(</big><em>entry</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/HierarchyWidget.html#HierarchyWidget.hide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.hide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hides the part the user selected of the Ontology. This function is called as a slot.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>entry: The user-selected entry.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.refresh">
+<tt class="descname">refresh</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/HierarchyWidget.html#HierarchyWidget.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.refresh" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.show">
+<tt class="descname">show</tt><big>(</big><em>entry</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/HierarchyWidget.html#HierarchyWidget.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows the part the user selected of the ontolgy. This function is called as a slot.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>entry: The user-selected entry.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950df888&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.HierarchyWidget.HierarchyWidget.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.Widget.HierarchyWidget.OntologyHierarchyNode">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.HierarchyWidget.</tt><tt class="descname">OntologyHierarchyNode</tt><big>(</big><em>data=None</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/HierarchyWidget.html#OntologyHierarchyNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.HierarchyWidget.OntologyHierarchyNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QTreeWidgetItem</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pySUMOQt.Widget.HierarchyWidget.buildRootNode">
+<tt class="descclassname">pySUMOQt.Widget.HierarchyWidget.</tt><tt class="descname">buildRootNode</tt><big>(</big><em>relations</em>, <em>treeview</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/HierarchyWidget.html#buildRootNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.HierarchyWidget.buildRootNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the Qtreeitem from the abstract graph and it&#8217;s children.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="pysumoqt-widget-texteditor-module">
+<h2>pySUMOQt.Widget.TextEditor module<a class="headerlink" href="#pysumoqt-widget-texteditor-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-f2f23a642f073db3e820e34d265207be25f6d4ea.svg" type="image/svg+xml" style="width:500px;height:703px;">
+<a href="_images/plantuml-f2f23a642f073db3e820e34d265207be25f6d4ea.png"><img src="_images/plantuml-f2f23a642f073db3e820e34d265207be25f6d4ea.png" alt="!include ./UML/pySUMOQt/Widget/TextEditor.iuml" width="351.4px" height="493.5px"/></a>
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pySUMOQt.Widget.TextEditor"></span><p>The text editor module for pySUMO. The TextEditor widget is the main pySUMO
+widget. It contains the textual representation of the currently loaded
+Ontologies allowing conventional kif editing with features such as syntax
+highlighting and autocompletion.</p>
+<dl class="class">
+<dt id="pySUMOQt.Widget.TextEditor.NumberBar">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.TextEditor.</tt><tt class="descname">NumberBar</tt><big>(</big><em>edit</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#NumberBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.NumberBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QWidget</span></tt></p>
+<p>A widget for the numberbar on the left of QPlainTextEdit</p>
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.NumberBar.adjustWidth">
+<tt class="descname">adjustWidth</tt><big>(</big><em>count</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#NumberBar.adjustWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.NumberBar.adjustWidth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.NumberBar.mouseDoubleClickEvent">
+<tt class="descname">mouseDoubleClickEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#NumberBar.mouseDoubleClickEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.NumberBar.mouseDoubleClickEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hides the lines from the line clicked on.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.NumberBar.paintEvent">
+<tt class="descname">paintEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#NumberBar.paintEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.NumberBar.paintEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.TextEditor.NumberBar.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950ffac8&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.NumberBar.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.NumberBar.updateContents">
+<tt class="descname">updateContents</tt><big>(</big><em>rect</em>, <em>scroll</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#NumberBar.updateContents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.NumberBar.updateContents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.TextEditor.</tt><tt class="descname">SyntaxHighlightSetting</tt><big>(</big><em>expression</em>, <em>font_family</em>, <em>font_size</em>, <em>font_color</em>, <em>font_weight</em>, <em>font_style</em>, <em>font_underline</em>, <em>use_font_size</em>, <em>expression_end=''</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#SyntaxHighlightSetting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>This class contains a single Setting for a code block in the SyntaxHighlighter.</p>
+<p>Variables:</p>
+<blockquote>
+<div><ul class="simple">
+<li>expression: The regular expression of the syntax block</li>
+<li>expression_end: If the expression has a start and an end expression</li>
+<li>font_size</li>
+<li>font_color</li>
+<li>font_weight</li>
+<li>font_style</li>
+<li>font_underline</li>
+<li>use_font_size</li>
+</ul>
+</div></blockquote>
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.createFormat">
+<tt class="descname">createFormat</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#SyntaxHighlightSetting.createFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.createFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a QTextCharformat and saves it in self.class_format</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.deserialize">
+<tt class="descname">deserialize</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#SyntaxHighlightSetting.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.getValues">
+<tt class="descname">getValues</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#SyntaxHighlightSetting.getValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.getValues" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.get_format">
+<tt class="descname">get_format</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#SyntaxHighlightSetting.get_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.get_format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.serialize">
+<tt class="descname">serialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#SyntaxHighlightSetting.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.serialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlighter">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.TextEditor.</tt><tt class="descname">SyntaxHighlighter</tt><big>(</big><em>document</em>, <em>settings</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#SyntaxHighlighter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlighter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QSyntaxHighlighter</span></tt></p>
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlighter.highlightBlock">
+<tt class="descname">highlightBlock</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#SyntaxHighlighter.highlightBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlighter.highlightBlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.TextEditor.SyntaxHighlighter.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950ffa48&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.SyntaxHighlighter.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.TextEditor.</tt><tt class="descname">TextEditor</tt><big>(</big><em>mainwindow</em>, <em>settings=None</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pySUMOQt.Widget.Widget.RWWidget" title="pySUMOQt.Widget.Widget.RWWidget"><tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Widget.Widget.RWWidget</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Designer.TextEditor.Ui_Form</span></tt></p>
+<p>Contains many features of popular text editors adapted for use with
+Ontologies such as syntax highlighting, and autocompletion. One column on
+the left of the text editor contains line numbers and another contains
+other contextual information such as whether a block of code has been
+hidden/collapsed and can be displayed/expanded later.  It also contains an
+incremental search and an interface to pySUMO&#8217;s settings so font size and
+family can be changed at will.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>syntax_highlighter: The syntax highlighter object for the text editor.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>__init__: Initalizes the Object and the QPlainTextEdit</li>
+<li>commit: Notifies other Widgets of changes.</li>
+<li>show_autocomplete: Returns autocompletion choices.</li>
+<li>getWidget: returns the QPlainTextEdit</li>
+<li>numberbarPaint: Paints the numberbar</li>
+<li>searchCompletion: Asks QCompleter if a whole word exists starting with user input</li>
+<li>hideFrom: Starts hides all lines from the ()-block started by line</li>
+<li>insertCompletion: Puts the selected Completion into the TextEditor</li>
+</ul>
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides commit from RWWidget.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.decreaseSize">
+<tt class="descname">decreaseSize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.decreaseSize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.decreaseSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrease the size of the font in the TextEditor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.expandAll">
+<tt class="descname">expandAll</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.expandAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.expandAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expands all hidden code blocks</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.expandIfBracketRemoved">
+<tt class="descname">expandIfBracketRemoved</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.expandIfBracketRemoved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.expandIfBracketRemoved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a line with ( or ) was changed and expand the possible hidden lines</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.getActiveOntology">
+<tt class="descname">getActiveOntology</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.getActiveOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.getActiveOntology" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.getLayoutWidget">
+<tt class="descname">getLayoutWidget</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.getLayoutWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.getLayoutWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the layout widget</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.getWidget">
+<tt class="descname">getWidget</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.getWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.getWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the QPlainTextEdit Widget</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.hideAll">
+<tt class="descname">hideAll</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.hideAll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.hideAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collapse all code blocks (where possible)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.hideFrom">
+<tt class="descname">hideFrom</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.hideFrom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.hideFrom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hides a block starting by line. Do nothing if not hidable</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.increaseSize">
+<tt class="descname">increaseSize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.increaseSize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.increaseSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase the size of the font in the TextEditor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.initAutocomplete">
+<tt class="descname">initAutocomplete</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.initAutocomplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.initAutocomplete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inits the QCompleter and gives him a list of words</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.insertCompletion">
+<tt class="descname">insertCompletion</tt><big>(</big><em>completion</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.insertCompletion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.insertCompletion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the completion to current text</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.jumpToLocation">
+<tt class="descname">jumpToLocation</tt><big>(</big><em>location</em>, <em>ontology</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.jumpToLocation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.jumpToLocation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.numberbarPaint">
+<tt class="descname">numberbarPaint</tt><big>(</big><em>number_bar</em>, <em>event</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.numberbarPaint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.numberbarPaint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Paints the line numbers of the code file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.refresh">
+<tt class="descname">refresh</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refreshes the content of the TextEditor (syncing with other widgets)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.searchCompletion">
+<tt class="descname">searchCompletion</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.searchCompletion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.searchCompletion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches for possible completion from QCompleter to the current text position</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.setActiveOntology">
+<tt class="descname">setActiveOntology</tt><big>(</big><em>ontology</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.setActiveOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.setActiveOntology" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.setCanRedo">
+<tt class="descname">setCanRedo</tt><big>(</big><em>b</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.setCanRedo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.setCanRedo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.setCanUndo">
+<tt class="descname">setCanUndo</tt><big>(</big><em>b</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.setCanUndo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.setCanUndo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.setTextChanged">
+<tt class="descname">setTextChanged</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.setTextChanged"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.setTextChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is called if the text changed signal is thrown and 
+sets a timer of 3 seconds to reparse the ontology.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.showOtherOntology">
+<tt class="descname">showOtherOntology</tt><big>(</big><em>idx</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.showOtherOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.showOtherOntology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show other ontology in the plaintextedit</p>
+<p>Arguments:</p>
+<ul class="simple">
+<li>idx: The id of the current Ontologyselector</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950ff948&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.TextEditor.TextEditor.toggleVisibility">
+<tt class="descname">toggleVisibility</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/TextEditor.html#TextEditor.toggleVisibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.TextEditor.TextEditor.toggleVisibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows or hides a line</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pysumoqt-widget-widget-module">
+<h2>pySUMOQt.Widget.Widget module<a class="headerlink" href="#pysumoqt-widget-widget-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-a2e2927ec88e5393dc6de35078cc9f04c7623f60.svg" type="image/svg+xml" style="width:682px;height:224px;">
+<img src="_images/plantuml-a2e2927ec88e5393dc6de35078cc9f04c7623f60.png" alt="!include ./UML/pySUMOQt/Widget/Widget.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pySUMOQt.Widget.Widget"></span><p>Abstracts all Widgets of the pySUMO GUI.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>Widget: The main widget representation in the GUI.</li>
+<li>RWidget: The class of widgets which only have access to the IndexAbstractor and therefore cannot modify the Ontologies.</li>
+<li>RWWidget: The class of widgets which have access to the SyntaxController and the IndexAbstractor.</li>
+</ul>
+<dl class="class">
+<dt id="pySUMOQt.Widget.Widget.RWWidget">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.Widget.</tt><tt class="descname">RWWidget</tt><big>(</big><em>mainwindow</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#RWWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pySUMOQt.Widget.Widget.Widget" title="pySUMOQt.Widget.Widget.Widget"><tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Widget.Widget.Widget</span></tt></a></p>
+<p>Class for Widgets which have modify-access to the Ontologies. This
+class should not be used directly, but extended.</p>
+<p>Methods:</p>
+<ul class="simple">
+<li>commit: Commits the modifications on the ontology and notifies the others widgets of changes.</li>
+</ul>
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.Widget.RWWidget.SyntaxController">
+<tt class="descname">SyntaxController</tt><em class="property"> = &lt;pysumo.syntaxcontroller.SyntaxController object at 0x2ad4950c81d0&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWWidget.SyntaxController" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.Widget.RWWidget.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#RWWidget.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWWidget.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commits modifications to the ontology to the SyntaxController, and
+if successful updates the IndexAbstractor and notifies all other
+widgets that the Ontology has been modified.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.Widget.RWWidget.getActiveOntology">
+<tt class="descname">getActiveOntology</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#RWWidget.getActiveOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWWidget.getActiveOntology" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.Widget.RWWidget.ontologyChanged">
+<tt class="descname">ontologyChanged</tt><em class="property"> = &lt;PySide.QtCore.Signal object at 0x2ad4950d7420&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWWidget.ontologyChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.Widget.RWWidget.setActiveOntology">
+<tt class="descname">setActiveOntology</tt><big>(</big><em>ontology</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#RWWidget.setActiveOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWWidget.setActiveOntology" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.Widget.RWWidget.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950df388&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWWidget.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.Widget.Widget.RWidget">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.Widget.</tt><tt class="descname">RWidget</tt><big>(</big><em>mainwindow</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#RWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pySUMOQt.Widget.Widget.Widget" title="pySUMOQt.Widget.Widget.Widget"><tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Widget.Widget.Widget</span></tt></a></p>
+<p>Class for Widgets which only has read-access to the Ontologies. This
+class should not be used directly, but extended.</p>
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.Widget.RWidget.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950df348&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.Widget.RWidget.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.Widget.Widget.Widget">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.Widget.</tt><tt class="descname">Widget</tt><big>(</big><em>mainwindow</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#Widget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.Widget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtCore.QObject</span></tt></p>
+<p>The main class representing a widget in the pySUMO GUI.</p>
+<p>Methods:</p>
+<ul class="simple">
+<li>refresh: Refreshes the view of the current widget according to the IndexAbstractor.</li>
+</ul>
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.Widget.Widget.IA">
+<tt class="descname">IA</tt><em class="property"> = &lt;pysumo.indexabstractor.IndexAbstractor object at 0x2ad4950bf710&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.Widget.Widget.IA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pySUMOQt.Widget.Widget.Widget.getIndexAbstractor">
+<em class="property">classmethod </em><tt class="descname">getIndexAbstractor</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#Widget.getIndexAbstractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.Widget.getIndexAbstractor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.Widget.Widget.getWidget">
+<tt class="descname">getWidget</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#Widget.getWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.Widget.getWidget" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.Widget.Widget.mw">
+<tt class="descname">mw</tt><em class="property"> = None</em><a class="headerlink" href="#pySUMOQt.Widget.Widget.Widget.mw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the Widget object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.Widget.Widget.refresh">
+<tt class="descname">refresh</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#Widget.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.Widget.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the IndexAbstractor to refresh the widget.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Widget.Widget.Widget.setSettings">
+<tt class="descname">setSettings</tt><big>(</big><em>settings</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/Widget.html#Widget.setSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.Widget.Widget.setSettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.Widget.Widget.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950df308&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.Widget.Widget.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pysumoqt-widget-documentationwidget-module">
+<h2>pySUMOQt.Widget.DocumentationWidget module<a class="headerlink" href="#pysumoqt-widget-documentationwidget-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-2472fafc87af4c5a45373781fc51a7fcc8bc9ad3.svg" type="image/svg+xml" style="width:259px;height:90px;">
+<img src="_images/plantuml-2472fafc87af4c5a45373781fc51a7fcc8bc9ad3.png" alt="!include ./UML/pySUMOQt/Widget/DocumentationWidget.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pySUMOQt.Widget.DocumentationWidget"></span><p>This widget displays useful information related to the current
+Ontology. For example you can search WordNet for synonyms or
+print the definition for a selected term</p>
+<dl class="class">
+<dt id="pySUMOQt.Widget.DocumentationWidget.DocumentationWidget">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Widget.DocumentationWidget.</tt><tt class="descname">DocumentationWidget</tt><big>(</big><em>mainwindow</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/DocumentationWidget.html#DocumentationWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.DocumentationWidget.DocumentationWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pySUMOQt.Widget.Widget.RWidget" title="pySUMOQt.Widget.Widget.RWidget"><tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Widget.Widget.RWidget</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Designer.DocumentationWidget.Ui_Form</span></tt></p>
+<p>The DocumentationWidget displays relevant information about the
+current Ontology, and offers a search interface to WordNet.</p>
+<dl class="method">
+<dt id="pySUMOQt.Widget.DocumentationWidget.DocumentationWidget.search">
+<tt class="descname">search</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Widget/DocumentationWidget.html#DocumentationWidget.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Widget.DocumentationWidget.DocumentationWidget.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the IndexAbstractor to search for all occurrences of
+string in the Ontology and displays them.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Widget.DocumentationWidget.DocumentationWidget.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950df448&gt;</em><a class="headerlink" href="#pySUMOQt.Widget.DocumentationWidget.DocumentationWidget.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pySUMOQt.Widget package</a><ul>
+<li><a class="reference internal" href="#module-pySUMOQt.Widget">Module contents</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#pysumoqt-widget-graphwidget-module">pySUMOQt.Widget.GraphWidget module</a></li>
+<li><a class="reference internal" href="#pysumoqt-widget-hierarchywidget-module">pySUMOQt.Widget.HierarchyWidget module</a></li>
+<li><a class="reference internal" href="#pysumoqt-widget-texteditor-module">pySUMOQt.Widget.TextEditor module</a></li>
+<li><a class="reference internal" href="#pysumoqt-widget-widget-module">pySUMOQt.Widget.Widget module</a></li>
+<li><a class="reference internal" href="#pysumoqt-widget-documentationwidget-module">pySUMOQt.Widget.DocumentationWidget module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pySUMOQt.html"
+                        title="previous chapter">pySUMOQt package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Changes.html"
+                        title="next chapter">Changes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pySUMOQt.Widget.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Changes.html" title="Changes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pySUMOQt.html" title="pySUMOQt package"
+             >previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="pySUMOQt.html" >pySUMOQt package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+class IndexAbstractor {
+  - root : AST
+  - ontologies : Ontology[]
+  - index : HashMap<name : String, elements : AST[]>
+  - wordnet : WordNet
+  + init_wordnet()
+  + update_index(ast : AST)
+  + search(term : String) : HashMap<ontology : Ontology, elements : String[]>
+  + get_ontology_file(ontology : Ontology) : StringIO
+  + get_graph(variant : (pos : int, term : String)[], major=2, minor=1, root=None : String, depth=None : int) : AbstractGraph
+  + wordnet_locate(term : String) : String[]
+}
+
+class IndexAbstractorM << (M,#FF7700) >>{
+  + normalize(term : String) : String
+}
+
+class AbstractGraph {
+  - nodes : AbstractGraphNode[]
+  - relations : Enum[][]
+  + __init__(variant : (pos : int, term : String)[], major : int, minor : int, root : String, depth : int) : AbstractGraph
+}
+
+class AbstractGraphNode {
+  - name : String
+  + __init__(name : String) : AbstractGraphNode
+}
+
+AbstractGraph "1" --> "1..n" AbstractGraphNode
+IndexAbstractor --> AbstractGraph : > uses 

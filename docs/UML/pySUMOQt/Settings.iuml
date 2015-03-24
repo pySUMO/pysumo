@@ -1,0 +1,26 @@
+class LayoutManager {
+	- mainwindow : MainWindow
+	
+	+ __init__(mainwindow : MainWindow)
+	+ saveLayout()
+	+ restoreLayout()
+	+ saveRecentOntologyHistory()
+	+ restoreRecentOntologyHistory()
+	+ restoreGraphWidgets()
+	+ restoreTextEditorWidgets()
+	+ restoreDocumentationWidgets()
+	+ restoreHierarchyWidgets()
+	+ saveVisibilityState(qItem : QWidget)
+	+ restoreVisibilityState(qItem : QWidget, qAction : QAction)
+	+ savePositionState(qItem : QWidget)
+	+ restorePositionState(qItem : QWidget)
+	+ saveSizeState(qItem : QWidget)
+	+ restoreSizeState(qItem : QWidget)
+	+ saveStatusBarState()
+	+ restoreStatusBarState()
+}
+
+class PySumoSettings {
+	+ __init__(mainwindow : MainWindow, filepath : String)
+	+ loadDefaults()
+}

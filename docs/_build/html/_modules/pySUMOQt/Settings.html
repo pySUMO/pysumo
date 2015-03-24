@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pySUMOQt.Settings &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pySUMOQt.Settings</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; This module involves all about the settings in the pySUMO GUI.</span>
+
+<span class="sd">This module contains:</span>
+
+<span class="sd">- WSettings: The settings of pySUMO&#39;s widgets.</span>
+<span class="sd">- PluginManager: The manager for the plugin system in pySUMO.</span>
+<span class="sd">- OptionDialog: The dialog that displays options of pySUMO.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pysumo</span>
+<span class="kn">from</span> <span class="nn">PySide.QtCore</span> <span class="kn">import</span> <span class="n">QSettings</span><span class="p">,</span> <span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QColor</span>
+<span class="kn">from</span> <span class="nn">pysumo.syntaxcontroller</span> <span class="kn">import</span> <span class="n">Ontology</span>
+
+<div class="viewcode-block" id="LayoutManager"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager">[docs]</a><span class="k">class</span> <span class="nc">LayoutManager</span><span class="p">(</span><span class="n">QSettings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The layout manager handles the save and restore state of the main window and it&#39;s components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MainWindow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the layout manager.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - MainWindow : The main window which owns the manager.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LayoutManager</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">pysumo</span><span class="o">.</span><span class="n">CONFIG_PATH</span> <span class="o">+</span> <span class="s">&quot;/user-layout.ini&quot;</span><span class="p">,</span> <span class="n">QSettings</span><span class="o">.</span><span class="n">IniFormat</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span> <span class="o">=</span> <span class="n">MainWindow</span>
+    
+<div class="viewcode-block" id="LayoutManager.saveLayout"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.saveLayout">[docs]</a>    <span class="k">def</span> <span class="nf">saveLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Save layout of the main window and persist it in a setting file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">savePositionState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveSizeState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;mainWindow/state&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">saveState</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveStatusBarState</span><span class="p">()</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuTextEditorWidgets</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;TextEditorWidgets/count&quot;</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuDocumentationWidgets</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;DocumentationWidgets/count&quot;</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuHierarchyWidgets</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;HierarchyWidgets/count&quot;</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuGraphWidgets</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;GraphWidgets/count&quot;</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveRecentOntologyHistory</span><span class="p">()</span>
+    </div>
+<div class="viewcode-block" id="LayoutManager.restoreLayout"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreLayout">[docs]</a>    <span class="k">def</span> <span class="nf">restoreLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore the layout of the main window from the persitent setting file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">restoreState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;mainWindow/state&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreSizeState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restorePositionState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreStatusBarState</span><span class="p">()</span>
+        <span class="c"># restore Text Editor Widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreTextEditorWidgets</span><span class="p">()</span>
+        <span class="c"># restore Documentation Widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreDocumentationWidgets</span><span class="p">()</span>
+        <span class="c"># restore Hierarchy Widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreHierarchyWidgets</span><span class="p">()</span>
+        <span class="c"># restore graph widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreGraphWidgets</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreRecentOntologyHistory</span><span class="p">()</span>
+        </div>
+<div class="viewcode-block" id="LayoutManager.saveRecentOntologyHistory"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.saveRecentOntologyHistory">[docs]</a>    <span class="k">def</span> <span class="nf">saveRecentOntologyHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the list recently opened ontologies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginWriteArray</span><span class="p">(</span><span class="s">&quot;RecentOntologies&quot;</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span> <span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">Ontology</span> <span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setArrayIndex</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;path&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;url&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+                <span class="n">action_log</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">action_log</span>
+                <span class="n">log_io</span> <span class="o">=</span> <span class="n">action_log</span><span class="o">.</span><span class="n">log_io</span>
+                <span class="n">lpath</span> <span class="o">=</span> <span class="n">log_io</span><span class="o">.</span><span class="n">path</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;lpath&quot;</span><span class="p">,</span> <span class="n">lpath</span><span class="p">)</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endArray</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.restoreRecentOntologyHistory"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreRecentOntologyHistory">[docs]</a>    <span class="k">def</span> <span class="nf">restoreRecentOntologyHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore the recent opened ontologies and add them to index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beginReadArray</span><span class="p">(</span><span class="s">&quot;RecentOntologies&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setArrayIndex</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;path&quot;</span><span class="p">)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;url&quot;</span><span class="p">)</span>
+            <span class="n">lpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;lpath&quot;</span><span class="p">)</span>
+            <span class="n">ontology</span> <span class="o">=</span> <span class="n">Ontology</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">lpath</span><span class="o">=</span><span class="n">lpath</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">addRecentOntology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endArray</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.restoreGraphWidgets"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreGraphWidgets">[docs]</a>    <span class="k">def</span> <span class="nf">restoreGraphWidgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore the graph widgets in the main window layout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">graphWidgetsCount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;GraphWidgets/count&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">graphWidgetsCount</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="n">graphWidgetsCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">graphWidgetsCount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">graphWidgetsCount</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="n">graphWidgetsCount</span> <span class="p">:</span>
+            <span class="n">widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">createPySumoWidget</span><span class="p">(</span><span class="s">&quot;GraphWidget&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuGraphWidgets</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">addOrRestoreWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuGraphWidgets</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+        </div>
+<div class="viewcode-block" id="LayoutManager.restoreTextEditorWidgets"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreTextEditorWidgets">[docs]</a>    <span class="k">def</span> <span class="nf">restoreTextEditorWidgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Restore the text editor widgets in the main window layout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">textEditorWidgetsCount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;TextEditorWidgets/count&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">textEditorWidgetsCount</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">textEditorWidgetsCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">textEditorWidgetsCount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">textEditorWidgetsCount</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="n">textEditorWidgetsCount</span><span class="p">:</span>
+            <span class="n">widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">createPySumoWidget</span><span class="p">(</span><span class="s">&quot;TextEditorWidget&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuTextEditorWidgets</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">addOrRestoreWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuTextEditorWidgets</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+            </div>
+<div class="viewcode-block" id="LayoutManager.restoreDocumentationWidgets"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreDocumentationWidgets">[docs]</a>    <span class="k">def</span> <span class="nf">restoreDocumentationWidgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore the documentation widgets in the main window layout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">documentationWidgetsCount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;DocumentationWidgets/count&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">documentationWidgetsCount</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">documentationWidgetsCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">documentationWidgetsCount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">documentationWidgetsCount</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="k">while</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="n">documentationWidgetsCount</span><span class="p">:</span>
+            <span class="n">widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">createPySumoWidget</span><span class="p">(</span><span class="s">&quot;DocumentationWidget&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuDocumentationWidgets</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">addOrRestoreWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuDocumentationWidgets</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.restoreHierarchyWidgets"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreHierarchyWidgets">[docs]</a>    <span class="k">def</span> <span class="nf">restoreHierarchyWidgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore the hierarchy widgets in the main window layout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hierarchyWidgetsCount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;HierarchyWidgets/count&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hierarchyWidgetsCount</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">hierarchyWidgetsCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">hierarchyWidgetsCount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hierarchyWidgetsCount</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="k">while</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="n">hierarchyWidgetsCount</span><span class="p">:</span>
+            <span class="n">widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">createPySumoWidget</span><span class="p">(</span><span class="s">&quot;HierarchyWidget&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuHierarchyWidgets</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">addOrRestoreWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">menuHierarchyWidgets</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.saveVisibilityState"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.saveVisibilityState">[docs]</a>    <span class="k">def</span> <span class="nf">saveVisibilityState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qItem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the visibility state of a QWidget.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - qItem : The QWidget which visibility has to be saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objName</span> <span class="o">=</span> <span class="n">qItem</span><span class="o">.</span><span class="n">objectName</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/visible&quot;</span><span class="p">,</span> <span class="n">qItem</span><span class="o">.</span><span class="n">isVisible</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.restoreVisibilityState"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreVisibilityState">[docs]</a>    <span class="k">def</span> <span class="nf">restoreVisibilityState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qItem</span><span class="p">,</span> <span class="n">qAction</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restores the visibility state of a QWidget.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - qItem : The QWidget which visibility has to be saved.</span>
+<span class="sd">        - qAction : The action which toggles the visibility state of the qItem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objName</span> <span class="o">=</span> <span class="n">qItem</span><span class="o">.</span><span class="n">objectName</span><span class="p">()</span>
+        <span class="n">visible</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/visible&quot;</span><span class="p">)</span>
+        <span class="n">visible</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">visible</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">visible</span> <span class="o">==</span> <span class="s">&quot;false&quot;</span><span class="p">:</span>
+            <span class="n">visible</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">elif</span> <span class="n">visible</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>
+            <span class="n">visible</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">visible</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c"># if not visible :</span>
+        <span class="c">#   qAction.triggered.emit()</span>
+        <span class="c">#  qAction.setChecked(False)</span>
+        <span class="k">if</span> <span class="n">visible</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">qAction</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">qAction</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">visible</span><span class="p">)</span>
+            <span class="n">qItem</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">visible</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.savePositionState"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.savePositionState">[docs]</a>    <span class="k">def</span> <span class="nf">savePositionState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qItem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the position state of a QWidget.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - qItem : The QWidget which position state has to be saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objName</span> <span class="o">=</span> <span class="n">qItem</span><span class="o">.</span><span class="n">objectName</span><span class="p">()</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">qItem</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span>
+        <span class="n">xPos</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
+        <span class="n">yPos</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/x&quot;</span><span class="p">,</span> <span class="n">xPos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/y&quot;</span><span class="p">,</span> <span class="n">yPos</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.restorePositionState"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restorePositionState">[docs]</a>    <span class="k">def</span> <span class="nf">restorePositionState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qItem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restores the position state of a QWidget.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - qItem : The QWidget which position state should be restored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objName</span> <span class="o">=</span> <span class="n">qItem</span><span class="o">.</span><span class="n">objectName</span><span class="p">()</span>
+        <span class="n">xPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/x&quot;</span><span class="p">)</span>
+        <span class="n">yPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/y&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xPos</span> <span class="o">==</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">yPos</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">xPos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xPos</span><span class="p">)</span>
+        <span class="n">yPos</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">yPos</span><span class="p">)</span>
+        <span class="n">qItem</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">xPos</span><span class="p">,</span> <span class="n">yPos</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.saveSizeState"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.saveSizeState">[docs]</a>    <span class="k">def</span> <span class="nf">saveSizeState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qItem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the size state of a QWidget.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - qItem : The QWidget which size state has to be saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objName</span> <span class="o">=</span> <span class="n">qItem</span><span class="o">.</span><span class="n">objectName</span><span class="p">()</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">qItem</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">size</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">size</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/width&quot;</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/height&quot;</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.restoreSizeState"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreSizeState">[docs]</a>    <span class="k">def</span> <span class="nf">restoreSizeState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qItem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore the size state of a QWidget.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - qItem : The QWidget which size state has to be restored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objName</span> <span class="o">=</span> <span class="n">qItem</span><span class="o">.</span><span class="n">objectName</span><span class="p">()</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/width&quot;</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">objName</span> <span class="o">+</span> <span class="s">&quot;/height&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">width</span> <span class="o">==</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">height</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+        <span class="n">qItem</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.saveStatusBarState"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.saveStatusBarState">[docs]</a>    <span class="k">def</span> <span class="nf">saveStatusBarState</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save the status bar state. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveVisibilityState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">statusBar</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LayoutManager.restoreStatusBarState"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.LayoutManager.restoreStatusBarState">[docs]</a>    <span class="k">def</span> <span class="nf">restoreStatusBarState</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Restore the status bar state. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restoreVisibilityState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">statusBar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span><span class="o">.</span><span class="n">actionStatusbar</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="PySumoSettings"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.PySumoSettings">[docs]</a><span class="k">class</span> <span class="nc">PySumoSettings</span><span class="p">(</span><span class="n">QSettings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Settings of PySumo.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MainWindow</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the settings of pysumo.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - MainWindow : The main window of pysumo.</span>
+<span class="sd">        - filepath : The path where to save settings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PySumoSettings</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">QSettings</span><span class="o">.</span><span class="n">IniFormat</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="PySumoSettings.loadDefaults"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.Settings.PySumoSettings.loadDefaults">[docs]</a>    <span class="k">def</span> <span class="nf">loadDefaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Loads defaults settings of pysumo.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;configPath&quot;</span><span class="p">,</span> <span class="n">pysumo</span><span class="o">.</span><span class="n">CONFIG_PATH</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;maxQueueSize&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;maxUndoRedoQueueSize&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;flushWriteQueuesTimeout&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;logOutputPath&quot;</span><span class="p">,</span> <span class="n">pysumo</span><span class="o">.</span><span class="n">CONFIG_PATH</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;socketOutputPath&quot;</span><span class="p">,</span> <span class="n">pysumo</span><span class="o">.</span><span class="n">CONFIG_PATH</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;logLevel&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">defFont</span> <span class="o">=</span> <span class="n">QApplication</span><span class="o">.</span><span class="n">font</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span>
+        <span class="n">defSize</span> <span class="o">=</span> <span class="n">QApplication</span><span class="o">.</span><span class="n">font</span><span class="p">()</span><span class="o">.</span><span class="n">pointSize</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;keywordsFontFamily&quot;</span><span class="p">,</span> <span class="n">defFont</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;keywordsFontSize&quot;</span><span class="p">,</span> <span class="n">defSize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;keywordsFontColor&quot;</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">darkGreen</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;keywordsBoldStyle&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;keywordsItalicStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;keywordsUnderlinedStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;logicExprFontFamily&quot;</span><span class="p">,</span> <span class="n">defFont</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;logicExprFontSize&quot;</span><span class="p">,</span> <span class="n">defSize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;logicExprFontColor&quot;</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;logicExprBoldStyle&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;logicExprItalicStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;logicExprUnderlinedStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;commentFontFamily&quot;</span><span class="p">,</span> <span class="n">defFont</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;commentFontSize&quot;</span><span class="p">,</span> <span class="n">defSize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;commentFontColor&quot;</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">darkMagenta</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;commentBoldStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;commentItalicStyle&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;commentUnderlinedStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;stringsFontFamily&quot;</span><span class="p">,</span> <span class="n">defFont</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;stringsFontSize&quot;</span><span class="p">,</span> <span class="n">defSize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;stringsFontColor&quot;</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">red</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;stringsBoldStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;stringsItalicStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;stringsUnderlinedStyle&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;maxTextEditorWidgets&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;maxDocumentationWidgets&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;maxHierarchyWidgets&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;maxGraphWidgets&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;defaultFontSize&quot;</span><span class="p">,</span> <span class="n">defSize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;defaultFontFamily&quot;</span><span class="p">,</span> <span class="n">defFont</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;defaultFontColor&quot;</span><span class="p">,</span> <span class="n">QApplication</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&quot;useHighlightingFontSize&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    </div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

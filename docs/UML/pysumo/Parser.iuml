@@ -1,0 +1,20 @@
+class Parser << (M,#FF7700) >>{
+	+ kifparse(Ontology, Graph=None) : AST
+	+ astmerge((AST1, AST2)) : AST
+	+ kifserialize(AST, Ontology)
+	+ wparse(datafiles) : (File, Pos)[]
+}
+
+class AbstractSyntaxTree {
+	- parent_node : AST
+	- name : String
+	- element_type : Enum
+
+	+ __init__(ontology : Ontology, parent=None : AbstractSyntaxTree) : AbstractSyntaxTree
+	+ get_children() : AST[]
+	+ add_child(AST)
+	+ remove_child(AST)
+}
+
+Parser -- AbstractSyntaxTree : > uses
+AbstractSyntaxTree "0..n" o-- "1" AbstractSyntaxTree

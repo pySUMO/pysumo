@@ -1,0 +1,597 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pySUMOQt package &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="index.html" />
+    <link rel="next" title="pySUMOQt.Widget package" href="pySUMOQt.Widget.html" />
+    <link rel="prev" title="pysumo.logger package" href="pysumo.logger.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pySUMOQt.Widget.html" title="pySUMOQt.Widget package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pysumo.logger.html" title="pysumo.logger package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pysumoqt-package">
+<h1>pySUMOQt package<a class="headerlink" href="#pysumoqt-package" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the graphical user interface of pySUMO. It will list all
+modules and classes which are necessary to connect the functionality of the
+pySUMO&#8217;s lib with the view and usability of a great editor. For details on this
+concept see the section about MVC-Structure. Note that the core work is done by
+Qt and the Qt Designer, so almost all classes will inherit a class designed by
+Qt Designer and compiled by PySide.</p>
+<p class="plantuml">
+<object data="_images/plantuml-71958ac797bc63d99594c66b7ea85ff4670b0e3f.svg" type="image/svg+xml" style="width:2942px;height:1743px;">
+<img src="_images/plantuml-71958ac797bc63d99594c66b7ea85ff4670b0e3f.png" alt="!include ./UML/pySUMOQt/package_pySUMOQt.iuml" />
+
+</object></p>
+<div class="section" id="module-pySUMOQt">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pySUMOQt" title="Permalink to this headline">¶</a></h2>
+<p>The pySUMO Qt-GUI package. This package contains all classes and widgets
+needed to display the pySUMO editor. There are also classes created by Qt
+Designer which are inherited from in the &#8216;coded&#8217; classes.</p>
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pySUMOQt.Widget.html">pySUMOQt.Widget package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pySUMOQt.Widget.html#module-pySUMOQt.Widget">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pySUMOQt.Widget.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pySUMOQt.Widget.html#pysumoqt-widget-graphwidget-module">pySUMOQt.Widget.GraphWidget module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pySUMOQt.Widget.html#pysumoqt-widget-hierarchywidget-module">pySUMOQt.Widget.HierarchyWidget module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pySUMOQt.Widget.html#pysumoqt-widget-texteditor-module">pySUMOQt.Widget.TextEditor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pySUMOQt.Widget.html#pysumoqt-widget-widget-module">pySUMOQt.Widget.Widget module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pySUMOQt.Widget.html#pysumoqt-widget-documentationwidget-module">pySUMOQt.Widget.DocumentationWidget module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pysumoqt-mainwindow-module">
+<h2>pySUMOQt.MainWindow module<a class="headerlink" href="#pysumoqt-mainwindow-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-106e98a9a064947b86f9f54ff1744ab2ab88fe8c.svg" type="image/svg+xml" style="width:508px;height:449px;">
+<img src="_images/plantuml-106e98a9a064947b86f9f54ff1744ab2ab88fe8c.png" alt="!include ./UML/pySUMOQt/MainWindow.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pySUMOQt.MainWindow"></span><p>This module contains the Main Window for pySUMO.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>MainWindow: pySUMO&#8217;s main window.</li>
+<li>HelpDialog: The dialog that displays help in pySUMO GUI.</li>
+</ul>
+<dl class="class">
+<dt id="pySUMOQt.MainWindow.MainWindow">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.MainWindow.</tt><tt class="descname">MainWindow</tt><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pySUMOQt.Designer.MainWindow.Ui_mainwindow</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QMainWindow</span></tt></p>
+<p>This class is the entry point of the application. It creates the main
+window, initiates all the subsystems and then displays the GUI.  It
+consists of: a main frame with a menu bar, toolbar, status bar and numerous
+widgets. It inherits from QMainWindow</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>widgets: A list of the main window&#8217;s currently active widgets.</li>
+</ul>
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.addDeleteWidgetAction">
+<tt class="descname">addDeleteWidgetAction</tt><big>(</big><em>widget</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.addDeleteWidgetAction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.addDeleteWidgetAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the delete action for the given widget in the delete widget menu.</p>
+<p>Parameter:</p>
+<ul class="simple">
+<li>widget: The pysumo widget which will be deleted on action triggered.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.addOntology">
+<tt class="descname">addOntology</tt><big>(</big><em>ontology</em>, <em>newversion=None</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.addOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.addOntology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an ontology to index and notify all components required.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>ontology : The ontology to add.</li>
+<li>newversion : The new version of the ontology.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.addOrRestoreWidget">
+<tt class="descname">addOrRestoreWidget</tt><big>(</big><em>widget</em>, <em>menu</em>, <em>directAdd=False</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.addOrRestoreWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.addOrRestoreWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore a widget on the layout or place it, if restore failed.</p>
+<p>Parameter:</p>
+<ul class="simple">
+<li>widget : The pysumo widget to add in the window layout.</li>
+<li>menu : The QMenu from where the widget can be hidden.</li>
+<li>directAdd : If true, force add without restoring the pysumo widget.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.addRecentOntology">
+<tt class="descname">addRecentOntology</tt><big>(</big><em>ontology</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.addRecentOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.addRecentOntology" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.closeEvent">
+<tt class="descname">closeEvent</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the main window is closing, and meaning that the application is exiting.
+The application then saves the layout, and then check for unsaved documents.</p>
+<p>Override from QWidget.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.connectWidget">
+<tt class="descname">connectWidget</tt><big>(</big><em>widget</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.connectWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.connectWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects a pysumo widget to mainwindow global actions, like expand, undo, ...</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>widget : The widget to connect in the maindow.</li>
+</ul>
+<p>Returns a callback for TextEditor widgets with the status bar to disconnect them later.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.createPySumoWidget">
+<tt class="descname">createPySumoWidget</tt><big>(</big><em>widgetType</em>, <em>widgetMenu</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.createPySumoWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.createPySumoWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a widget wrapper containing the given widget type.</p>
+<p>Parameter:</p>
+<ul class="simple">
+<li>widgetType : The widget type as a string. Can be TextEditorWidget, DocumentationWidget, HierarchyWidget or GraphWidget.</li>
+<li>widgetMenu : The QMenu from where the widget can be hidden.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.createStatusBar">
+<tt class="descname">createStatusBar</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.createStatusBar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.createStatusBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the status bar.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.disconnectWidget">
+<tt class="descname">disconnectWidget</tt><big>(</big><em>widget</em>, <em>callback=None</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.disconnectWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.disconnectWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnects a widget from the main window global actions.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>widget : The pysumo widget to disconnect form the main window.</li>
+<li>callback: The callback with the statusbar if the widget is a TextEditor widget.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.displayLog">
+<tt class="descname">displayLog</tt><big>(</big><em>socket</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.displayLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.displayLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Qt slot which displays a log message.</p>
+<p>Parameter:</p>
+<ul class="simple">
+<li>socket : The socket on which the log message must be read.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.getDefaultOutputPath">
+<tt class="descname">getDefaultOutputPath</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.getDefaultOutputPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.getDefaultOutputPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the default output path as a string.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.MainWindow.MainWindow.jumpRequested">
+<tt class="descname">jumpRequested</tt><em class="property"> = &lt;PySide.QtCore.Signal object at 0x2ad4951101b8&gt;</em><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.jumpRequested" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.jumpToLocation">
+<tt class="descname">jumpToLocation</tt><big>(</big><em>var</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.jumpToLocation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.jumpToLocation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.notifyOntologyAdded">
+<tt class="descname">notifyOntologyAdded</tt><big>(</big><em>ontology</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.notifyOntologyAdded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.notifyOntologyAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Notify that an ontology was added to the index.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>ontology : The added ontology.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.MainWindow.MainWindow.ontologyAdded">
+<tt class="descname">ontologyAdded</tt><em class="property"> = &lt;PySide.QtCore.Signal object at 0x2ad48efd8a78&gt;</em><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.ontologyAdded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.ontologyChanged">
+<tt class="descname">ontologyChanged</tt><big>(</big><em>ontology</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.ontologyChanged"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.ontologyChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if an ontology is different from the on disk file representation of this ontology.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>ontology : The ontology to check whether it changed or not.</li>
+</ul>
+<p>Return changed, diff. changed is whether true or false accordingly to the change state. If 
+the ontology has been changed, return diff which is the string diff of the old with the new version 
+of the ontology. If the ontology wasn&#8217;t changed, return an empty string as diff.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.MainWindow.MainWindow.ontologyRemoved">
+<tt class="descname">ontologyRemoved</tt><em class="property"> = &lt;PySide.QtCore.Signal object at 0x2ad4950ae650&gt;</em><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.ontologyRemoved" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.removeOntology">
+<tt class="descname">removeOntology</tt><big>(</big><em>ontology</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.removeOntology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.removeOntology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes an ontology form the index and notifies the required components.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>ontology : The ontology to remove.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.setupStatusConnection">
+<tt class="descname">setupStatusConnection</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.setupStatusConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.setupStatusConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Qt slot which sets up a status connection in the status bar.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.MainWindow.MainWindow.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad49514eac8&gt;</em><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.MainWindow.synchronize">
+<tt class="descname">synchronize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#MainWindow.synchronize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.synchronize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs synchronization of the main window by reporting changes in
+all the others widgets.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.MainWindow.MainWindow.synchronizeRequested">
+<tt class="descname">synchronizeRequested</tt><em class="property"> = &lt;PySide.QtCore.Signal object at 0x2ad4950ae6c0&gt;</em><a class="headerlink" href="#pySUMOQt.MainWindow.MainWindow.synchronizeRequested" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.MainWindow.PySUMOWidget">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.MainWindow.</tt><tt class="descname">PySUMOWidget</tt><big>(</big><em>parent</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#PySUMOWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.PySUMOWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtGui.QDockWidget</span></tt></p>
+<p>This wrapper widget holds a pysumo widget.</p>
+<p>It catches the focus event on components in widget to 
+connect them the application actions like cut, copy, 
+paste, or undo, ...</p>
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.PySUMOWidget.eventFilter">
+<tt class="descname">eventFilter</tt><big>(</big><em>source</em>, <em>event</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#PySUMOWidget.eventFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.PySUMOWidget.eventFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters event on a component where the pysumo was installed as event filter.</p>
+<p>Override from QObject.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.PySUMOWidget.setPopedOut">
+<tt class="descname">setPopedOut</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#PySUMOWidget.setPopedOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.PySUMOWidget.setPopedOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Qt Slot which customizes the pop out of a pysumo widget.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.PySUMOWidget.setPrefixName">
+<tt class="descname">setPrefixName</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#PySUMOWidget.setPrefixName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.PySUMOWidget.setPrefixName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the prefix name which is the default title of a pysumo widget.</p>
+<p>Parameter:</p>
+<ul class="simple">
+<li>s : The prefix or default name as a string.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.MainWindow.PySUMOWidget.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad49514ea48&gt;</em><a class="headerlink" href="#pySUMOQt.MainWindow.PySUMOWidget.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.MainWindow.PySUMOWidget.updateTitle">
+<tt class="descname">updateTitle</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#PySUMOWidget.updateTitle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.PySUMOWidget.updateTitle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the title of the pysumo widget according to it&#8217;S prefix and suffix name.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pySUMOQt.MainWindow.main">
+<tt class="descclassname">pySUMOQt.MainWindow.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pySUMOQt.MainWindow.quit_handler">
+<tt class="descclassname">pySUMOQt.MainWindow.</tt><tt class="descname">quit_handler</tt><big>(</big><em>signum</em>, <em>frame</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/MainWindow.html#quit_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.MainWindow.quit_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for the SIGINT signal.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="pysumoqt-settings-module">
+<h2>pySUMOQt.Settings module<a class="headerlink" href="#pysumoqt-settings-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-047d79bb3e8a9d0c7a66e0d4a62a3c36e9a5ed96.svg" type="image/svg+xml" style="width:717px;height:295px;">
+<img src="_images/plantuml-047d79bb3e8a9d0c7a66e0d4a62a3c36e9a5ed96.png" alt="!include ./UML/pySUMOQt/Settings.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pySUMOQt.Settings"></span><p>This module involves all about the settings in the pySUMO GUI.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>WSettings: The settings of pySUMO&#8217;s widgets.</li>
+<li>PluginManager: The manager for the plugin system in pySUMO.</li>
+<li>OptionDialog: The dialog that displays options of pySUMO.</li>
+</ul>
+<dl class="class">
+<dt id="pySUMOQt.Settings.LayoutManager">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Settings.</tt><tt class="descname">LayoutManager</tt><big>(</big><em>MainWindow</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtCore.QSettings</span></tt></p>
+<p>The layout manager handles the save and restore state of the main window and it&#8217;s components.</p>
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreDocumentationWidgets">
+<tt class="descname">restoreDocumentationWidgets</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreDocumentationWidgets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreDocumentationWidgets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the documentation widgets in the main window layout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreGraphWidgets">
+<tt class="descname">restoreGraphWidgets</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreGraphWidgets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreGraphWidgets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the graph widgets in the main window layout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreHierarchyWidgets">
+<tt class="descname">restoreHierarchyWidgets</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreHierarchyWidgets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreHierarchyWidgets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the hierarchy widgets in the main window layout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreLayout">
+<tt class="descname">restoreLayout</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreLayout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreLayout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the layout of the main window from the persitent setting file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restorePositionState">
+<tt class="descname">restorePositionState</tt><big>(</big><em>qItem</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restorePositionState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restorePositionState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restores the position state of a QWidget.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>qItem : The QWidget which position state should be restored.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreRecentOntologyHistory">
+<tt class="descname">restoreRecentOntologyHistory</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreRecentOntologyHistory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreRecentOntologyHistory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the recent opened ontologies and add them to index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreSizeState">
+<tt class="descname">restoreSizeState</tt><big>(</big><em>qItem</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreSizeState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreSizeState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the size state of a QWidget.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>qItem : The QWidget which size state has to be restored.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreStatusBarState">
+<tt class="descname">restoreStatusBarState</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreStatusBarState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreStatusBarState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the status bar state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreTextEditorWidgets">
+<tt class="descname">restoreTextEditorWidgets</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreTextEditorWidgets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreTextEditorWidgets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the text editor widgets in the main window layout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.restoreVisibilityState">
+<tt class="descname">restoreVisibilityState</tt><big>(</big><em>qItem</em>, <em>qAction=None</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.restoreVisibilityState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.restoreVisibilityState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restores the visibility state of a QWidget.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>qItem : The QWidget which visibility has to be saved.</li>
+<li>qAction : The action which toggles the visibility state of the qItem.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.saveLayout">
+<tt class="descname">saveLayout</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.saveLayout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.saveLayout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save layout of the main window and persist it in a setting file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.savePositionState">
+<tt class="descname">savePositionState</tt><big>(</big><em>qItem</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.savePositionState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.savePositionState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the position state of a QWidget.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>qItem : The QWidget which position state has to be saved.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.saveRecentOntologyHistory">
+<tt class="descname">saveRecentOntologyHistory</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.saveRecentOntologyHistory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.saveRecentOntologyHistory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the list recently opened ontologies.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.saveSizeState">
+<tt class="descname">saveSizeState</tt><big>(</big><em>qItem</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.saveSizeState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.saveSizeState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the size state of a QWidget.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>qItem : The QWidget which size state has to be saved.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.saveStatusBarState">
+<tt class="descname">saveStatusBarState</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.saveStatusBarState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.saveStatusBarState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the status bar state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pySUMOQt.Settings.LayoutManager.saveVisibilityState">
+<tt class="descname">saveVisibilityState</tt><big>(</big><em>qItem</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#LayoutManager.saveVisibilityState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.saveVisibilityState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the visibility state of a QWidget.</p>
+<p>Parameter :</p>
+<ul class="simple">
+<li>qItem : The QWidget which visibility has to be saved.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Settings.LayoutManager.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950ffd48&gt;</em><a class="headerlink" href="#pySUMOQt.Settings.LayoutManager.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pySUMOQt.Settings.PySumoSettings">
+<em class="property">class </em><tt class="descclassname">pySUMOQt.Settings.</tt><tt class="descname">PySumoSettings</tt><big>(</big><em>MainWindow</em>, <em>filepath</em><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#PySumoSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.PySumoSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PySide.QtCore.QSettings</span></tt></p>
+<p>Settings of PySumo.</p>
+<dl class="method">
+<dt id="pySUMOQt.Settings.PySumoSettings.loadDefaults">
+<tt class="descname">loadDefaults</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pySUMOQt/Settings.html#PySumoSettings.loadDefaults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pySUMOQt.Settings.PySumoSettings.loadDefaults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads defaults settings of pysumo.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pySUMOQt.Settings.PySumoSettings.staticMetaObject">
+<tt class="descname">staticMetaObject</tt><em class="property"> = &lt;PySide.QtCore.QMetaObject object at 0x2ad4950ffdc8&gt;</em><a class="headerlink" href="#pySUMOQt.Settings.PySumoSettings.staticMetaObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pySUMOQt package</a><ul>
+<li><a class="reference internal" href="#module-pySUMOQt">Module contents</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#pysumoqt-mainwindow-module">pySUMOQt.MainWindow module</a></li>
+<li><a class="reference internal" href="#pysumoqt-settings-module">pySUMOQt.Settings module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pysumo.logger.html"
+                        title="previous chapter">pysumo.logger package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pySUMOQt.Widget.html"
+                        title="next chapter">pySUMOQt.Widget package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pySUMOQt.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pySUMOQt.Widget.html" title="pySUMOQt.Widget package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pysumo.logger.html" title="pysumo.logger package"
+             >previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

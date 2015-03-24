@@ -1,0 +1,4 @@
+class DocumentationWidget {
+	+ search_wordnet(term : String) : String
+	+ search(string : String) : String
+}

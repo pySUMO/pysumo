@@ -1,0 +1,853 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pySUMOQt.MainWindow &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pySUMOQt.MainWindow</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; This module contains the Main Window for pySUMO.</span>
+
+<span class="sd">This module contains:</span>
+
+<span class="sd">- MainWindow: pySUMO&#39;s main window.</span>
+<span class="sd">- HelpDialog: The dialog that displays help in pySUMO GUI.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">signal</span> <span class="kn">import</span> <span class="n">signal</span><span class="p">,</span> <span class="n">SIGINT</span>
+<span class="kn">from</span> <span class="nn">pickle</span> <span class="kn">import</span> <span class="n">loads</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pysumo</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">PySide.QtCore</span> <span class="kn">import</span> <span class="n">QCoreApplication</span><span class="p">,</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">Slot</span><span class="p">,</span> <span class="n">QObject</span><span class="p">,</span> <span class="n">SIGNAL</span>
+<span class="kn">from</span> <span class="nn">PySide.QtCore</span> <span class="kn">import</span> <span class="n">QEvent</span><span class="p">,</span> <span class="n">Signal</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPixmap</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QIcon</span><span class="p">,</span> <span class="n">QDockWidget</span><span class="p">,</span> <span class="n">QFileDialog</span><span class="p">,</span> <span class="n">QPrintDialog</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QAction</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QMessageBox</span>
+<span class="kn">from</span> <span class="nn">PySide.QtNetwork</span> <span class="kn">import</span> <span class="n">QLocalServer</span>
+
+<span class="kn">from</span> <span class="nn">pySUMOQt.Designer.MainWindow</span> <span class="kn">import</span> <span class="n">Ui_mainwindow</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Widget.DocumentationWidget</span> <span class="kn">import</span> <span class="n">DocumentationWidget</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Widget.HierarchyWidget</span> <span class="kn">import</span> <span class="n">HierarchyWidget</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Widget.TextEditor</span> <span class="kn">import</span> <span class="n">TextEditor</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Widget.Widget</span> <span class="kn">import</span> <span class="n">RWWidget</span><span class="p">,</span> <span class="n">Widget</span>
+
+<span class="kn">from</span> <span class="nn">pySUMOQt.Settings</span> <span class="kn">import</span> <span class="n">LayoutManager</span><span class="p">,</span> <span class="n">PySumoSettings</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Dialog</span> <span class="kn">import</span> <span class="n">NewOntologyDialog</span><span class="p">,</span> <span class="n">OpenRemoteOntologyDialog</span><span class="p">,</span> <span class="n">OptionDialog</span><span class="p">,</span>\
+    <span class="n">OntologyPropertyDialog</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Widget.GraphWidget</span> <span class="kn">import</span> <span class="n">GraphWidget</span>
+<span class="kn">from</span> <span class="nn">pysumo.syntaxcontroller</span> <span class="kn">import</span> <span class="n">Ontology</span>
+<span class="kn">from</span> <span class="nn">pysumo</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">pysumo.logger.infolog</span> <span class="kn">import</span> <span class="n">InfoLog</span>
+<span class="kn">from</span> <span class="nn">pysumo.updater</span> <span class="kn">import</span> <span class="n">update</span>
+<span class="kn">from</span> <span class="nn">_io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">dict</span>
+
+<span class="n">QCoreApplication</span><span class="o">.</span><span class="n">setApplicationName</span><span class="p">(</span><span class="s">&quot;pySUMO&quot;</span><span class="p">)</span>
+<span class="n">QCoreApplication</span><span class="o">.</span><span class="n">setApplicationVersion</span><span class="p">(</span><span class="s">&quot;1.0&quot;</span><span class="p">)</span>
+<span class="n">QCoreApplication</span><span class="o">.</span><span class="n">setOrganizationName</span><span class="p">(</span><span class="s">&quot;PSE Team&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PySUMOWidget"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.PySUMOWidget">[docs]</a><span class="k">class</span> <span class="nc">PySUMOWidget</span><span class="p">(</span><span class="n">QDockWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This wrapper widget holds a pysumo widget.</span>
+<span class="sd">    </span>
+<span class="sd">    It catches the focus event on components in widget to </span>
+<span class="sd">    connect them the application actions like cut, copy, </span>
+<span class="sd">    paste, or undo, ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Initializes a pysumo widget with the parent which is the main window.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter: </span>
+<span class="sd">        </span>
+<span class="sd">        - parent : The main window.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PySUMOWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainWindow</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isPopedOut</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">QObject</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&quot;topLevelChanged(bool)&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">setPopedOut</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrappedWidget</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefixName</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suffixName</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_setSuffixName_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; QT Slot which sets a suffix name to the title of the dock widget, </span>
+<span class="sd">        like the name of the active ontology in the widget.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter:</span>
+<span class="sd">        </span>
+<span class="sd">        - s : The suffix name as a string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s">&quot;&quot;</span> <span class="o">==</span> <span class="n">s</span> <span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suffixName</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateTitle</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PySUMOWidget.setPrefixName"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.PySUMOWidget.setPrefixName">[docs]</a>    <span class="k">def</span> <span class="nf">setPrefixName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Sets the prefix name which is the default title of a pysumo widget.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter:</span>
+<span class="sd">        </span>
+<span class="sd">        - s : The prefix or default name as a string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s">&quot;&quot;</span> <span class="o">==</span> <span class="n">s</span> <span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefixName</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateTitle</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="PySUMOWidget.updateTitle"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.PySUMOWidget.updateTitle">[docs]</a>    <span class="k">def</span> <span class="nf">updateTitle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Updates the title of the pysumo widget according to it&#39;S prefix and suffix name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefixName</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefixName</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffixName</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">title</span> <span class="o">+</span> <span class="s">&quot; | &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffixName</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="PySUMOWidget.setPopedOut"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.PySUMOWidget.setPopedOut">[docs]</a>    <span class="k">def</span> <span class="nf">setPopedOut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Qt Slot which customizes the pop out of a pysumo widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isPopedOut</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setWindowFlags</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isPopedOut</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isPopedOut</span> <span class="o">=</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="PySUMOWidget.eventFilter"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.PySUMOWidget.eventFilter">[docs]</a>    <span class="k">def</span> <span class="nf">eventFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filters event on a component where the pysumo was installed as event filter.</span>
+<span class="sd">        </span>
+<span class="sd">        Override from QObject.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QEvent</span><span class="o">.</span><span class="n">FocusIn</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainWindow</span><span class="o">.</span><span class="n">connectWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wrappedWidget</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QEvent</span><span class="o">.</span><span class="n">FocusOut</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mainWindow</span><span class="o">.</span><span class="n">disconnectWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wrappedWidget</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PySUMOWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">eventFilter</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="MainWindow"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow">[docs]</a><span class="k">class</span> <span class="nc">MainWindow</span><span class="p">(</span><span class="n">Ui_mainwindow</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This class is the entry point of the application. It creates the main</span>
+<span class="sd">    window, initiates all the subsystems and then displays the GUI.  It</span>
+<span class="sd">    consists of: a main frame with a menu bar, toolbar, status bar and numerous</span>
+<span class="sd">    widgets. It inherits from QMainWindow</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - widgets: A list of the main window&#39;s currently active widgets.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">ontologyAdded</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="n">Ontology</span><span class="p">)</span>
+    <span class="n">ontologyRemoved</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="n">Ontology</span><span class="p">)</span>
+    <span class="n">synchronizeRequested</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">()</span>
+    <span class="n">jumpRequested</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructs the main window.  &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MainWindow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionAboutpySUMO</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_showAboutBox_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">infolog</span> <span class="o">=</span> <span class="n">InfoLog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_addWidget_</span><span class="p">,</span> <span class="s">&quot;TextEditorWidget&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuTextEditorWidgets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionTextEditorWidget</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_addWidget_</span><span class="p">,</span> <span class="s">&quot;DocumentationWidget&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuDocumentationWidgets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionDocumentationWidget</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_addWidget_</span><span class="p">,</span> <span class="s">&quot;HierarchyWidget&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuHierarchyWidgets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionHierarchyWidget</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_addWidget_</span><span class="p">,</span> <span class="s">&quot;GraphWidget&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuGraphWidgets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionGraphWidget</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newOntologyAction</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_newOntology_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">openLocalOntologyAction</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openLocalOntology_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">openRemoteOntologyAction</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_openRemoteOntology_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createStatusBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologyAdded</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notifyOntologyAdded</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearHistoryAction</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ClearRecentOntologiesHistory_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widgets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="c"># unique instances.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileChooser</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span> <span class="o">=</span> <span class="n">QPrintDialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userLayout</span> <span class="o">=</span> <span class="n">LayoutManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">pysumo</span><span class="o">.</span><span class="n">CONFIG_PATH</span> <span class="o">+</span> <span class="s">&quot;/settings.ini&quot;</span>
+        <span class="n">exist</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">try</span> <span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span> <span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">exist</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">except</span> <span class="ne">IOError</span> <span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">PySumoSettings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exist</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">loadDefaults</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optionDialog</span> <span class="o">=</span> <span class="n">OptionDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionSettings</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_showOptionDialog_</span><span class="p">)</span>
+        <span class="c"># restore and show the view.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userLayout</span><span class="o">.</span><span class="n">restoreLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">_showOptionDialog_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        QT Slot to open the option dialog.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optionDialog</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optionDialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_addWidget_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widgetType</span><span class="p">,</span> <span class="n">widgetMenu</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Add a widget into the layout with the given widget type as string.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter:</span>
+<span class="sd">        </span>
+<span class="sd">        - widgetType : The widget type as a string. Can be TextEditorWidget, DocumentationWidget, HierarchyWidget or GraphWidget.</span>
+<span class="sd">        - widgetMenu : The QMenu from where the widget can be hidden.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createPySumoWidget</span><span class="p">(</span><span class="n">widgetType</span><span class="p">,</span> <span class="n">widgetMenu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addOrRestoreWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">widgetMenu</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="MainWindow.createPySumoWidget"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.createPySumoWidget">[docs]</a>    <span class="k">def</span> <span class="nf">createPySumoWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widgetType</span><span class="p">,</span> <span class="n">widgetMenu</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a widget wrapper containing the given widget type.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter:</span>
+<span class="sd">        </span>
+<span class="sd">        - widgetType : The widget type as a string. Can be TextEditorWidget, DocumentationWidget, HierarchyWidget or GraphWidget.</span>
+<span class="sd">        - widgetMenu : The QMenu from where the widget can be hidden.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">PySUMOWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">wrappedWidget</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="s">&quot;TextEditorWidget&quot;</span> <span class="p">:</span>
+            <span class="n">wrappedWidget</span> <span class="o">=</span> <span class="n">TextEditor</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setPrefixName</span><span class="p">(</span><span class="s">&quot;Text Editor&quot;</span><span class="p">)</span>
+            <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_setSuffixName_</span><span class="p">)</span>
+            <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">installEventFilter</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+            <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">ontologyChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ontologyAdded</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">wrappedWidget</span><span class="o">.</span><span class="n">_updateOntologySelector</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ontologyRemoved</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">wrappedWidget</span><span class="o">.</span><span class="n">_updateOntologySelector</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jumpRequested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">wrappedWidget</span><span class="o">.</span><span class="n">jumpToLocation</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="s">&quot;DocumentationWidget&quot;</span> <span class="p">:</span>
+            <span class="n">wrappedWidget</span> <span class="o">=</span> <span class="n">DocumentationWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setPrefixName</span><span class="p">(</span><span class="s">&quot;Documentation Widget&quot;</span><span class="p">)</span>
+            <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">OntologyText</span><span class="o">.</span><span class="n">anchorClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jumpToLocation</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="s">&quot;HierarchyWidget&quot;</span> <span class="p">:</span>
+            <span class="n">wrappedWidget</span> <span class="o">=</span> <span class="n">HierarchyWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setPrefixName</span><span class="p">(</span><span class="s">&quot;Hierarchy Widget&quot;</span><span class="p">)</span>
+            <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">treeWidget</span><span class="o">.</span><span class="n">installEventFilter</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="s">&quot;GraphWidget&quot;</span><span class="p">:</span>
+            <span class="n">wrappedWidget</span> <span class="o">=</span> <span class="n">GraphWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setPrefixName</span><span class="p">(</span><span class="s">&quot;Graph Widget&quot;</span><span class="p">)</span>
+            <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">activeOntology</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_setSuffixName_</span><span class="p">)</span>
+            <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">installEventFilter</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+            <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">ontologyChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ontologyAdded</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">wrappedWidget</span><span class="o">.</span><span class="n">_updateActiveOntology</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ontologyRemoved</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">wrappedWidget</span><span class="o">.</span><span class="n">_updateActiveOntology</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wrappedWidget</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;can not create widget with type &quot;</span> <span class="o">+</span> <span class="n">widgetType</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">setSettings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synchronizeRequested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">wrappedWidget</span><span class="o">.</span><span class="n">refresh</span><span class="p">)</span>
+        <span class="n">objName</span> <span class="o">=</span> <span class="n">widgetType</span>
+        <span class="n">objName</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">widgetMenu</span><span class="o">.</span><span class="n">actions</span><span class="p">()))</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="n">objName</span><span class="p">)</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="n">wrappedWidget</span><span class="o">.</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">wrappedWidget</span> <span class="o">=</span> <span class="n">wrappedWidget</span>
+        <span class="k">return</span> <span class="n">widget</span>
+</div>
+<div class="viewcode-block" id="MainWindow.addDeleteWidgetAction"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.addDeleteWidgetAction">[docs]</a>    <span class="k">def</span> <span class="nf">addDeleteWidgetAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the delete action for the given widget in the delete widget menu.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter:</span>
+<span class="sd">        </span>
+<span class="sd">        - widget: The pysumo widget which will be deleted on action triggered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">action</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">windowTitle</span><span class="p">())</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_deleteWidget_</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
+        <span class="n">action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuDelete</span><span class="o">.</span><span class="n">isEnabled</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">menuDelete</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuDelete</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MainWindow.addOrRestoreWidget"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.addOrRestoreWidget">[docs]</a>    <span class="k">def</span> <span class="nf">addOrRestoreWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">menu</span><span class="p">,</span> <span class="n">directAdd</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restore a widget on the layout or place it, if restore failed.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter:</span>
+<span class="sd">        </span>
+<span class="sd">        - widget : The pysumo widget to add in the window layout.</span>
+<span class="sd">        - menu : The QMenu from where the widget can be hidden.</span>
+<span class="sd">        - directAdd : If true, force add without restoring the pysumo widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">restored</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">directAdd</span><span class="p">:</span>
+            <span class="n">restored</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">restoreDockWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">restored</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">wrappedWidget</span><span class="p">)</span> <span class="o">==</span> <span class="n">TextEditor</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addDockWidget</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">TopDockWidgetArea</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addDockWidget</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">BottomDockWidgetArea</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">menu</span><span class="o">.</span><span class="n">isEnabled</span><span class="p">():</span>
+            <span class="n">menu</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">toggleViewAction</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addDeleteWidgetAction</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">wrappedWidget</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MainWindow.closeEvent"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.closeEvent">[docs]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Called when the main window is closing, and meaning that the application is exiting.</span>
+<span class="sd">        The application then saves the layout, and then check for unsaved documents.</span>
+<span class="sd">        </span>
+<span class="sd">        Override from QWidget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userLayout</span><span class="o">.</span><span class="n">saveLayout</span><span class="p">()</span>
+        <span class="c"># check for unsaved files.</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">Widget</span><span class="o">.</span><span class="n">IA</span><span class="o">.</span><span class="n">ontologies</span> <span class="p">:</span>
+            <span class="n">changed</span> <span class="p">,</span> <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologyChanged</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">changed</span> <span class="p">:</span>
+                <span class="n">msgBox</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">msgBox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;The ontology file </span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">o</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s"> has been modified.&quot;</span><span class="p">)</span>
+                <span class="n">msgBox</span><span class="o">.</span><span class="n">setInformativeText</span><span class="p">(</span><span class="s">&quot;Do you want to save your changes?&quot;</span><span class="p">)</span>
+                <span class="n">msgBox</span><span class="o">.</span><span class="n">setDetailedText</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+                <span class="n">msgBox</span><span class="o">.</span><span class="n">setStandardButtons</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Save</span> <span class="o">|</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Discard</span><span class="p">)</span>
+                <span class="n">msgBox</span><span class="o">.</span><span class="n">setDefaultButton</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Save</span><span class="p">)</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">msgBox</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Save</span> <span class="p">:</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MainWindow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">closeEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="MainWindow.ontologyChanged"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.ontologyChanged">[docs]</a>    <span class="k">def</span> <span class="nf">ontologyChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if an ontology is different from the on disk file representation of this ontology.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : The ontology to check whether it changed or not.</span>
+<span class="sd">        </span>
+<span class="sd">        Return changed, diff. changed is whether true or false accordingly to the change state. If </span>
+<span class="sd">        the ontology has been changed, return diff which is the string diff of the old with the new version </span>
+<span class="sd">        of the ontology. If the ontology wasn&#39;t changed, return an empty string as diff.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ontology</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s">&#39;replace&#39;</span><span class="p">))</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">log_io</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">diff</span> <span class="o">!=</span> <span class="n">b</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">diff</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s">&quot;replace&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MainWindow.createStatusBar"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.createStatusBar">[docs]</a>    <span class="k">def</span> <span class="nf">createStatusBar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the status bar.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">statusbar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span>
+        <span class="c"># line and column number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineColNumber</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">statusbar</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineColNumber</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">statusbar</span><span class="o">.</span><span class="n">addPermanentWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineColNumber</span><span class="p">)</span>
+        <span class="n">statusbar</span><span class="o">.</span><span class="n">socketServer</span> <span class="o">=</span> <span class="n">QLocalServer</span><span class="p">()</span>
+        <span class="n">statusbar</span><span class="o">.</span><span class="n">socketServer</span><span class="o">.</span><span class="n">removeServer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">infolog</span><span class="o">.</span><span class="n">socket</span><span class="p">)</span>
+        <span class="n">statusbar</span><span class="o">.</span><span class="n">socketServer</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">infolog</span><span class="o">.</span><span class="n">socket</span><span class="p">)</span>
+        <span class="n">statusbar</span><span class="o">.</span><span class="n">socketServer</span><span class="o">.</span><span class="n">newConnection</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setupStatusConnection</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Ready&#39;</span><span class="p">)</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="MainWindow.setupStatusConnection"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.setupStatusConnection">[docs]</a>    <span class="k">def</span> <span class="nf">setupStatusConnection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Qt slot which sets up a status connection in the status bar.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span><span class="o">.</span><span class="n">socketServer</span><span class="o">.</span><span class="n">nextPendingConnection</span><span class="p">()</span>
+        <span class="n">socket</span><span class="o">.</span><span class="n">readyRead</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">displayLog</span><span class="p">,</span> <span class="n">socket</span><span class="p">))</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="MainWindow.displayLog"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.displayLog">[docs]</a>    <span class="k">def</span> <span class="nf">displayLog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Qt slot which displays a log message.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter:</span>
+<span class="sd">        </span>
+<span class="sd">        - socket : The socket on which the log message must be read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+        <span class="n">slen</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s">&quot;&gt;L&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">slen</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">slen</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="o">+</span> <span class="n">socket</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">slen</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">slen</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%d</span><span class="s"> data read does not equal </span><span class="si">%d</span><span class="s"> data expected.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">slen</span><span class="p">)</span>
+        <span class="n">logrecord</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">makeLogRecord</span><span class="p">(</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="n">logrecord</span><span class="o">.</span><span class="n">getMessage</span><span class="p">(),</span> <span class="mi">5000</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_updateStatusbar_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wrappedWidget</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the status bar.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter:</span>
+<span class="sd">        </span>
+<span class="sd">        - wrappedWidget: a wrapped widget which will provide some information. Here we just use the TextEditor widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># arg1 and arg2 are used to resolve an argument number error.</span>
+        <span class="n">plainTextEdit</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">wrappedWidget</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineColNumber</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">else</span> <span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineColNumber</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">wrappedWidget</span><span class="p">)</span> <span class="o">==</span> <span class="n">TextEditor</span> <span class="p">:</span>
+            <span class="n">plainTextEdit</span> <span class="o">=</span> <span class="n">wrappedWidget</span><span class="o">.</span><span class="n">plainTextEdit</span> 
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">textCursor</span> <span class="o">=</span> <span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span>
+        <span class="n">document</span> <span class="o">=</span> <span class="n">plainTextEdit</span><span class="o">.</span><span class="n">document</span><span class="p">()</span>
+        <span class="n">lineNbr</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">findBlock</span><span class="p">(</span><span class="n">textCursor</span><span class="o">.</span><span class="n">position</span><span class="p">())</span><span class="o">.</span><span class="n">blockNumber</span><span class="p">()</span>
+        <span class="n">cursorPos</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">lineNbr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">textCursor</span><span class="o">.</span><span class="n">columnNumber</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineColNumber</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">cursorPos</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MainWindow.jumpToLocation"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.jumpToLocation">[docs]</a>    <span class="k">def</span> <span class="nf">jumpToLocation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">path</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ont</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jumpRequested</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">loc</span><span class="p">),</span> <span class="n">ont</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MainWindow.synchronize"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.synchronize">[docs]</a>    <span class="k">def</span> <span class="nf">synchronize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Performs synchronization of the main window by reporting changes in</span>
+<span class="sd">        all the others widgets. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synchronizeRequested</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_deleteWidget_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot to delete a widget from the layout.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - widget : The pysumo widget to delete.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">wrappedWidget</span><span class="p">)</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">deleteLater</span><span class="p">()</span>
+        <span class="n">QMenu</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">widgetType</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">wrappedWidget</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="n">TextEditor</span><span class="p">:</span>
+            <span class="n">QMenu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuTextEditorWidgets</span>
+        <span class="k">elif</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="n">DocumentationWidget</span><span class="p">:</span>
+            <span class="n">QMenu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuDocumentationWidgets</span>
+        <span class="k">elif</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="n">HierarchyWidget</span><span class="p">:</span>
+            <span class="n">QMenu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuHierarchyWidgets</span>
+        <span class="k">elif</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="n">GraphWidget</span><span class="p">:</span>
+            <span class="n">QMenu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuGraphWidgets</span>
+
+        <span class="k">if</span> <span class="n">QMenu</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">QMenu</span><span class="o">.</span><span class="n">actions</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">QMenu</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menuDelete</span><span class="o">.</span><span class="n">actions</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">menuDelete</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MainWindow.connectWidget"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.connectWidget">[docs]</a>    <span class="k">def</span> <span class="nf">connectWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Connects a pysumo widget to mainwindow global actions, like expand, undo, ...</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - widget : The widget to connect in the maindow.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns a callback for TextEditor widgets with the status bar to disconnect them later.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">widgetType</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionPrint</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_print_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionPrintPreview</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_printPreview_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionQuickPrint</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_quickPrint_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionSave</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_save_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionZoomIn</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_zoomIn_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionZoomOut</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_zoomOut_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionExpand</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_expandAll_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionCollapse</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_collapseAll_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionUndo</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_undo_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionRedo</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_redo_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="n">TextEditor</span> <span class="p">:</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_updateStatusbar_</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">cursorPositionChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionCut</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">cut</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionCopy</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">copy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionPaste</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">paste</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionDelete</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">clear</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionSelectAll</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">selectAll</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">callback</span>
+</div>
+<div class="viewcode-block" id="MainWindow.disconnectWidget"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.disconnectWidget">[docs]</a>    <span class="k">def</span> <span class="nf">disconnectWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disconnects a widget from the main window global actions.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - widget : The pysumo widget to disconnect form the main window.</span>
+<span class="sd">        - callback: The callback with the statusbar if the widget is a TextEditor widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">widgetType</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionPrint</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_print_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionQuickPrint</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_quickPrint_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionPrintPreview</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_printPreview_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionSave</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_save_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionZoomIn</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_zoomIn_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionZoomOut</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_zoomOut_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionExpand</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_expandAll_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionCollapse</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_collapseAll_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionUndo</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_undo_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionRedo</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">_redo_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">widgetType</span> <span class="o">==</span> <span class="n">TextEditor</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_updateStatusbar_</span><span class="p">()</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">cursorPositionChanged</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionCut</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">cut</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionCopy</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">copy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionPaste</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">paste</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionDelete</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">clear</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionSelectAll</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">selectAll</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MainWindow.getDefaultOutputPath"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.getDefaultOutputPath">[docs]</a>    <span class="k">def</span> <span class="nf">getDefaultOutputPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the default output path as a string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;configPath&quot;</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_newOntology_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the new ontology action when it is triggered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getDefaultOutputPath</span><span class="p">()</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">NewOntologyDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defPath</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_openLocalOntology_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the open local ontology action when it is triggered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getDefaultOutputPath</span><span class="p">()</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Open Ontology File&quot;</span><span class="p">,</span>
+                                                <span class="n">defPath</span><span class="p">,</span> <span class="s">&quot;SUO KIF Files (*.kif)&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&#39;&#39;</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filepath</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ontology</span> <span class="o">=</span> <span class="n">Ontology</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addOntology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_openRemoteOntology_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the open remote ontology action when it is triggered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getDefaultOutputPath</span><span class="p">()</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">OpenRemoteOntologyDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defPath</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MainWindow.addOntology"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.addOntology">[docs]</a>    <span class="k">def</span> <span class="nf">addOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">newversion</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an ontology to index and notify all components required.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : The ontology to add.</span>
+<span class="sd">        - newversion : The new version of the ontology.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">RWWidget</span><span class="o">.</span><span class="n">SyntaxController</span><span class="o">.</span><span class="n">add_ontology</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="n">newversion</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologyAdded</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="MainWindow.addRecentOntology"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.addRecentOntology">[docs]</a>    <span class="k">def</span> <span class="nf">addRecentOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="o">.</span><span class="n">actions</span><span class="p">())</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">2</span>  <span class="c"># remove the separator action and the clear history action.</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">+=</span> <span class="s">&quot;. &quot;</span>
+        <span class="n">name</span> <span class="o">+=</span> <span class="n">ontology</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">name</span> <span class="o">+=</span> <span class="s">&quot;.kif&quot;</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="o">.</span><span class="n">actions</span><span class="p">():</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">o</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">__eq__</span><span class="p">(</span><span class="n">ontology</span><span class="p">):</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">befAction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="o">.</span><span class="n">actions</span><span class="p">()[</span><span class="n">count</span><span class="p">]</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addOntology</span><span class="p">,</span> <span class="n">ontology</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="o">.</span><span class="n">insertAction</span><span class="p">(</span><span class="n">befAction</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MainWindow.notifyOntologyAdded"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.notifyOntologyAdded">[docs]</a>    <span class="k">def</span> <span class="nf">notifyOntologyAdded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Notify that an ontology was added to the index.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : The added ontology.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ontology</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addRecentOntology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menuOntology</span><span class="o">.</span><span class="n">actions</span><span class="p">())</span> <span class="o">-</span> <span class="mi">3</span>
+        <span class="n">ontologyMenu</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menuOntology</span><span class="o">.</span><span class="n">actions</span><span class="p">()))</span> <span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuOntology</span><span class="o">.</span><span class="n">actions</span><span class="p">()[</span><span class="n">x</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="o">==</span> <span class="n">ontology</span><span class="o">.</span><span class="n">name</span> <span class="p">:</span>
+                <span class="c"># Don&#39;t need to add menu.</span>
+                <span class="n">ontologyMenu</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">menu</span><span class="p">()</span>
+                <span class="k">break</span>
+            
+        <span class="k">if</span> <span class="n">ontologyMenu</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="n">ontologyMenu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">setTitle</span><span class="p">(</span><span class="n">ontology</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="c"># Update action</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">()</span>
+        <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="p">(</span><span class="s">&quot;:/actions/gfx/actions/update-product.png&quot;</span><span class="p">),</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+        <span class="n">actionUpdate</span> <span class="o">=</span> <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Update&quot;</span><span class="p">)</span>
+        <span class="n">actionUpdate</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">actionUpdate</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+        <span class="n">actionUpdate</span><span class="o">.</span><span class="n">setIconVisibleInMenu</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">actionUpdate</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_updateOntology_</span><span class="p">,</span> <span class="n">ontology</span><span class="p">))</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">()</span>
+        <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="p">(</span><span class="s">&quot;:/actions/gfx/actions/document-revert.png&quot;</span><span class="p">),</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+        <span class="n">actionRevert</span> <span class="o">=</span> <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Revert&quot;</span><span class="p">)</span>
+        <span class="n">actionRevert</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">actionRevert</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+        <span class="n">actionRevert</span><span class="o">.</span><span class="n">setIconVisibleInMenu</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">actionRevert</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_revertOntology_</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ontologyMenu</span><span class="p">))</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">()</span>
+        <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="p">(</span><span class="s">&quot;:/actions/gfx/actions/document-properties.png&quot;</span><span class="p">),</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+        <span class="n">actionProperties</span> <span class="o">=</span> <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Properties&quot;</span><span class="p">)</span>
+        <span class="n">actionProperties</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">actionProperties</span><span class="o">.</span><span class="n">setIconVisibleInMenu</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">actionProperties</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+        <span class="n">actionProperties</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_showOntologyProperties_</span><span class="p">,</span> <span class="n">ontology</span><span class="p">))</span>
+        <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="c"># Close action</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">()</span>
+        <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="p">(</span><span class="s">&quot;:/actions/gfx/actions/document-close.png&quot;</span><span class="p">),</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+        <span class="n">actionClose</span> <span class="o">=</span> <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Close&quot;</span><span class="p">)</span>
+        <span class="n">actionClose</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+        <span class="n">actionClose</span><span class="o">.</span><span class="n">setIconVisibleInMenu</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">actionClose</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">actionClose</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_closeOntology_</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ontologyMenu</span><span class="p">))</span>
+        <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="c"># Add ontology menu to menu bar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuOntology</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">ontologyMenu</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_ClearRecentOntologiesHistory_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the clear recent ontologies action when it is triggered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menuRecent_Ontologies</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clearHistoryAction</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_deleteOntology_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ontologyMenu</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the delete ontology action when it is triggered.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : The ontology to delete.</span>
+<span class="sd">        - ontologyMenu : The QMenu where the ontology could be managed. It should be remove too.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_closeOntology_</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="n">ontologyMenu</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ontology</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_updateOntology_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the update ontology action when it is triggered.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : The ontology to update.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ontology</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">ontology</span><span class="o">.</span><span class="n">url</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Can not perform an update.&quot;</span><span class="p">,</span> <span class="s">&quot;The ontology &quot;</span> <span class="o">+</span> <span class="n">ontology</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot; has no url specified in it&#39;s configuration to perform an update.&quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+            <span class="k">return</span> 
+        <span class="n">update</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">RWWidget</span><span class="o">.</span><span class="n">SyntaxController</span><span class="o">.</span><span class="n">add_ontology</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="n">newversion</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf8&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_revertOntology_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ontologyMenu</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the revert ontology action when it is triggered.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : the ontology to revert.</span>
+<span class="sd">        - ontologyMenu : The QMenu where the ontology could be managed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># save the state of the active ontologies.</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">widgets</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">RWWidget</span><span class="p">)</span> <span class="ow">and</span> <span class="n">widget</span><span class="o">.</span><span class="n">getActiveOntology</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">widget</span><span class="o">.</span><span class="n">getActiveOntology</span><span class="p">()</span> <span class="o">==</span> <span class="n">ontology</span> <span class="p">:</span>
+                <span class="n">state</span><span class="p">[</span><span class="n">widget</span><span class="p">]</span> <span class="o">=</span> <span class="n">ontology</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_closeOntology_</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="n">ontologyMenu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addOntology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="c"># restore the state of the active ontologies.</span>
+        <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">widget</span><span class="o">.</span><span class="n">getActiveOntology</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+                <span class="n">widget</span><span class="o">.</span><span class="n">setActiveOntology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span> 
+
+    <span class="k">def</span> <span class="nf">_showOntologyProperties_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the show ontology property action when it is triggered.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : The ontology which properties should be displayed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">OntologyPropertyDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="MainWindow.removeOntology"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.MainWindow.removeOntology">[docs]</a>    <span class="k">def</span> <span class="nf">removeOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Removes an ontology form the index and notifies the required components.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : The ontology to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">RWWidget</span><span class="o">.</span><span class="n">SyntaxController</span><span class="o">.</span><span class="n">remove_ontology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologyRemoved</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_closeOntology_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ontologyMenu</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        QT Slot which handles the close ontology action when it is triggered.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter :</span>
+<span class="sd">        </span>
+<span class="sd">        - ontology : The ontology to delete.</span>
+<span class="sd">        - ontologyMenu : The QMenu where the ontology could be managed. It should be remove too.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">changed</span> <span class="p">,</span> <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologyChanged</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">changed</span> <span class="p">:</span>
+            <span class="n">msgBox</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">msgBox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;The ontology file </span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">ontology</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s"> has been modified.&quot;</span><span class="p">)</span>
+            <span class="n">msgBox</span><span class="o">.</span><span class="n">setInformativeText</span><span class="p">(</span><span class="s">&quot;Do you want to save your changes?&quot;</span><span class="p">)</span>
+            <span class="n">msgBox</span><span class="o">.</span><span class="n">setDetailedText</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+            <span class="n">msgBox</span><span class="o">.</span><span class="n">setStandardButtons</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Save</span> <span class="o">|</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Discard</span><span class="p">)</span>
+            <span class="n">msgBox</span><span class="o">.</span><span class="n">setDefaultButton</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Save</span><span class="p">)</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">msgBox</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Save</span> <span class="p">:</span>
+                <span class="n">ontology</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeOntology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="c"># remove ontology in active ones.</span>
+        <span class="n">ontologyMenu</span><span class="o">.</span><span class="n">deleteLater</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">_showAboutBox_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        QT Slot which handles the show about pysumo action when it is triggered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QMessageBox</span><span class="o">.</span><span class="n">about</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;About PySumo&quot;</span><span class="p">,</span> <span class="s">&quot;PSE TEAM Project&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">quit_handler</span><span class="p">)</span>
+    <span class="n">mainwindow</span> <span class="o">=</span> <span class="n">MainWindow</span><span class="p">()</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">setActiveWindow</span><span class="p">(</span><span class="n">mainwindow</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="quit_handler"><a class="viewcode-back" href="../../pySUMOQt.html#pySUMOQt.MainWindow.quit_handler">[docs]</a><span class="k">def</span> <span class="nf">quit_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handler for the SIGINT signal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">QApplication</span><span class="o">.</span><span class="n">closeAllWindows</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

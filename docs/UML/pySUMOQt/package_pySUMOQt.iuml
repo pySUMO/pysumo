@@ -1,0 +1,32 @@
+package "pySUMOQt" {
+note as N1
+Note that almost every UI class has a class
+ created by Qt Designer and PySide which it inherits.
+end note
+  package "Widget" {
+    !include Widget/HierarchyWidget.iuml
+    !include Widget/TextEditor.iuml
+    !include Widget/DocumentationWidget.iuml
+    !include Widget/GraphWidget.iuml
+    !include Widget/Widget.iuml
+    
+    
+    Widget "1" *-- "1" WSettings
+  }
+  !include Settings.iuml
+  !include MainWindow.iuml
+  !include Dialog.iuml
+}
+
+RWidget <|-- DocumentationWidget
+RWWidget <|-- TextEditor
+RWWidget <|-- HierarchyWidget
+RWWidget <|-- GraphWidget
+
+
+
+MainWindow o-- OptionDialog
+
+MainWindow *-- "*" Widget
+MainWindow "1" -- "1" LayoutManager
+MainWindow "1" -- "1" PySumoSettings

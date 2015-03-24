@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pysumo.logger package &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="index.html" />
+    <link rel="up" title="pysumo package" href="pysumo.html" />
+    <link rel="next" title="pySUMOQt package" href="pySUMOQt.html" />
+    <link rel="prev" title="pysumo package" href="pysumo.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pySUMOQt.html" title="pySUMOQt package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pysumo.html" title="pysumo package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="pysumo.html" accesskey="U">pysumo package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pysumo-logger-package">
+<h1>pysumo.logger package<a class="headerlink" href="#pysumo-logger-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pysumo.logger">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pysumo.logger" title="Permalink to this headline">¶</a></h2>
+<p>The pySUMO logging interface.</p>
+<p>This package contains 2 modules:</p>
+<ul class="simple">
+<li>infolog: A singleton called from the entry point to initialize the python logging framework and set the loglevel.</li>
+<li>actionlog: Stores a list of all write operations on the Ontology and provides undo and redo functionality.</li>
+</ul>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pysumo-logger-actionlog-module">
+<h2>pysumo.logger.actionlog module<a class="headerlink" href="#pysumo-logger-actionlog-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-ca68c0c2f94bf0dd17779e4438487d48602bfd4c.svg" type="image/svg+xml" style="width:768px;height:282px;">
+<img src="_images/plantuml-ca68c0c2f94bf0dd17779e4438487d48602bfd4c.png" alt="!include ./UML/pysumo/logger/Actionlog.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pysumo.logger.actionlog"></span><p>The pySUMO action log handler. This module handles undo and redo operations.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>ActionLog: The action log handler.</li>
+<li>LogIO: The action log io interface.</li>
+</ul>
+<dl class="class">
+<dt id="pysumo.logger.actionlog.ActionLog">
+<em class="property">class </em><tt class="descclassname">pysumo.logger.actionlog.</tt><tt class="descname">ActionLog</tt><big>(</big><em>name</em>, <em>path=None</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#ActionLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.ActionLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The pySUMO action log. The SyntaxController queues a new log entry before every
+operation that makes changes to an Ontology, if the change is successful it OKs the
+entry in the log queue and the entry is written out. Log entries that are not OKed
+time out and are removed from the queue.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>log_io: The io object for this log.</li>
+<li>queue: A queue of actions that have not yet successfully completed.</li>
+<li>actionlog: A list of actions that have completed successfully.</li>
+<li>redolog: A list of actions that have been undone successfully.</li>
+<li>current: The current state of the Ontology.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>queue_log: Create a log entry and append it to the log queue.</li>
+<li>ok_log_item: Move log entry from log queue to actual log.</li>
+<li>undo: Undoes the last action.</li>
+<li>redo: Redoes the last undone action.</li>
+</ul>
+<dl class="method">
+<dt id="pysumo.logger.actionlog.ActionLog.ok_log_item">
+<tt class="descname">ok_log_item</tt><big>(</big><em>log_queue_ok_num</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#ActionLog.ok_log_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.ActionLog.ok_log_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends the item in self.queue with log_queue_ok_num to self.actionlog
+and calls self.log_io.append_write_queue on it.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>log_queue_ok_num: the number of the queue item to okay</li>
+</ul>
+<p>Raises:</p>
+<ul class="simple">
+<li>KeyError</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.ActionLog.queue_log">
+<tt class="descname">queue_log</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#ActionLog.queue_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.ActionLog.queue_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a log entry and queue it for addition to self.actionlog.</p>
+<p>Args:</p>
+<ul class="simple">
+<li>data: the data to be placed in the log</li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li>int. The log_queue_ok_num</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.ActionLog.redo">
+<tt class="descname">redo</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#ActionLog.redo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.ActionLog.redo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redoes the last undone action, appends it to self.undolog
+and removes it from self.redolog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.ActionLog.undo">
+<tt class="descname">undo</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#ActionLog.undo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.ActionLog.undo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undoes the last action and appends it to self.redolog.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pysumo.logger.actionlog.LogIO">
+<em class="property">class </em><tt class="descclassname">pysumo.logger.actionlog.</tt><tt class="descname">LogIO</tt><big>(</big><em>name</em>, <em>path='/home/konni/.pysumo/actionlog'</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#LogIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.LogIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The IO interface for the pySUMO action log. This class provides a storage
+backend for the Action Log. Entries in the write queue are written to disk
+after a timeout, or when the write queue reaches a maximum size.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>default_path: The default log path.</li>
+<li>timeout: The time period after which if no new packets have entered the queue, the queue is flushed.</li>
+<li>max_size: The maximum number of actions in the write queue after which when another packet enters the queue, the queue is flushed.</li>
+<li>max_diffs: When the number of stored diffs exceeds max_diffs, old diffs will be deleted.</li>
+<li>path: The log path (defaults to default_path).</li>
+<li>name: The name of the Ontology.</li>
+<li>current: The path to the current state of the Ontology.</li>
+<li>uwrite_queue: The queue in which undo actions are stored before being written to disk.</li>
+<li>rwrite_queue: The queue in which redo actions are stored before being written to disk.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>diff: Creates a diff between 2 Files</li>
+<li>read: Instantiates an Action Log with the data in the stored log at path.</li>
+<li>flush_write_queues: Appends all entries in the write queue to the log file.</li>
+<li>clear: Clears a queue in memory and on disk.</li>
+<li>pop: Removes the last entry from a queue.</li>
+<li>undo: Appends an entry to the redo write queue.</li>
+<li>redo: Appends an entry to the undo write queue.</li>
+</ul>
+<dl class="method">
+<dt id="pysumo.logger.actionlog.LogIO.clear">
+<tt class="descname">clear</tt><big>(</big><em>queue</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#LogIO.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears queue both in memory and on disk.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pysumo.logger.actionlog.LogIO.default_path">
+<tt class="descname">default_path</tt><em class="property"> = '/home/konni/.pysumo/actionlog'</em><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.default_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.LogIO.diff">
+<tt class="descname">diff</tt><big>(</big><em>current</em>, <em>new</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#LogIO.diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a diff between current and new.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.LogIO.flush_write_queues">
+<tt class="descname">flush_write_queues</tt><big>(</big><em>_=None</em>, <em>__=None</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#LogIO.flush_write_queues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.flush_write_queues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flush self.rwrite_queue and self.uwrite_queue to disk.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pysumo.logger.actionlog.LogIO.max_diffs">
+<tt class="descname">max_diffs</tt><em class="property"> = 100</em><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.max_diffs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pysumo.logger.actionlog.LogIO.max_size">
+<tt class="descname">max_size</tt><em class="property"> = 10</em><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.max_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.LogIO.pop">
+<tt class="descname">pop</tt><big>(</big><em>queue</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#LogIO.pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the last entry in queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.LogIO.read">
+<tt class="descname">read</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#LogIO.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the log at self.path into log.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.LogIO.redo">
+<tt class="descname">redo</tt><big>(</big><em>current</em>, <em>entry</em>, <em>clean=False</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#LogIO.redo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.redo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append entry to self.uwrite_queue.
+If clean is True, pop an object from the redo queue.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pysumo.logger.actionlog.LogIO.timeout">
+<tt class="descname">timeout</tt><em class="property"> = 10</em><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.actionlog.LogIO.undo">
+<tt class="descname">undo</tt><big>(</big><em>current</em>, <em>entry</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/actionlog.html#LogIO.undo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.actionlog.LogIO.undo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append entry to self.rwrite_queue.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pysumo-logger-infolog-module">
+<h2>pysumo.logger.infolog module<a class="headerlink" href="#pysumo-logger-infolog-module" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<object data="_images/plantuml-da7d0cd45bed799a4a33d0b224a395865dbb40c9.svg" type="image/svg+xml" style="width:751px;height:180px;">
+<img src="_images/plantuml-da7d0cd45bed799a4a33d0b224a395865dbb40c9.png" alt="!include ./UML/pysumo/logger/InfoLog.iuml" />
+
+</object></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<span class="target" id="module-pysumo.logger.infolog"></span><p>The pySUMO informational log handler. Acts as an initializer for the python
+logging framework and defines several convenience functions for working with
+it.</p>
+<p>This module contains:</p>
+<ul class="simple">
+<li>InfoLog: The informational log handler.</li>
+</ul>
+<dl class="class">
+<dt id="pysumo.logger.infolog.InfoLog">
+<em class="property">class </em><tt class="descclassname">pysumo.logger.infolog.</tt><tt class="descname">InfoLog</tt><big>(</big><em>loglevel='WARNING'</em>, <em>filename='/home/konni/.pysumo/log'</em>, <em>socket_path='/home/konni/.pysumo/status'</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/infolog.html#InfoLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.infolog.InfoLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The informational log handler for pySUMO. Initializes the python logging framework
+and contains several convenience functions. Instantiated only from the entry point.</p>
+<p>Variables:</p>
+<ul class="simple">
+<li>default_log_path: The default path where the infolog will be stored.</li>
+<li>default_socket_path: The default socket to which &gt;=INFO logs will be sent.</li>
+<li>filename: The location at which the infolog will be stored.</li>
+<li>root_logger: The root logging object of which all other loggers are children.</li>
+<li>f_handler: Sends messages to a file and rotates it when it becomes too large.</li>
+<li>s_handler: Sends messages to a Unix socket.</li>
+</ul>
+<p>Methods:</p>
+<ul class="simple">
+<li>set_loglevel: Sets the loglevel above which to log messages.</li>
+</ul>
+<dl class="attribute">
+<dt id="pysumo.logger.infolog.InfoLog.default_log_path">
+<tt class="descname">default_log_path</tt><em class="property"> = '/home/konni/.pysumo/log'</em><a class="headerlink" href="#pysumo.logger.infolog.InfoLog.default_log_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pysumo.logger.infolog.InfoLog.default_socket_path">
+<tt class="descname">default_socket_path</tt><em class="property"> = '/home/konni/.pysumo/status'</em><a class="headerlink" href="#pysumo.logger.infolog.InfoLog.default_socket_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pysumo.logger.infolog.InfoLog.set_loglevel">
+<tt class="descname">set_loglevel</tt><big>(</big><em>loglevel</em><big>)</big><a class="reference internal" href="_modules/pysumo/logger/infolog.html#InfoLog.set_loglevel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pysumo.logger.infolog.InfoLog.set_loglevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the loglevel above which to log messages.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pysumo.logger package</a><ul>
+<li><a class="reference internal" href="#module-pysumo.logger">Module contents</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#pysumo-logger-actionlog-module">pysumo.logger.actionlog module</a></li>
+<li><a class="reference internal" href="#pysumo-logger-infolog-module">pysumo.logger.infolog module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pysumo.html"
+                        title="previous chapter">pysumo package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pySUMOQt.html"
+                        title="next chapter">pySUMOQt package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pysumo.logger.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pySUMOQt.html" title="pySUMOQt package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pysumo.html" title="pysumo package"
+             >previous</a> |</li>
+        <li><a href="index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="pysumo.html" >pysumo package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

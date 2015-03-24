@@ -1,0 +1,15 @@
+@startuml
+start
+:User triggers the "Exit" action;
+if (Are there unsaved ontologies?) then (yes)
+	:Display warning dialog with message: "Would you like to save all changes?";
+	if (Save all changes?) then (yes)
+		:Save all unsaved ontologies;
+	else (no)
+	endif
+else (no)
+endif
+:Save the gui settings;
+:Close the application;
+stop
+@enduml

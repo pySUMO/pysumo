@@ -1,0 +1,828 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pySUMOQt.Widget.TextEditor &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pySUMOQt.Widget.TextEditor</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; The text editor module for pySUMO. The TextEditor widget is the main pySUMO</span>
+<span class="sd">widget. It contains the textual representation of the currently loaded</span>
+<span class="sd">Ontologies allowing conventional kif editing with features such as syntax</span>
+<span class="sd">highlighting and autocompletion.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">PySide.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QRegExp</span><span class="p">,</span> <span class="n">QObject</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">,</span> <span class="n">Slot</span><span class="p">,</span> <span class="n">QRect</span><span class="p">,</span> <span class="n">QPoint</span><span class="p">,</span> <span class="n">QSize</span><span class="p">,</span> <span class="n">QTimer</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QCompleter</span><span class="p">,</span> <span class="n">QTextCursor</span><span class="p">,</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QPainter</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QFont</span><span class="p">,</span> <span class="n">QSyntaxHighlighter</span><span class="p">,</span> <span class="n">QShortcut</span><span class="p">,</span> <span class="n">QKeySequence</span><span class="p">,</span> <span class="n">QPrintDialog</span><span class="p">,</span> <span class="n">QColor</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QTextCharFormat</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QPrinter</span><span class="p">,</span> <span class="n">QPrinterInfo</span><span class="p">,</span> <span class="n">QPrintPreviewDialog</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pySUMOQt.Designer.TextEditor</span> <span class="kn">import</span> <span class="n">Ui_Form</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Widget.Widget</span> <span class="kn">import</span> <span class="n">RWWidget</span>
+<span class="kn">import</span> <span class="nn">pysumo.parser</span> <span class="kn">as</span> <span class="nn">parser</span>
+<span class="kn">from</span> <span class="nn">pysumo.syntaxcontroller</span> <span class="kn">import</span> <span class="n">Ontology</span>
+<span class="kn">from</span> <span class="nn">pysumo.parser</span> <span class="kn">import</span> <span class="n">ParseError</span>
+<span class="kn">from</span> <span class="nn">pySUMOQt.Dialog</span> <span class="kn">import</span> <span class="n">str_to_bool</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<div class="viewcode-block" id="TextEditor"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor">[docs]</a><span class="k">class</span> <span class="nc">TextEditor</span><span class="p">(</span><span class="n">RWWidget</span><span class="p">,</span> <span class="n">Ui_Form</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; Contains many features of popular text editors adapted for use with</span>
+<span class="sd">    Ontologies such as syntax highlighting, and autocompletion. One column on</span>
+<span class="sd">    the left of the text editor contains line numbers and another contains</span>
+<span class="sd">    other contextual information such as whether a block of code has been</span>
+<span class="sd">    hidden/collapsed and can be displayed/expanded later.  It also contains an</span>
+<span class="sd">    incremental search and an interface to pySUMO&#39;s settings so font size and</span>
+<span class="sd">    family can be changed at will.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - syntax_highlighter: The syntax highlighter object for the text editor.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">    </span>
+<span class="sd">    - __init__: Initalizes the Object and the QPlainTextEdit</span>
+<span class="sd">    - commit: Notifies other Widgets of changes.</span>
+<span class="sd">    - show_autocomplete: Returns autocompletion choices.</span>
+<span class="sd">    - getWidget: returns the QPlainTextEdit</span>
+<span class="sd">    - numberbarPaint: Paints the numberbar</span>
+<span class="sd">    - searchCompletion: Asks QCompleter if a whole word exists starting with user input</span>
+<span class="sd">    - hideFrom: Starts hides all lines from the ()-block started by line</span>
+<span class="sd">    - insertCompletion: Puts the selected Completion into the TextEditor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mainwindow</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the text editor widget. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TextEditor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">mainwindow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">highlighter</span> <span class="o">=</span> <span class="n">SyntaxHighlighter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">document</span><span class="p">(),</span> <span class="n">settings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initAutocomplete</span><span class="p">()</span>
+        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initNumberBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">printer</span> <span class="o">=</span> <span class="n">QPrinter</span><span class="p">(</span><span class="n">QPrinterInfo</span><span class="o">.</span><span class="n">defaultPrinter</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setTextCursor</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">cursorForPosition</span><span class="p">(</span><span class="n">QPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">canUndo</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canRedo</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">setSingleShot</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">)</span>
+
+
+        <span class="c">#Connects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">searchCompletion</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">undoAvailable</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setCanUndo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">redoAvailable</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setCanRedo</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">showOtherOntology</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expandIfBracketRemoved</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setTextChanged</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updateOntologySelector</span><span class="p">()</span> <span class="c">#must be after connects</span>
+
+    
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="TextEditor.setTextChanged"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.setTextChanged">[docs]</a>    <span class="k">def</span> <span class="nf">setTextChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is called if the text changed signal is thrown and </span>
+<span class="sd">        sets a timer of 3 seconds to reparse the ontology. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">3000</span><span class="p">)</span>
+    
+             
+</div>
+<div class="viewcode-block" id="TextEditor.setCanUndo"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.setCanUndo">[docs]</a>    <span class="k">def</span> <span class="nf">setCanUndo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canUndo</span> <span class="o">=</span> <span class="n">b</span>
+        </div>
+<div class="viewcode-block" id="TextEditor.setCanRedo"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.setCanRedo">[docs]</a>    <span class="k">def</span> <span class="nf">setCanRedo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canRedo</span> <span class="o">=</span> <span class="n">b</span>
+        
+</div>
+    <span class="k">def</span> <span class="nf">_print_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Creates a print dialog with the latest text&quot;&quot;&quot;</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">QPrintDialog</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span> <span class="o">==</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span> <span class="p">:</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">document</span><span class="p">()</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">print_</span><span class="p">(</span><span class="n">dialog</span><span class="o">.</span><span class="n">printer</span><span class="p">())</span>
+            
+    <span class="k">def</span> <span class="nf">_quickPrint_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; No dialog, just print&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">printer</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">document</span><span class="p">()</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">print_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">printer</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">_printPreview_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a print preview&quot;&quot;&quot;</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">QPrintPreviewDialog</span><span class="p">()</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">paintRequested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">print_</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">_save_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save the ontology to disk&quot;&quot;&quot;</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="n">ontology</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ontology</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+            <span class="k">return</span> 
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Ontology</span> <span class="p">:</span>
+            <span class="n">ontology</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TextEditor.getActiveOntology"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.getActiveOntology">[docs]</a>    <span class="k">def</span> <span class="nf">getActiveOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    </div>
+    <span class="k">def</span> <span class="nf">_undo_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">canUndo</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">undo</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SyntaxController</span><span class="o">.</span><span class="n">add_ontology</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getActiveOntology</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">())</span>
+            <span class="k">except</span> <span class="n">ParseError</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">TextEditor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_undo_</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">_redo_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">canRedo</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">redo</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">SyntaxController</span><span class="o">.</span><span class="n">add_ontology</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getActiveOntology</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">())</span>
+            <span class="k">except</span> <span class="n">ParseError</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">TextEditor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_redo_</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">_initNumberBar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Init the number bar&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span> <span class="o">=</span> <span class="n">NumberBar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="n">QSize</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s">&quot;number_bar&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gridLayout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">blockCountChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">adjustWidth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">updateRequest</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">updateContents</span><span class="p">)</span>
+
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<div class="viewcode-block" id="TextEditor.jumpToLocation"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.jumpToLocation">[docs]</a>    <span class="k">def</span> <span class="nf">jumpToLocation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ontology</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getActiveOntology</span><span class="p">()):</span>
+            <span class="n">textBlock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlockByNumber</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">textBlock</span><span class="o">.</span><span class="n">position</span><span class="p">()</span>
+            <span class="n">textCursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span>
+            <span class="n">textCursor</span><span class="o">.</span><span class="n">setPosition</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setTextCursor</span><span class="p">(</span><span class="n">textCursor</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">centerCursor</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_updateOntologySelector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update the ontology selector where you can select which Ontology to show in the editor&quot;&quot;&quot;</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">showOtherOntology</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">ontologies</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">count</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="c"># if index == -1 :</span>
+            <span class="c"># the ontology was removed.</span>
+        <span class="c">#    self.showOtherOntology(index)</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">showOtherOntology</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TextEditor.setActiveOntology"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.setActiveOntology">[docs]</a>    <span class="k">def</span> <span class="nf">setActiveOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">ontologies</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">ontology</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">count</span>
+                <span class="k">break</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<div class="viewcode-block" id="TextEditor.showOtherOntology"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.showOtherOntology">[docs]</a>    <span class="k">def</span> <span class="nf">showOtherOntology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; Show other ontology in the plaintextedit</span>
+<span class="sd">            </span>
+<span class="sd">            Arguments:</span>
+<span class="sd">            </span>
+<span class="sd">            - idx: The id of the current Ontologyselector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dced</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setTextChanged</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="n">dced</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+
+
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="n">ontologyname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">ontologies</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">ontologyname</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">get_ontology_file</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">dced</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setTextChanged</span><span class="p">)</span>
+
+                <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">False</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="TextEditor.expandIfBracketRemoved"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.expandIfBracketRemoved">[docs]</a>    <span class="k">def</span> <span class="nf">expandIfBracketRemoved</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Check if a line with ( or ) was changed and expand the possible hidden lines   </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlock</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span><span class="o">.</span><span class="n">position</span><span class="p">())</span><span class="o">.</span><span class="n">blockNumber</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">current_line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toggleVisibility</span><span class="p">(</span><span class="n">current_line</span><span class="p">)</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="TextEditor.increaseSize"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.increaseSize">[docs]</a>    <span class="k">def</span> <span class="nf">increaseSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Increase the size of the font in the TextEditor</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">defaultFont</span><span class="p">()</span>
+        <span class="n">font</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">pointSize</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">QFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">setDefaultFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        </div>
+    <span class="k">def</span> <span class="nf">_zoomIn_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; API of Widget - see increaseSize</span>
+<span class="sd">        This function is deprecated since pysumo 1.0 and will be merged with increaseSize</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">increaseSize</span><span class="p">()</span>
+
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="TextEditor.decreaseSize"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.decreaseSize">[docs]</a>    <span class="k">def</span> <span class="nf">decreaseSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Decrease the size of the font in the TextEditor&quot;&quot;&quot;</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">defaultFont</span><span class="p">()</span>
+        <span class="n">font</span><span class="o">.</span><span class="n">setPointSize</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">pointSize</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">QFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">setDefaultFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        </div>
+    <span class="k">def</span> <span class="nf">_zoomOut_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; API of Widget - see decreaseSize</span>
+<span class="sd">            This function is deprecated since pysumo 1.0 and will be merged with decreaseSize</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decreaseSize</span><span class="p">()</span>
+
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="TextEditor.expandAll"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.expandAll">[docs]</a>    <span class="k">def</span> <span class="nf">expandAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Expands all hidden code blocks&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">see</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toggleVisibility</span><span class="p">(</span><span class="n">see</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_expandAll_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Stupid work of Kent&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expandAll</span><span class="p">()</span>
+
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="TextEditor.hideAll"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.hideAll">[docs]</a>    <span class="k">def</span> <span class="nf">hideAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Collapse all code blocks (where possible)&quot;&quot;&quot;</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">firstBlock</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">block</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">isVisible</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">block</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&quot;)&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">toggleVisibility</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">blockNumber</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            </div>
+    <span class="k">def</span> <span class="nf">_collapseAll_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Stupid work of Kent&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hideAll</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_hideLines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlockByNumber</span><span class="p">(</span><span class="n">line</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">block</span><span class="o">.</span><span class="n">isVisible</span><span class="p">()</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">isVisible</span><span class="p">(),</span> <span class="s">&quot;Problem with line </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_showLines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Show the lines not visible starting by lines</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">        </span>
+<span class="sd">        - lines: The first line followed by an unvisible block</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlockByNumber</span><span class="p">(</span><span class="n">line</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TextEditor.getLayoutWidget"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.getLayoutWidget">[docs]</a>    <span class="k">def</span> <span class="nf">getLayoutWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the layout widget&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">widget</span>
+</div>
+<div class="viewcode-block" id="TextEditor.numberbarPaint"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.numberbarPaint">[docs]</a>    <span class="k">def</span> <span class="nf">numberbarPaint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number_bar</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Paints the line numbers of the code file&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">font_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">fontMetrics</span><span class="p">()</span>
+        <span class="n">current_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlock</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span><span class="o">.</span><span class="n">position</span><span class="p">())</span><span class="o">.</span><span class="n">blockNumber</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">firstVisibleBlock</span><span class="p">()</span>
+        <span class="n">line_count</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">blockNumber</span><span class="p">()</span>
+        <span class="n">painter</span> <span class="o">=</span> <span class="n">QPainter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="p">)</span>
+        <span class="c"># TODO: second argument is color -&gt; to settings</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">fillRect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">rect</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span><span class="o">.</span><span class="n">base</span><span class="p">())</span>
+
+        <span class="c"># Iterate over all visible text blocks in the document.</span>
+        <span class="k">while</span> <span class="n">block</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">line_count</span><span class="p">)</span>
+            <span class="n">block_top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">blockBoundingGeometry</span><span class="p">(</span>
+                <span class="n">block</span><span class="p">)</span><span class="o">.</span><span class="n">translated</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">contentOffset</span><span class="p">())</span><span class="o">.</span><span class="n">top</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">isVisible</span><span class="p">():</span>
+                <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">block</span><span class="o">.</span><span class="n">isVisible</span><span class="p">():</span>
+                    <span class="n">line_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">block_top</span><span class="p">,</span> <span class="n">line_count</span><span class="p">))</span>
+            <span class="c"># Check if the position of the block is out side of the visible</span>
+            <span class="c"># area.</span>
+            <span class="k">if</span> <span class="n">block_top</span> <span class="o">&gt;=</span> <span class="n">event</span><span class="o">.</span><span class="n">rect</span><span class="p">()</span><span class="o">.</span><span class="n">bottom</span><span class="p">():</span>
+                <span class="k">break</span>
+
+            <span class="c"># We want the line number for the selected line to be bold.</span>
+            <span class="k">if</span> <span class="n">line_count</span> <span class="o">==</span> <span class="n">current_line</span><span class="p">:</span>
+                <span class="n">font</span> <span class="o">=</span> <span class="n">painter</span><span class="o">.</span><span class="n">font</span><span class="p">()</span>
+                <span class="n">font</span><span class="o">.</span><span class="n">setBold</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">font</span> <span class="o">=</span> <span class="n">painter</span><span class="o">.</span><span class="n">font</span><span class="p">()</span>
+                <span class="n">font</span><span class="o">.</span><span class="n">setBold</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+            <span class="c"># line opens a block</span>
+            <span class="k">if</span> <span class="n">line_count</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">+=</span> <span class="s">&quot;+&quot;</span>
+                <span class="n">font</span><span class="o">.</span><span class="n">setUnderline</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">block</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">block</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&quot;)&quot;</span><span class="p">):</span>
+                <span class="n">text</span> <span class="o">+=</span> <span class="s">&quot;-&quot;</span>
+                <span class="n">font</span><span class="o">.</span><span class="n">setUnderline</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">font</span><span class="o">.</span><span class="n">setUnderline</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+            <span class="c"># Draw the line number right justified at the position of the</span>
+            <span class="c"># line.</span>
+            <span class="n">paint_rect</span> <span class="o">=</span> <span class="n">QRect</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="n">block_top</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">font_metrics</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">paint_rect</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">AlignLeft</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+
+        <span class="n">painter</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TextEditor.initAutocomplete"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.initAutocomplete">[docs]</a>    <span class="k">def</span> <span class="nf">initAutocomplete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inits the QCompleter and gives him a list of words&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">QCompleter</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">OrderedDict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\\</span><span class="s">W&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">()))))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setCaseSensitivity</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">CaseInsensitive</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insertCompletion</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TextEditor.searchCompletion"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.searchCompletion">[docs]</a>    <span class="k">def</span> <span class="nf">searchCompletion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Searches for possible completion from QCompleter to the current text position&quot;&quot;&quot;</span>
+        <span class="n">tc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span>
+        <span class="n">tc</span><span class="o">.</span><span class="n">movePosition</span><span class="p">(</span><span class="n">QTextCursor</span><span class="o">.</span><span class="n">PreviousCharacter</span><span class="p">,</span> <span class="n">QTextCursor</span><span class="o">.</span><span class="n">KeepAnchor</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tc</span><span class="o">.</span><span class="n">selectedText</span><span class="p">()</span> <span class="ow">in</span> <span class="n">string</span><span class="o">.</span><span class="n">whitespace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">popup</span><span class="p">()</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="n">tc</span><span class="o">.</span><span class="n">movePosition</span><span class="p">(</span><span class="n">QTextCursor</span><span class="o">.</span><span class="n">StartOfWord</span><span class="p">,</span> <span class="n">QTextCursor</span><span class="o">.</span><span class="n">KeepAnchor</span><span class="p">)</span>
+
+        <span class="n">beginning</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">selectedText</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beginning</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">setCompletionPrefix</span><span class="p">(</span><span class="n">beginning</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">complete</span><span class="p">()</span>
+        <span class="n">shortcut</span> <span class="o">=</span> <span class="n">QShortcut</span><span class="p">(</span>
+            <span class="n">QKeySequence</span><span class="p">(</span><span class="s">&quot;Ctrl+Enter&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">insertCompletion</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TextEditor.toggleVisibility"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.toggleVisibility">[docs]</a>    <span class="k">def</span> <span class="nf">toggleVisibility</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Shows or hides a line &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_showLines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">[</span><span class="n">line</span><span class="p">])</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">[</span><span class="n">line</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hideFrom</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="c"># update views</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_bar</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TextEditor.hideFrom"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.hideFrom">[docs]</a>    <span class="k">def</span> <span class="nf">hideFrom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Hides a block starting by line. Do nothing if not hidable&quot;&quot;&quot;</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlockByNumber</span><span class="p">(</span>
+            <span class="n">line</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">openB</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span>
+        <span class="n">closeB</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&quot;)&quot;</span><span class="p">)</span>
+        <span class="n">startline</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="c"># go to line &gt;= line: block starts counting by 0</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlockByNumber</span><span class="p">(</span><span class="n">line</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">assert</span> <span class="n">block</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">openB</span> <span class="o">&gt;</span> <span class="n">closeB</span> <span class="ow">and</span> <span class="n">block</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="n">block</span><span class="o">.</span><span class="n">isValid</span><span class="p">()</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">blockNumber</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">isVisible</span><span class="p">():</span>
+                <span class="n">hidden</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">openB</span> <span class="o">+=</span> <span class="n">block</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&quot;(&quot;</span><span class="p">)</span>
+            <span class="n">closeB</span> <span class="o">+=</span> <span class="n">block</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&quot;)&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">hidden</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hideLines</span><span class="p">(</span><span class="n">hidden</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">[</span><span class="n">startline</span><span class="p">]</span> <span class="o">=</span> <span class="n">hidden</span>
+
+        <span class="c"># set current line in viewable area</span>
+        <span class="n">current_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlock</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span><span class="o">.</span><span class="n">position</span><span class="p">())</span><span class="o">.</span><span class="n">blockNumber</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">startline</span> <span class="o">&lt;</span> <span class="n">current_line</span> <span class="ow">and</span> <span class="n">current_line</span> <span class="o">&lt;=</span> <span class="n">line</span><span class="p">):</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="n">QTextCursor</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setTextCursor</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<div class="viewcode-block" id="TextEditor.insertCompletion"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.insertCompletion">[docs]</a>    <span class="k">def</span> <span class="nf">insertCompletion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">completion</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Adds the completion to current text&quot;&quot;&quot;</span>
+        <span class="n">tc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span>
+        <span class="n">tc</span><span class="o">.</span><span class="n">movePosition</span><span class="p">(</span><span class="n">QTextCursor</span><span class="o">.</span><span class="n">StartOfWord</span><span class="p">,</span> <span class="n">QTextCursor</span><span class="o">.</span><span class="n">KeepAnchor</span><span class="p">)</span>
+        <span class="n">tc</span><span class="o">.</span><span class="n">removeSelectedText</span><span class="p">()</span>
+        <span class="n">tc</span><span class="o">.</span><span class="n">insertText</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TextEditor.getWidget"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.getWidget">[docs]</a>    <span class="k">def</span> <span class="nf">getWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the QPlainTextEdit Widget&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span>
+</div>
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="TextEditor.commit"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Overrides commit from RWWidget. &quot;&quot;&quot;</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">ontology</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ontology</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">QApplication</span><span class="o">.</span><span class="n">setOverrideCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">BusyCursor</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SyntaxController</span><span class="o">.</span><span class="n">add_ontology</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">())</span>
+            <span class="n">QApplication</span><span class="o">.</span><span class="n">setOverrideCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">ArrowCursor</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ParseError</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TextEditor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        </div>
+    <span class="nd">@Slot</span><span class="p">()</span>    
+<div class="viewcode-block" id="TextEditor.refresh"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.TextEditor.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Refreshes the content of the TextEditor (syncing with other widgets)&quot;&quot;&quot;</span>
+        <span class="n">textCursorPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span><span class="o">.</span><span class="n">position</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TextEditor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+        <span class="n">dced</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setTextChanged</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="n">dced</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="n">ontology</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ontologySelector</span><span class="o">.</span><span class="n">itemData</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ontology</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">IA</span><span class="o">.</span><span class="n">ontologies</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">IA</span><span class="o">.</span><span class="n">get_ontology_file</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dced</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setTextChanged</span><span class="p">)</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">setPosition</span><span class="p">(</span><span class="n">textCursorPos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setTextCursor</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">centerCursor</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="SyntaxHighlightSetting"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting">[docs]</a><span class="k">class</span> <span class="nc">SyntaxHighlightSetting</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; This class contains a single Setting for a code block in the SyntaxHighlighter. </span>
+<span class="sd">    </span>
+<span class="sd">    Variables:</span>
+<span class="sd">        </span>
+<span class="sd">        - expression: The regular expression of the syntax block</span>
+<span class="sd">        - expression_end: If the expression has a start and an end expression</span>
+<span class="sd">        - font_size</span>
+<span class="sd">        - font_color</span>
+<span class="sd">        - font_weight</span>
+<span class="sd">        - font_style</span>
+<span class="sd">        - font_underline</span>
+<span class="sd">        - use_font_size</span>
+<span class="sd">        </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">font_family</span><span class="p">,</span> <span class="n">font_size</span><span class="p">,</span> <span class="n">font_color</span><span class="p">,</span> <span class="n">font_weight</span><span class="p">,</span> <span class="n">font_style</span><span class="p">,</span> <span class="n">font_underline</span><span class="p">,</span> <span class="n">use_font_size</span><span class="p">,</span> <span class="n">expression_end</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expression</span> <span class="o">=</span> <span class="n">expression</span>
+        <span class="k">if</span> <span class="n">expression_end</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expression_end</span> <span class="o">=</span> <span class="n">expression_end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_family</span> <span class="o">=</span> <span class="n">font_family</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span> <span class="o">=</span> <span class="n">font_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_color</span> <span class="o">=</span> <span class="n">font_color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_weight</span> <span class="o">=</span> <span class="n">font_weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_style</span> <span class="o">=</span> <span class="n">font_style</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_underline</span> <span class="o">=</span> <span class="n">font_underline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_font_size</span> <span class="o">=</span> <span class="n">use_font_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createFormat</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SyntaxHighlightSetting.createFormat"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.createFormat">[docs]</a>    <span class="k">def</span> <span class="nf">createFormat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a QTextCharformat and saves it in self.class_format&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_format</span> <span class="o">=</span> <span class="n">QTextCharFormat</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_format</span><span class="o">.</span><span class="n">setFontFamily</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font_family</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_font_size</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">class_format</span><span class="o">.</span><span class="n">setFontPointSize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_format</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font_color</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_format</span><span class="o">.</span><span class="n">setFontWeight</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font_weight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_format</span><span class="o">.</span><span class="n">setFontItalic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font_style</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_format</span><span class="o">.</span><span class="n">setFontUnderline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font_underline</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SyntaxHighlightSetting.get_format"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.get_format">[docs]</a>    <span class="k">def</span> <span class="nf">get_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_format</span>
+</div>
+<div class="viewcode-block" id="SyntaxHighlightSetting.getValues"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.getValues">[docs]</a>    <span class="k">def</span> <span class="nf">getValues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">expression</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_color</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_weight</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="SyntaxHighlightSetting.serialize"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">str1</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="n">str1</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expression</span> <span class="o">+</span> <span class="s">&quot;//&quot;</span>
+        <span class="n">str1</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font_color</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;//&quot;</span>
+        <span class="n">str1</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font_weight</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;//&quot;</span>
+        <span class="k">return</span> <span class="n">str1</span>
+</div>
+<div class="viewcode-block" id="SyntaxHighlightSetting.deserialize"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.SyntaxHighlightSetting.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="n">splitted</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;//&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expression</span> <span class="o">=</span> <span class="n">splitted</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_color</span> <span class="o">=</span> <span class="n">splitted</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font_weight</span> <span class="o">=</span> <span class="n">splitted</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+</div></div>
+<div class="viewcode-block" id="SyntaxHighlighter"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.SyntaxHighlighter">[docs]</a><span class="k">class</span> <span class="nc">SyntaxHighlighter</span><span class="p">(</span><span class="n">QSyntaxHighlighter</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SyntaxHighlighter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">settings</span>
+        <span class="n">use_font_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;useHighlightingFontSize&quot;</span><span class="p">)</span>
+        <span class="n">use_font_size</span> <span class="o">=</span> <span class="n">str_to_bool</span><span class="p">(</span><span class="n">use_font_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">singleline</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># logical expressions highlighting</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="s">&quot;(and|=&gt;|not|or)(?!\w)&quot;</span>
+        <span class="n">fFamily</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontFamily</span><span class="p">(</span><span class="s">&quot;logicExprFontFamily&quot;</span><span class="p">)</span>
+        <span class="n">fSize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontSize</span><span class="p">(</span><span class="s">&quot;logicExprFontSize&quot;</span><span class="p">)</span>
+        <span class="n">fColor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontColor</span><span class="p">(</span><span class="s">&quot;logicExprFontColor&quot;</span><span class="p">)</span>
+        <span class="n">fWeight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontWeight</span><span class="p">(</span><span class="s">&quot;logicExprBoldStyle&quot;</span><span class="p">)</span>
+        <span class="n">fItalic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontItalic</span><span class="p">(</span><span class="s">&quot;logicExprItalicStyle&quot;</span><span class="p">)</span>
+        <span class="n">fUnderline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontUnderline</span><span class="p">(</span><span class="s">&quot;logicExprUnderlinedStyle&quot;</span><span class="p">)</span>
+        <span class="n">shSettings</span> <span class="o">=</span> <span class="n">SyntaxHighlightSetting</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">fFamily</span><span class="p">,</span> <span class="n">fSize</span><span class="p">,</span> <span class="n">fColor</span><span class="p">,</span> <span class="n">fWeight</span><span class="p">,</span> <span class="n">fItalic</span><span class="p">,</span> <span class="n">fUnderline</span><span class="p">,</span> <span class="n">use_font_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">singleline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shSettings</span><span class="p">)</span>
+
+        <span class="c"># keywords highlighting</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="s">&quot;(member|patient|agent|instance|subclass|exists|documentation|part|domain|equal|hasPurpose)[\W&#39;</span><span class="se">\n</span><span class="s">&#39;]&quot;</span>
+        <span class="n">fFamily</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontFamily</span><span class="p">(</span><span class="s">&quot;keywordsFontFamily&quot;</span><span class="p">)</span>
+        <span class="n">fSize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontSize</span><span class="p">(</span><span class="s">&quot;keywordsFontSize&quot;</span><span class="p">)</span>
+        <span class="n">fColor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontColor</span><span class="p">(</span><span class="s">&quot;keywordsFontColor&quot;</span><span class="p">)</span>
+        <span class="n">fWeight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontWeight</span><span class="p">(</span><span class="s">&quot;keywordsBoldStyle&quot;</span><span class="p">)</span>
+        <span class="n">fItalic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontItalic</span><span class="p">(</span><span class="s">&quot;keywordsItalicStyle&quot;</span><span class="p">)</span>
+        <span class="n">fUnderline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontUnderline</span><span class="p">(</span><span class="s">&quot;keywordsUnderlinedStyle&quot;</span><span class="p">)</span>
+        <span class="n">shSettings</span> <span class="o">=</span> <span class="n">SyntaxHighlightSetting</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">fFamily</span><span class="p">,</span> <span class="n">fSize</span><span class="p">,</span> <span class="n">fColor</span><span class="p">,</span> <span class="n">fWeight</span><span class="p">,</span> <span class="n">fItalic</span><span class="p">,</span> <span class="n">fUnderline</span><span class="p">,</span> <span class="n">use_font_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">singleline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shSettings</span><span class="p">)</span>
+        
+        <span class="c"># comment highlighting</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="s">&quot;;.*$&quot;</span>
+        <span class="n">fFamily</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontFamily</span><span class="p">(</span><span class="s">&quot;commentFontFamily&quot;</span><span class="p">)</span>
+        <span class="n">fSize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontSize</span><span class="p">(</span><span class="s">&quot;commentFontSize&quot;</span><span class="p">)</span>
+        <span class="n">fColor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontColor</span><span class="p">(</span><span class="s">&quot;commentFontColor&quot;</span><span class="p">)</span>
+        <span class="n">fWeight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontWeight</span><span class="p">(</span><span class="s">&quot;commentBoldStyle&quot;</span><span class="p">)</span>
+        <span class="n">fItalic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontItalic</span><span class="p">(</span><span class="s">&quot;commentItalicStyle&quot;</span><span class="p">)</span>
+        <span class="n">fUnderline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontUnderline</span><span class="p">(</span><span class="s">&quot;commentUnderlinedStyle&quot;</span><span class="p">)</span>
+        <span class="n">shSettings</span> <span class="o">=</span> <span class="n">SyntaxHighlightSetting</span><span class="p">(</span><span class="n">regex</span><span class="p">,</span> <span class="n">fFamily</span><span class="p">,</span> <span class="n">fSize</span><span class="p">,</span> <span class="n">fColor</span><span class="p">,</span> <span class="n">fWeight</span><span class="p">,</span> <span class="n">fItalic</span><span class="p">,</span> <span class="n">fUnderline</span><span class="p">,</span> <span class="n">use_font_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">singleline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shSettings</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiline</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c"># strings highlighting</span>
+        <span class="n">fFamily</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontFamily</span><span class="p">(</span><span class="s">&quot;stringsFontFamily&quot;</span><span class="p">)</span>
+        <span class="n">fSize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontSize</span><span class="p">(</span><span class="s">&quot;stringsFontSize&quot;</span><span class="p">)</span>
+        <span class="n">fColor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontColor</span><span class="p">(</span><span class="s">&quot;stringsFontColor&quot;</span><span class="p">)</span>
+        <span class="n">fWeight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontWeight</span><span class="p">(</span><span class="s">&quot;stringsBoldStyle&quot;</span><span class="p">)</span>
+        <span class="n">fItalic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontItalic</span><span class="p">(</span><span class="s">&quot;stringsItalicStyle&quot;</span><span class="p">)</span>
+        <span class="n">fUnderline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getFontUnderline</span><span class="p">(</span><span class="s">&quot;stringsUnderlinedStyle&quot;</span><span class="p">)</span>
+        <span class="n">shSettings</span> <span class="o">=</span> <span class="n">SyntaxHighlightSetting</span><span class="p">(</span><span class="s">&#39;&quot;&#39;</span><span class="p">,</span> <span class="n">fFamily</span><span class="p">,</span> <span class="n">fSize</span><span class="p">,</span> <span class="n">fColor</span><span class="p">,</span> <span class="n">fWeight</span><span class="p">,</span> <span class="n">fItalic</span><span class="p">,</span> <span class="n">fUnderline</span><span class="p">,</span> <span class="n">use_font_size</span><span class="p">,</span> <span class="n">expression_end</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shSettings</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">_getFontFamily</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propKey</span><span class="p">):</span>
+        <span class="n">fFamily</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">propKey</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fFamily</span>
+    
+    <span class="k">def</span> <span class="nf">_getFontSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propKey</span><span class="p">):</span>
+        <span class="n">fSize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">propKey</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">fSize</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_getFontColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propKey</span><span class="p">):</span>
+        <span class="n">fColor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">propKey</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QColor</span><span class="p">(</span><span class="n">fColor</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_getFontItalic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propKey</span><span class="p">):</span>
+        <span class="n">fStyle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">propKey</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str_to_bool</span><span class="p">(</span><span class="n">fStyle</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_getFontUnderline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propKey</span><span class="p">):</span>
+        <span class="n">fUnderlined</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">propKey</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str_to_bool</span><span class="p">(</span><span class="n">fUnderlined</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">_getFontWeight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">propKey</span><span class="p">):</span>
+        <span class="n">fWeight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">propKey</span><span class="p">)</span>
+        <span class="n">fWeight</span> <span class="o">=</span> <span class="n">str_to_bool</span><span class="p">(</span><span class="n">fWeight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fWeight</span> <span class="p">:</span>
+            <span class="n">fWeight</span> <span class="o">=</span> <span class="n">QFont</span><span class="o">.</span><span class="n">Bold</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="n">fWeight</span> <span class="o">=</span> <span class="n">QFont</span><span class="o">.</span><span class="n">Normal</span>
+        <span class="k">return</span> <span class="n">fWeight</span>
+
+<div class="viewcode-block" id="SyntaxHighlighter.highlightBlock"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.SyntaxHighlighter.highlightBlock">[docs]</a>    <span class="k">def</span> <span class="nf">highlightBlock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">singleline</span><span class="p">:</span>
+            <span class="n">expression</span> <span class="o">=</span> <span class="n">QRegExp</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">expression</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">indexIn</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">matchedLength</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setFormat</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">h</span><span class="o">.</span><span class="n">get_format</span><span class="p">())</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">indexIn</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiline</span><span class="p">:</span>
+            <span class="n">startIndex</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setCurrentBlockState</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">expression</span> <span class="o">=</span> <span class="n">QRegExp</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">expression</span><span class="p">)</span>
+            <span class="n">expression_end</span> <span class="o">=</span> <span class="n">QRegExp</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">expression_end</span><span class="p">)</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">previousBlockState</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">startIndex</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">indexIn</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+            <span class="k">while</span> <span class="n">startIndex</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">endIndex</span> <span class="o">=</span> <span class="n">expression_end</span><span class="o">.</span><span class="n">indexIn</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">startIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">endIndex</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setCurrentBlockState</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">commentLength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">-</span> <span class="n">startIndex</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">commentLength</span> <span class="o">=</span> <span class="n">endIndex</span> <span class="o">-</span> <span class="n">startIndex</span> <span class="o">+</span> \
+                        <span class="n">expression_end</span><span class="o">.</span><span class="n">matchedLength</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setFormat</span><span class="p">(</span><span class="n">startIndex</span><span class="p">,</span> <span class="n">commentLength</span><span class="p">,</span> <span class="n">h</span><span class="o">.</span><span class="n">get_format</span><span class="p">())</span>
+                <span class="n">startIndex</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">indexIn</span><span class="p">(</span>
+                    <span class="n">text</span><span class="p">,</span> <span class="n">startIndex</span> <span class="o">+</span> <span class="n">commentLength</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="NumberBar"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.NumberBar">[docs]</a><span class="k">class</span> <span class="nc">NumberBar</span><span class="p">(</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    A widget for the numberbar on the left of QPlainTextEdit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edit</span><span class="p">):</span>
+        <span class="n">QWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edit</span><span class="o">.</span><span class="n">getWidget</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edit</span> <span class="o">=</span> <span class="n">edit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjustWidth</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="NumberBar.paintEvent"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.NumberBar.paintEvent">[docs]</a>    <span class="k">def</span> <span class="nf">paintEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class="o">.</span><span class="n">numberbarPaint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="n">QWidget</span><span class="o">.</span><span class="n">paintEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="NumberBar.adjustWidth"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.NumberBar.adjustWidth">[docs]</a>    <span class="k">def</span> <span class="nf">adjustWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fontMetrics</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;+&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">!=</span> <span class="n">width</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="NumberBar.updateContents"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.NumberBar.updateContents">[docs]</a>    <span class="k">def</span> <span class="nf">updateContents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">scroll</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">scroll</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scroll</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">scroll</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># It would be nice to do</span>
+            <span class="c"># self.update(0, rect.y(), self.width(), rect.height())</span>
+            <span class="c"># But we can&#39;t because it will not remove the bold on the</span>
+            <span class="c"># current line if word wrap is enabled and a new block is</span>
+            <span class="c"># selected.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="NumberBar.mouseDoubleClickEvent"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.TextEditor.NumberBar.mouseDoubleClickEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Hides the lines from the line clicked on. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">height</span> <span class="o">&gt;=</span> <span class="n">event</span><span class="o">.</span><span class="n">y</span><span class="p">():</span>
+                <span class="k">break</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class="o">.</span><span class="n">getWidget</span><span class="p">()</span><span class="o">.</span><span class="n">document</span><span class="p">()</span><span class="o">.</span><span class="n">findBlockByNumber</span><span class="p">(</span>
+            <span class="n">last</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">isVisible</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class="o">.</span><span class="n">toggleVisibility</span><span class="p">(</span><span class="n">last</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

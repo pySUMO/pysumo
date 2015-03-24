@@ -1,0 +1,31 @@
+package "pysumo" {
+note as N2
+AbstractSyntaxTree may be shortened to AST for ease of reading
+end note
+  package "model" {
+    !include Parser.iuml
+ }
+  package "logger" {
+    !include logger/Actionlog.iuml
+    !include logger/InfoLog.iuml
+  }
+  !include IndexAbstractor.iuml
+  !include WordNet.iuml
+  
+  !include SyntaxController.iuml
+  !include Updater.iuml
+}
+Ontology "1" o--> "1" Actionlog 
+SyntaxController -- Actionlog : > uses
+SyntaxController --> Parser : > uses
+SyntaxController "1" --> "1" Updater
+SyntaxController "1" o--> "1" AbstractSyntaxTree
+Updater -- Ontology : > uses
+
+AbstractSyntaxTree --o IndexAbstractor
+IndexAbstractor --> "1..*" Ontology : > uses
+
+WordNet --> Parser : > uses
+IndexAbstractor "1" -- "1" WordNet
+
+AbstractSyntaxTree -- Ontology

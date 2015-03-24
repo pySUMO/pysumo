@@ -1,0 +1,323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pysumo.syntaxcontroller &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pysumo.syntaxcontroller</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; Handles all write accesses to the Ontologies and kif files. The</span>
+<span class="sd">SyntaxController&#39;s main purpose is to act as an intermediary between the user</span>
+<span class="sd">and the Ontology.</span>
+
+<span class="sd">This module contains:</span>
+
+<span class="sd">- SyntaxController: The interface to the parser/serializer.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span><span class="p">,</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">listdir</span><span class="p">,</span> <span class="n">fdopen</span><span class="p">,</span> <span class="n">remove</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">resource_filename</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">mkstemp</span>
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span><span class="p">,</span> <span class="n">DEVNULL</span>
+
+<span class="kn">import</span> <span class="nn">pysumo</span>
+<span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">actionlog</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">parser</span>
+
+<div class="viewcode-block" id="get_ontologies"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.get_ontologies">[docs]</a><span class="k">def</span> <span class="nf">get_ontologies</span><span class="p">(</span><span class="n">lpath</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Returns a set of all ontologies provided by pysumo as well as local ontologies. &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">pdata</span> <span class="o">=</span> <span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;pysumo&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;pysumo&#39;</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.kif&quot;</span><span class="p">):</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Ontology</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">pdata</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">lpath</span><span class="o">=</span><span class="n">lpath</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">isdir</span><span class="p">(</span><span class="n">pysumo</span><span class="o">.</span><span class="n">CONFIG_PATH</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">pysumo</span><span class="o">.</span><span class="n">CONFIG_PATH</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.kif&quot;</span><span class="p">):</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Ontology</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">pysumo</span><span class="o">.</span><span class="n">CONFIG_PATH</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">lpath</span><span class="o">=</span><span class="n">lpath</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="SyntaxController"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.SyntaxController">[docs]</a><span class="k">class</span> <span class="nc">SyntaxController</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; The high-level class containing the interface to all parsing/serialization operations.</span>
+<span class="sd">    All operations that can modify the Ontology or kif-file are passed through the SyntaxController.</span>
+<span class="sd">    The SyntaxController acts as a moderator between user-side widgets and the low-level API</span>
+<span class="sd">    ensuring that all requests are correct, that higher objects never gain direct access to</span>
+<span class="sd">    internal objects and that all changes to the Ontology are atomic.</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    - parse_partial: Checks a code block for syntax errors.</span>
+<span class="sd">    - parse_patch: Checks a code for correctness and adds it to the Ontology.</span>
+<span class="sd">    - add_ontology: Adds an Ontology to the in-memory Ontology.</span>
+<span class="sd">    - remove_ontology: Removes an Ontology from the in-memory Ontology.</span>
+<span class="sd">    - undo: Undoes the most recent change to the ontology.</span>
+<span class="sd">    - redo: Redoes the most recent change to the ontology.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the SyntaxController object. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SyntaxController.parse_partial"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.SyntaxController.parse_partial">[docs]</a>    <span class="k">def</span> <span class="nf">parse_partial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code_block</span><span class="p">,</span> <span class="n">ontology</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Tells self.parser to check code_block for syntactical correctness.</span>
+
+<span class="sd">        Arguments:</span>
+
+<span class="sd">        - code_block: the partial code block that will be checked</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">        - ParseError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">code_block</span><span class="p">)</span>
+        <span class="n">ast</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">kifparse</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ontology</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ast</span>
+</div>
+<div class="viewcode-block" id="SyntaxController.parse_patch"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.SyntaxController.parse_patch">[docs]</a>    <span class="k">def</span> <span class="nf">parse_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">patch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Apply a patch to the last version of the ontology and parse this new version</span>
+
+<span class="sd">        Arguments:</span>
+
+<span class="sd">        - ontology: the ontlogy which is patched</span>
+<span class="sd">        - patch: the patch to add to the ontology</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">        - ParseError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">tempfile</span><span class="p">,</span> <span class="n">tempfilepath</span><span class="p">)</span> <span class="o">=</span> <span class="n">mkstemp</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_ontology_file</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">tempfile</span> <span class="o">=</span> <span class="n">fdopen</span><span class="p">(</span><span class="n">tempfile</span><span class="p">,</span> <span class="s">&#39;wt&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">o</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">tempfile</span><span class="p">)</span>
+        <span class="n">tempfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="s">&quot;patch&quot;</span><span class="p">,</span> <span class="s">&quot;-u&quot;</span><span class="p">,</span> <span class="n">tempfilepath</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">DEVNULL</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">patch</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tempfilepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">queue_log</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">()))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+            <span class="n">newast</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">kifparse</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ast</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_ontology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+            <span class="n">newast</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">astmerge</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">newast</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">newast</span><span class="o">.</span><span class="n">ontology</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">update_index</span><span class="p">(</span><span class="n">newast</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">ontologies</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">ok_log_item</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">remove</span><span class="p">(</span><span class="n">tempfilepath</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="SyntaxController.add_ontology"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.SyntaxController.add_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">add_ontology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">newversion</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Adds ontology to the current in-memory Ontology.</span>
+
+<span class="sd">        Arguments:</span>
+
+<span class="sd">        - ontology: the ontology that will be added</span>
+<span class="sd">        - newversion: a string witch represent the new verison of the ontology</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">        - ParseError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">newversion</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ontology</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s">&#39;replace&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">queue_log</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">()))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+                <span class="n">newast</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">kifparse</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ast</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">queue_log</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">newversion</span><span class="o">.</span><span class="n">encode</span><span class="p">()))</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">newversion</span><span class="p">)</span>
+            <span class="n">newast</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">kifparse</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">newversion</span><span class="p">),</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">ast</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_ontology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+            <span class="n">newast</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">astmerge</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">newast</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">newast</span><span class="o">.</span><span class="n">ontology</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">update_index</span><span class="p">(</span><span class="n">newast</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">ontologies</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">ok_log_item</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SyntaxController.remove_ontology"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.SyntaxController.remove_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">remove_ontology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Removes ontology from the current in-memory Ontology.</span>
+
+<span class="sd">        Arguments:</span>
+
+<span class="sd">        - ontology: the ontology that will be removed</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">        - NoSuchOntologyError</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">children</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">ontology</span> <span class="o">==</span> <span class="n">ontology</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">offset</span><span class="p">)</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">update_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">ontologies</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SyntaxController.undo"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.SyntaxController.undo">[docs]</a>    <span class="k">def</span> <span class="nf">undo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Undoes the last action in ontology &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Undoing change to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">ontology</span><span class="p">))</span>
+        <span class="n">kif</span> <span class="o">=</span> <span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">undo</span><span class="p">()</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_asts</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="n">kif</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SyntaxController.redo"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.SyntaxController.redo">[docs]</a>    <span class="k">def</span> <span class="nf">redo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Redoes the last action in ontology &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Redoing change to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">ontology</span><span class="p">))</span>
+        <span class="n">kif</span> <span class="o">=</span> <span class="n">ontology</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">redo</span><span class="p">()</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_asts</span><span class="p">(</span><span class="n">ontology</span><span class="p">,</span> <span class="n">kif</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_update_asts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontology</span><span class="p">,</span> <span class="n">kif</span><span class="p">):</span>
+        <span class="n">ast</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_partial</span><span class="p">(</span><span class="n">kif</span><span class="p">,</span> <span class="n">ontology</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_ontology</span><span class="p">(</span><span class="n">ontology</span><span class="p">)</span>
+        <span class="n">newast</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">astmerge</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">ast</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">update_index</span><span class="p">(</span><span class="n">newast</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Ontology"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.Ontology">[docs]</a><span class="k">class</span> <span class="nc">Ontology</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Contains basic information about a KIF file.  This class is used to</span>
+<span class="sd">    maintain separation between different Ontology-files so the user can choose</span>
+<span class="sd">    which are active and where each Ontology should be saved.</span>
+
+<span class="sd">    Variables:</span>
+
+<span class="sd">    - name: The name of the Ontology.</span>
+<span class="sd">    - path: The location of the Ontology in the filesystem.</span>
+<span class="sd">    - url: The URL from which the Ontology can be updated.</span>
+<span class="sd">    - active: Whether or not the Ontology is currently loaded.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">lpath</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes an Ontology and instantiates variables. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_log</span> <span class="o">=</span> <span class="n">actionlog</span><span class="o">.</span><span class="n">ActionLog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">lpath</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;r+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="bp">False</span>
+
+<div class="viewcode-block" id="Ontology.save"><a class="viewcode-back" href="../../pysumo.html#pysumo.syntaxcontroller.Ontology.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Saves all pending changes in self to self.path. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;w+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_log</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">getbuffer</span><span class="p">())</span>
+</div>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

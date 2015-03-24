@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pySUMOQt.Widget.DocumentationWidget &mdash; pySUMO 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pySUMO 1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pySUMOQt.Widget.DocumentationWidget</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; This widget displays useful information related to the current</span>
+<span class="sd">Ontology. For example you can search WordNet for synonyms or</span>
+<span class="sd">print the definition for a selected term</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">PySide.QtCore</span> <span class="kn">import</span> <span class="n">Slot</span><span class="p">,</span> <span class="n">QTimer</span>
+<span class="kn">from</span> <span class="nn">PySide.QtGui</span> <span class="kn">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QMainWindow</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Pipe</span>
+<span class="kn">from</span> <span class="nn">atexit</span> <span class="kn">import</span> <span class="n">register</span><span class="p">,</span> <span class="n">unregister</span>
+
+<span class="kn">from</span> <span class="nn">pySUMOQt.Designer.DocumentationWidget</span> <span class="kn">import</span> <span class="n">Ui_Form</span>
+<span class="kn">from</span> <span class="nn">.Widget</span> <span class="kn">import</span> <span class="n">RWidget</span>
+
+<div class="viewcode-block" id="DocumentationWidget"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.DocumentationWidget.DocumentationWidget">[docs]</a><span class="k">class</span> <span class="nc">DocumentationWidget</span><span class="p">(</span><span class="n">RWidget</span><span class="p">,</span> <span class="n">Ui_Form</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; The DocumentationWidget displays relevant information about the</span>
+<span class="sd">    current Ontology, and offers a search interface to WordNet. &quot;&quot;&quot;</span>
+
+    <span class="n">_WN_TROOL</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">_WN_PROCESS</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_WN_RECV</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_WN_SEND</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_TIMER</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+    <span class="n">_TIMER</span><span class="o">.</span><span class="n">setSingleShot</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mainwindow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initializes the DocumentationWidget. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">mainwindow</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">__name__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_TROOL</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_TROOL</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_RECV</span><span class="p">,</span> <span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_SEND</span><span class="p">)</span> <span class="o">=</span> <span class="n">Pipe</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_PROCESS</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_initialize</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_SEND</span><span class="p">,))</span>
+            <span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_PROCESS</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">register</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_PROCESS</span><span class="o">.</span><span class="n">terminate</span><span class="p">)</span>
+            <span class="n">register</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_SEND</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+            <span class="n">register</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_RECV</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">pipe</span><span class="p">):</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">IA</span><span class="o">.</span><span class="n">init_wordnet</span><span class="p">()</span>
+        <span class="n">pipe</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">IA</span><span class="o">.</span><span class="n">wordnet</span><span class="p">)</span>
+
+    <span class="nd">@Slot</span><span class="p">()</span>
+<div class="viewcode-block" id="DocumentationWidget.search"><a class="viewcode-back" href="../../../pySUMOQt.Widget.html#pySUMOQt.Widget.DocumentationWidget.DocumentationWidget.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Uses the IndexAbstractor to search for all occurrences of</span>
+<span class="sd">        string in the Ontology and displays them.  &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_TROOL</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_RECV</span><span class="o">.</span><span class="n">poll</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Searching&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_TIMER</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_TIMER</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">3000</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_TROOL</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">RWidget</span><span class="o">.</span><span class="n">IA</span><span class="o">.</span><span class="n">wordnet</span> <span class="o">=</span> <span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_RECV</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+            <span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_PROCESS</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="n">unregister</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_PROCESS</span><span class="o">.</span><span class="n">terminate</span><span class="p">)</span>
+            <span class="n">unregister</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_SEND</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+            <span class="n">unregister</span><span class="p">(</span><span class="n">DocumentationWidget</span><span class="o">.</span><span class="n">_WN_RECV</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">searchOntology</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">OntologyText</span><span class="o">.</span><span class="n">setHtml</span><span class="p">(</span><span class="n">_searchToText</span><span class="p">(</span><span class="n">searchOntology</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">OntologyText</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">searchWordnet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getIndexAbstractor</span><span class="p">()</span><span class="o">.</span><span class="n">wordnet_locate</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">WordNetText</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="n">_locateToText</span><span class="p">(</span><span class="n">searchWordnet</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">WordNetText</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+</div></div>
+<span class="k">def</span> <span class="nf">_searchToText</span><span class="p">(</span><span class="n">search_results</span><span class="p">):</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">HTML_HEADER</span>
+    <span class="k">for</span> <span class="n">ontology</span> <span class="ow">in</span> <span class="n">search_results</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">string</span><span class="p">,</span> <span class="s">&#39;&lt;h2&gt;&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ontology</span><span class="p">),</span> <span class="s">&#39;&lt;/h2&gt;</span><span class="se">\n</span><span class="s">&lt;ul&gt;&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">_resultToLink</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ontology</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">search_results</span><span class="p">[</span><span class="n">ontology</span><span class="p">]]),</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&lt;/ul&gt;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">string</span><span class="p">,</span> <span class="n">HTML_FOOTER</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">_resultToLink</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">ontology</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;&lt;li&gt;&lt;a href=&quot;&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s">&#39; &#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ontology</span><span class="p">),</span> <span class="s">&#39;&quot;&gt;&#39;</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#39;&lt;/a&gt;&lt;/li&gt;&#39;</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">_locateToText</span><span class="p">(</span><span class="n">locate_results</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">locate_results</span><span class="p">)</span>
+
+<span class="n">HTML_HEADER</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;</span>
+<span class="s">&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;</span>
+<span class="s">p, li { white-space: pre-wrap; }</span>
+<span class="s">&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&#39;Sans Serif&#39;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+<span class="n">HTML_FOOTER</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">&lt;/body&gt;&lt;/html&gt;</span>
+<span class="s">&quot;&quot;&quot;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pySUMO 1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Kent, Konstantin, Philipp, Simon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
