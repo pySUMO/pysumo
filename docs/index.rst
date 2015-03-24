@@ -60,10 +60,6 @@ Overview: Class Diagram of pySUMO
 .. uml::
    !include ./UML/main.pu
 
-.. image:: ./UML/main.png
-
-.. image:: ./UML/main_001.png
-
 Sequence diagram
 ================
 
