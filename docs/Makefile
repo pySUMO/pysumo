@@ -183,7 +183,8 @@ test:
 	export PYTHONPATH=src && \
 	sh test/coverage.sh coverage.txt && \
 	python3 test/coverage2rst.py coverage.txt docs/tests.rst && \
-	coverage html && \
+	coverage html --include=src/* && \
+	rm  docs/htmlcov/*.html && \
 	mv htmlcov docs/ && \
 	rm coverage.txt
 	
