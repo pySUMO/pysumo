@@ -184,6 +184,6 @@ test:
 	sh test/coverage.sh coverage.txt && \
 	python3 test/coverage2rst.py coverage.txt docs/tests.rst && \
 	coverage html && \
-	mv -r htmlcov docs/ && \
+	mv htmlcov docs/ && \
 	rm coverage.txt
 	
