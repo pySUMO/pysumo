@@ -45,10 +45,8 @@ For more information see
   mvc
 
 
-Overview: Class Diagram of pySUMO
+UML Diagrams:
 ==================================
-.. uml::
-   !include ./UML/main.pu
 
 
 
@@ -56,6 +54,7 @@ Overview: Class Diagram of pySUMO
   :maxdepth: 4
 
   sequence
+  classdiagram
 
 Detail: Modules
 ==================================
