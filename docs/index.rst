@@ -8,14 +8,17 @@ pysumo and pySUMOQt
 
 Introduction
 ============
+Welcome to pySUMOs documentation. We hope you will find any information
+you need to use or develop pySUMO.
+If you have any questions after reading this, feel free to contact us via
+email at pysumo@lists.kit.edu.
+
 This document introduces the Structure of our Ontology-editor pySUMO.
 
 First, a short excursion to the "Model View Controller" design pattern is made.
 
 Subsequently, our Class Diagram, which is structured according to the Model
-View Controller (MVC) design.  Due to limited resources of paper size, the
-class diagram is shown twice. Once as whole on page and one time on two pages
-cut in middle to increase the readability.
+View Controller (MVC) design. 
 
 Afterwards, several sequence diagrams which show a timeline of typical actions
 are presented.
