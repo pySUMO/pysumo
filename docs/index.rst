@@ -13,8 +13,6 @@ you need to use or develop pySUMO.
 If you have any questions after reading this, feel free to contact us via
 email at pysumo@lists.kit.edu.
 
-This document introduces the Structure of our Ontology-editor pySUMO.
-
 First, a short excursion to the "Model View Controller" design pattern is made.
 
 Subsequently, our Class Diagram, which is structured according to the Model
@@ -69,6 +67,16 @@ Detail: Modules
    pysumo
    pySUMOQt
 
+pySUMO in usage
+==================================
+For screenshots of pysumo while using it, go here
+
+.. toctree::
+  :maxdepth: 4
+  
+  inuse
+
+
 Changes in Version 1.0
 ====================================
 
@@ -84,6 +92,16 @@ Feature Request
    :maxdepth: 4
 
    FeatureRequest
+   
+Tests
+======================================
+A list of your tests, to make sure pysumo is correct working.
+If you find a feature that is not tested by us, or you found a bug
+feel free to contact us.
+
+.. toctree::
+   :maxdepth: 4
+
    test
 
 

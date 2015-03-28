@@ -1,6 +1,3 @@
-Changes
-======================
-
 
 pysumo
 ======
@@ -39,10 +36,10 @@ SyntaxController
 * Moved Ontology to syntaxcontroller module
 
 Logger
-======
+-------------
 
 ActionLog
----------
+^^^^^^^^^^
 * Add name argument to init.
 * undo/redo now return self.current.
 * Make ActionLog work with objects that provide a buffer interface via the getbuffer() function.
@@ -53,7 +50,7 @@ LogIO
 * Add default_path variable.
 
 InfoLog
--------
+^^^^^^^^^^^^^
 * Add socket interface for StatusBar
 * Add default_{log_path,socket_path} variables.
 * init now receives a string detailing the loglevel instead of an int.

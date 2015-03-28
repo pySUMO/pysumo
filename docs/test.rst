@@ -1,4 +1,4 @@
-Tests
+Library
 =====
 ActionLog
 ---------
@@ -45,10 +45,19 @@ WordNet
 * Check functionality of find_synonym
 
 GUI
----------
+==============
 
 Text Editor
-^^^^^^^^^^^^^^^^^
+--------------------
+
+.. figure:: texteditor.png
+  :width: 75 %
+  :alt: Texteditor after doing test
+  
+  Texteditor after doing test.
+  
+..
+
    1. Open pySUMO
    2. Open TextEditor
    3. Open Merge.kif
@@ -62,7 +71,7 @@ Text Editor
    11. Expand all
 
 Graphical Settings
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
   1. Open pySUMO
   2. Open TextEditor
   3. Open Merge.kif
@@ -73,7 +82,15 @@ Graphical Settings
   8. Open TextEdiorWidget
 
 Hierarchy Widget
-^^^^^^^^^^^^^^^^^^^^^^^
+----------------------
+
+.. figure:: hierachywidget.png
+  :width: 75 %
+  :alt: Hierarchywidget after doing test
+  
+  Hierarchywidget after doing test.
+  
+..
   1. Open pySUMO
   2. Open HierarchyWidget
   3. Open Merge.kif
@@ -87,7 +104,24 @@ Hierarchy Widget
   11. Expand all
 
 Graph Widget
-^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------
+
+.. figure:: graphwidget1.png
+  :width: 75 %
+  :alt: Graphwidget during test
+  
+  Graphwidget after step 6.
+  
+..
+
+.. figure:: graphwidget3.png
+  :width: 75 %
+  :alt: Graphwidget after doing test
+  
+  Graphwidget after step 11.
+  
+..
+
   1. Open pySUMO
   2. Open GraphWidget
   3. Open Merge.kif
@@ -106,7 +140,23 @@ Graph Widget
   16. Redo
 
 Documentation Widget
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
+.. figure:: docwidget1.png
+  :width: 75 %
+  :alt: Documentation widget during test
+  
+  Documentation widget after step 6.
+  
+..
+
+.. figure:: docwidget2.png
+  :width: 75 %
+  :alt: Docwidget after doing test
+  
+  Docwidget after doing test.
+  
+..
+
 
 1. Open pySUMO
 2. Open Merge.kif
@@ -120,3 +170,36 @@ Documentation Widget
 10. Switch to the WordNet tab in the DocumentationWidget
 11. Search for 'Object'
 12. Search for 'Table'
+
+MainWindow
+-------------------------------
+.. figure:: mainwindow1.png
+  :width: 75 %
+  :alt: Possible output when using widgets
+  
+  Widgets ordering.
+  
+..
+
+
+
+#. Open pySUMO
+#. Open a new Ontology named "Mondial"
+#. Open a remote ontology named "Mondial" at location: http://sigmakee.cvs.sourceforge.net/viewvc/sigmakee/KBs/mondial.kif
+#. Close the ontology named "Mondial" with save and reopen it as local file.
+#. Add Text Editor Widget
+#. Add Documentation Widget
+#. Add Graph Widget
+#. Add Hierarchy Widget
+#. Reorder Widgets
+#. Make a print preview of the ontology "Mondial" from the Text Editor Widget
+#. Delete the Text Editor Widget
+#. Make a print preview of the ontology "Mondial" from the Graph Widget
+#. Add a node and a relation in Graph widget
+#. Delete the Graph Widget
+#. Try to update the ontology "Mondial"
+#. Open ontology properties dialog for "Mondial" and then close it.
+#. Open Option Dialog and then close it
+#. Revert the ontology "Mondial"
+#. Quit pySUMO
+
