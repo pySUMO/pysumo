@@ -11,3 +11,7 @@ Feature Requests
 * GraphWidget keep root node after refresh (e.g. after adding a node)
 * GraphWidget set to new father or children
 
+Bugs
+=======
+
+* Undoing all the changes in a new ontology causes the ontology to be removed from the Index and causes issues.
