@@ -136,7 +136,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         widget = None
         if widgetType == "TextEditorWidget" :
             widget = TextEditor(self, settings=self.settings)
-            widget.setPrefixName("Text Editor")
             widget.ontologySelector.currentIndexChanged[str].connect(widget._setSuffixName_)
             widget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(widget._updateOntologySelector)
@@ -144,14 +143,11 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             self.jumpRequested.connect(widget.jumpToLocation)
         elif widgetType == "DocumentationWidget" :
             widget = DocumentationWidget(self)
-            widget.setPrefixName("Documentation Widget")
             widget.OntologyText.anchorClicked.connect(self.jumpToLocation)
         elif widgetType == "HierarchyWidget" :
             widget = HierarchyWidget(self)
-            widget.setPrefixName("Hierarchy Widget")
         elif widgetType == "GraphWidget":
             widget = GraphWidget(self)
-            widget.setPrefixName("Graph Widget")
             widget.activeOntology.currentIndexChanged[str].connect(widget._setSuffixName_)
             widget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(widget._updateActiveOntology)
@@ -161,6 +157,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             return
         
         widget.installEventFilter(widget)
+        widget.setPrefixName(widgetType)
         widget.setSettings(self.settings)
         self.synchronizeRequested.connect(widget.refresh)
         objName = widgetType
