@@ -138,7 +138,6 @@ class MainWindow(Ui_mainwindow, QMainWindow):
             widget = TextEditor(self, settings=self.settings)
             widget.setPrefixName("Text Editor")
             widget.ontologySelector.currentIndexChanged[str].connect(widget._setSuffixName_)
-            widget.plainTextEdit.installEventFilter(widget)
             widget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(widget._updateOntologySelector)
             self.ontologyRemoved.connect(widget._updateOntologySelector)
@@ -150,18 +149,18 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         elif widgetType == "HierarchyWidget" :
             widget = HierarchyWidget(self)
             widget.setPrefixName("Hierarchy Widget")
-            widget.treeWidget.installEventFilter(widget)
         elif widgetType == "GraphWidget":
             widget = GraphWidget(self)
             widget.setPrefixName("Graph Widget")
             widget.activeOntology.currentIndexChanged[str].connect(widget._setSuffixName_)
-            widget.graphicsView.installEventFilter(widget)
             widget.ontologyChanged.connect(self.synchronize)
             self.ontologyAdded.connect(widget._updateActiveOntology)
             self.ontologyRemoved.connect(widget._updateActiveOntology)
         if widget is None :
             self.log.error("can not create widget with type " + widgetType)
             return
+        
+        widget.installEventFilter(widget)
         widget.setSettings(self.settings)
         self.synchronizeRequested.connect(widget.refresh)
         objName = widgetType
