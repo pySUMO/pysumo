@@ -76,9 +76,8 @@ For screenshots of pysumo while using it, go here
   
   inuse
 
-
-Changes in Version 1.0
-====================================
+Changes
+=================================
 
 .. toctree::
    :maxdepth: 4

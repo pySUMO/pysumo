@@ -3,22 +3,19 @@ widget. It contains the textual representation of the currently loaded
 Ontologies allowing conventional kif editing with features such as syntax
 highlighting and autocompletion.
 """
-from PySide.QtCore import Qt, QRegExp, QObject, SIGNAL, Slot, QRect, QPoint, QSize, QTimer
-from PySide.QtGui import QApplication, QMainWindow, QCompleter, QTextCursor, QWidget, QPainter
+from PySide.QtCore import Qt, QRegExp, Slot, QRect, QPoint, QSize, QTimer
+from PySide.QtGui import QApplication, QCompleter, QTextCursor, QWidget, QPainter
 from PySide.QtGui import QFont, QSyntaxHighlighter, QShortcut, QKeySequence, QPrintDialog, QColor
 from PySide.QtGui import QTextCharFormat, QDialog, QPrinter, QPrinterInfo, QPrintPreviewDialog
 from collections import OrderedDict
 import re
 import string
-import sys
 
 from pySUMOQt.Designer.TextEditor import Ui_Form
 from pySUMOQt.Widget.Widget import RWWidget
-import pysumo.parser as parser
 from pysumo.syntaxcontroller import Ontology
 from pysumo.parser import ParseError
 from pySUMOQt.Dialog import str_to_bool
-import logging
 
 
 class TextEditor(RWWidget, Ui_Form):
@@ -127,7 +124,7 @@ class TextEditor(RWWidget, Ui_Form):
         dialog.paintRequested.connect(self.plainTextEdit.print_)
         dialog.exec_()
         
-    def _save_(self):
+    def saveOntology(self):
         """ Save the ontology to disk"""
         idx = self.ontologySelector.currentIndex()
         ontology = self.ontologySelector.itemData(idx)
@@ -140,7 +137,7 @@ class TextEditor(RWWidget, Ui_Form):
         idx = self.ontologySelector.currentIndex()
         return self.ontologySelector.itemData(idx)
     
-    def _undo_(self):
+    def undo(self):
         if self.canUndo:
             self.plainTextEdit.undo()
             try:
@@ -149,9 +146,9 @@ class TextEditor(RWWidget, Ui_Form):
                 return
             self.commit()
         else:
-            super(TextEditor, self)._undo_()
+            super(TextEditor, self).undo()
         
-    def _redo_(self):
+    def redo(self):
         if self.canRedo:
             self.plainTextEdit.redo()
             try:
@@ -160,7 +157,7 @@ class TextEditor(RWWidget, Ui_Form):
                 return
             self.commit()
         else:
-            super(TextEditor, self)._redo_()
+            super(TextEditor, self).redo()
         
     def _initNumberBar(self):
         """ Init the number bar"""
@@ -260,7 +257,7 @@ class TextEditor(RWWidget, Ui_Form):
             self.toggleVisibility(current_line)
 
     @Slot()
-    def increaseSize(self):
+    def zoomIn(self):
         """ Increase the size of the font in the TextEditor
         
         """
@@ -270,14 +267,9 @@ class TextEditor(RWWidget, Ui_Form):
         font = QFont(font)
         doc.setDefaultFont(font)
         
-    def _zoomIn_(self):
-        """ API of Widget - see increaseSize
-        This function is deprecated since pysumo 1.0 and will be merged with increaseSize
-        """
-        self.increaseSize()
 
     @Slot()
-    def decreaseSize(self):
+    def zoomOut(self):
         """ Decrease the size of the font in the TextEditor"""
         doc = self.getWidget().document()
         font = doc.defaultFont()
@@ -285,24 +277,14 @@ class TextEditor(RWWidget, Ui_Form):
         font = QFont(font)
         doc.setDefaultFont(font)
         
-    def _zoomOut_(self):
-        """ API of Widget - see decreaseSize
-            This function is deprecated since pysumo 1.0 and will be merged with decreaseSize
-        """
-        self.decreaseSize()
-
     @Slot()
     def expandAll(self):
         """ Expands all hidden code blocks"""
         for see in list(self.hidden.keys()):
             self.toggleVisibility(see)
 
-    def _expandAll_(self):
-        """ Stupid work of Kent"""
-        self.expandAll()
-
     @Slot()
-    def hideAll(self):
+    def collapseAll(self):
         """ Collapse all code blocks (where possible)"""
         block = self.getWidget().document().firstBlock()
         while block.isValid():
@@ -311,9 +293,6 @@ class TextEditor(RWWidget, Ui_Form):
                     self.toggleVisibility(block.blockNumber() + 1)
             block = block.next()
             
-    def _collapseAll_(self):
-        """ Stupid work of Kent"""
-        self.hideAll()
 
     def _hideLines(self, lines):
         for line in lines:

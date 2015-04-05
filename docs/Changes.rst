@@ -1,7 +1,38 @@
 
-pysumo
+Changes in v1.1
+====================
+
+* Rename:
+
++---------------------+---------------------+
+|Old Name             | New Name            |
++=====================+=====================+
+|widget.save          | widget.saveOntology |
++---------------------+---------------------+
+|widget._redo_        | widget.redo         |
++---------------------+---------------------+
+|widget._undo_        | widget.ondo         |
++---------------------+---------------------+
+|widget._zoomIn_      | widget.zoomIn       |
++---------------------+---------------------+
+|widget._zoomOut_     | widget.zoomOut      |
++---------------------+---------------------+
+|widget._expandAll_   | widget.expandAll    |
++---------------------+---------------------+
+|widget._collapseAll_ | widget.collapseAll  |
++---------------------+---------------------+
+|*Overwritten Methods*                      |
++---------------------+---------------------+ 
+
+* Code cleaning in widgets
+
+Changes in v1.0
+=================
+
+pysumo 
 ======
-* Rename lib to pysumo.
+
+ * Rename lib to pysumo.
 
 IndexAbstractor
 ---------------

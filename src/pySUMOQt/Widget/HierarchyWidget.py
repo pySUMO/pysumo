@@ -122,10 +122,10 @@ class HierarchyWidget(RWWidget, Ui_Form):
                 self.rootSelector.clearFocus()
                 self.treeWidget.setFocus()
 
-    def _expandAll_(self):
+    def expandAll(self):
         self.treeWidget.expandAll()
 
-    def _collapseAll_(self):
+    def collapseAll(self):
         self.treeWidget.collapseAll()
 
     def hide(self, entry):

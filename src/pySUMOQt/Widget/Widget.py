@@ -10,7 +10,6 @@ This module contains:
 from PySide.QtCore import QObject, Signal
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.syntaxcontroller import SyntaxController
-from pysumo.syntaxcontroller import Ontology
 
 import logging
 
@@ -48,25 +47,16 @@ class Widget(QObject):
     def _printPreview_(self):
         pass
     
-    def _save_(self):
+    def zoomIn(self):
         pass
     
-    def _zoomIn_(self):
+    def zoomOut(self):
         pass
     
-    def _zoomOut_(self):
+    def expandAll(self):
         pass
     
-    def _expandAll_(self):
-        pass
-    
-    def _collapseAll_(self):
-        pass
-    
-    def _undo_(self):
-        pass
-    
-    def _redo_(self):
+    def collapseAll(self):
         pass
     
     def setSettings(self, settings):
@@ -100,7 +90,7 @@ class RWWidget(Widget):
         """ Initializes the read/write widget """
         super(RWWidget, self).__init__(mainwindow)
         self.log = logging.getLogger('.' + __name__)
-
+    
     def commit(self):
         """ Commits modifications to the ontology to the SyntaxController, and
         if successful updates the IndexAbstractor and notifies all other
@@ -113,19 +103,19 @@ class RWWidget(Widget):
     def setActiveOntology(self, ontology):
         pass
         
-    def _save_(self):
+    def saveOntology(self):
         ontology = self.getActiveOntology()
         if ontology in self.IA.ontologies:
             self.log.info('Saving Ontology: %s' % str(ontology))
             ontology.save()
             
-    def _redo_(self):
+    def redo(self):
         ontology = self.getActiveOntology()
         if ontology in self.IA.ontologies:
             self.SyntaxController.redo(ontology)
             self.ontologyChanged.emit()
                         
-    def _undo_(self):
+    def undo(self):
         ontology = self.getActiveOntology()
         if ontology in self.IA.ontologies:
             self.SyntaxController.undo(ontology)
