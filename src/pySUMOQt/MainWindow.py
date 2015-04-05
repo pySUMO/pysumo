@@ -27,7 +27,7 @@ from pySUMOQt.Designer.MainWindow import Ui_mainwindow
 from pySUMOQt.Widget.DocumentationWidget import DocumentationWidget
 from pySUMOQt.Widget.HierarchyWidget import HierarchyWidget
 from pySUMOQt.Widget.TextEditor import TextEditor
-from pySUMOQt.Widget.Widget import RWWidget, Widget
+from pySUMOQt.Widget.Widget import RWWidget, PySUMOWidget
 
 from pySUMOQt.Settings import LayoutManager, PySumoSettings
 from pySUMOQt.Dialog import NewOntologyDialog, OpenRemoteOntologyDialog, OptionDialog,\
@@ -44,96 +44,6 @@ QCoreApplication.setApplicationName("pySUMO")
 QCoreApplication.setApplicationVersion("1.0")
 QCoreApplication.setOrganizationName("PSE Team")
 
-class PySUMOWidget(QDockWidget):
-    """This wrapper widget holds a pysumo widget.
-    
-    It catches the focus event on components in widget to 
-    connect them the application actions like cut, copy, 
-    paste, or undo, ...
-    """
-
-    def __init__(self, parent):
-        """ 
-        Initializes a pysumo widget with the parent which is the main window.
-        
-        Parameter: 
-        
-        - parent : The main window.
-        """
-        super(PySUMOWidget, self).__init__(parent)
-        self.mainWindow = parent
-        self.isPopedOut = False
-        QObject.connect(self, SIGNAL("topLevelChanged(bool)"), self.setPopedOut)
-        self.wrappedWidget = None
-        self.callback = None
-        self.prefixName = None
-        self.suffixName = None
-
-    def _setSuffixName_(self, s):
-        """ QT Slot which sets a suffix name to the title of the dock widget, 
-        like the name of the active ontology in the widget.
-        
-        Parameter:
-        
-        - s : The suffix name as a string.
-        """
-        if s is None :
-            return
-        s = s.strip()
-        if "" == s :
-            s = None
-        self.suffixName = s
-        self.updateTitle()
-
-    def setPrefixName(self, s):
-        """ 
-        Sets the prefix name which is the default title of a pysumo widget.
-        
-        Parameter:
-        
-        - s : The prefix or default name as a string.
-        """
-        if s is None :
-            return
-        s = s.strip()
-        if "" == s :
-            return
-        self.prefixName = s
-        self.updateTitle()
-
-    def updateTitle(self):
-        """ 
-        Updates the title of the pysumo widget according to it'S prefix and suffix name.
-        """
-        assert self.prefixName is not None
-        title = self.prefixName
-        if self.suffixName is not None :
-            title = title + " | " + self.suffixName
-        self.setWindowTitle(title)
-
-    @Slot()
-    def setPopedOut(self):
-        """ 
-        Qt Slot which customizes the pop out of a pysumo widget.
-        """
-        if not self.isPopedOut :
-            self.setWindowFlags(Qt.Window)
-            self.show()
-            self.isPopedOut = True
-        else :
-            self.isPopedOut = False
-
-    def eventFilter(self, source, event):
-        """
-        Filters event on a component where the pysumo was installed as event filter.
-        
-        Override from QObject.
-        """
-        if event.type() == QEvent.FocusIn:
-            self.callback = self.mainWindow.connectWidget(self.wrappedWidget)
-        elif event.type() == QEvent.FocusOut:
-            self.mainWindow.disconnectWidget(self.wrappedWidget, self.callback)
-        return super(PySUMOWidget, self).eventFilter(source, event)
 
 class MainWindow(Ui_mainwindow, QMainWindow):
     """ This class is the entry point of the application. It creates the main
@@ -223,43 +133,42 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         - widgetType : The widget type as a string. Can be TextEditorWidget, DocumentationWidget, HierarchyWidget or GraphWidget.
         - widgetMenu : The QMenu from where the widget can be hidden.
         """
-        widget = PySUMOWidget(self)
-        wrappedWidget = None
+        widget = None
         if widgetType == "TextEditorWidget" :
-            wrappedWidget = TextEditor(widget, settings=self.settings)
+            widget = TextEditor(self, settings=self.settings)
             widget.setPrefixName("Text Editor")
-            wrappedWidget.ontologySelector.currentIndexChanged[str].connect(widget._setSuffixName_)
-            wrappedWidget.plainTextEdit.installEventFilter(widget)
-            wrappedWidget.ontologyChanged.connect(self.synchronize)
-            self.ontologyAdded.connect(wrappedWidget._updateOntologySelector)
-            self.ontologyRemoved.connect(wrappedWidget._updateOntologySelector)
-            self.jumpRequested.connect(wrappedWidget.jumpToLocation)
+            widget.ontologySelector.currentIndexChanged[str].connect(widget._setSuffixName_)
+            widget.plainTextEdit.installEventFilter(widget)
+            widget.ontologyChanged.connect(self.synchronize)
+            self.ontologyAdded.connect(widget._updateOntologySelector)
+            self.ontologyRemoved.connect(widget._updateOntologySelector)
+            self.jumpRequested.connect(widget.jumpToLocation)
         elif widgetType == "DocumentationWidget" :
-            wrappedWidget = DocumentationWidget(widget)
+            widget = DocumentationWidget(self)
             widget.setPrefixName("Documentation Widget")
-            wrappedWidget.OntologyText.anchorClicked.connect(self.jumpToLocation)
+            widget.OntologyText.anchorClicked.connect(self.jumpToLocation)
         elif widgetType == "HierarchyWidget" :
-            wrappedWidget = HierarchyWidget(widget)
+            widget = HierarchyWidget(self)
             widget.setPrefixName("Hierarchy Widget")
-            wrappedWidget.treeWidget.installEventFilter(widget)
+            widget.treeWidget.installEventFilter(widget)
         elif widgetType == "GraphWidget":
-            wrappedWidget = GraphWidget(widget)
+            widget = GraphWidget(self)
             widget.setPrefixName("Graph Widget")
-            wrappedWidget.activeOntology.currentIndexChanged[str].connect(widget._setSuffixName_)
-            wrappedWidget.graphicsView.installEventFilter(widget)
-            wrappedWidget.ontologyChanged.connect(self.synchronize)
-            self.ontologyAdded.connect(wrappedWidget._updateActiveOntology)
-            self.ontologyRemoved.connect(wrappedWidget._updateActiveOntology)
-        if wrappedWidget is None :
+            widget.activeOntology.currentIndexChanged[str].connect(widget._setSuffixName_)
+            widget.graphicsView.installEventFilter(widget)
+            widget.ontologyChanged.connect(self.synchronize)
+            self.ontologyAdded.connect(widget._updateActiveOntology)
+            self.ontologyRemoved.connect(widget._updateActiveOntology)
+        if widget is None :
             self.log.error("can not create widget with type " + widgetType)
             return
-        wrappedWidget.setSettings(self.settings)
-        self.synchronizeRequested.connect(wrappedWidget.refresh)
+        widget.setSettings(self.settings)
+        self.synchronizeRequested.connect(widget.refresh)
         objName = widgetType
         objName += str(len(widgetMenu.actions()))
         widget.setObjectName(objName)
-        widget.setWidget(wrappedWidget.widget)
-        widget.wrappedWidget = wrappedWidget
+        widget.setWidget(widget.widget)
+        widget.wrappedWidget = widget
         return widget
 
     def addDeleteWidgetAction(self, widget):
@@ -311,7 +220,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         """
         self.userLayout.saveLayout()
         # check for unsaved files.
-        for o in Widget.IA.ontologies :
+        for o in PySUMOWidget.IA.ontologies :
             changed , diff = self.ontologyChanged(o)
             if changed :
                 msgBox = QMessageBox(self)
@@ -389,7 +298,7 @@ class MainWindow(Ui_mainwindow, QMainWindow):
         
         Parameter:
         
-        - wrappedWidget: a wrapped widget which will provide some information. Here we just use the TextEditor widget.
+        - widget: a wrapped widget which will provide some information. Here we just use the TextEditor widget.
         """
         # arg1 and arg2 are used to resolve an argument number error.
         plainTextEdit = None

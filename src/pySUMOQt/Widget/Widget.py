@@ -7,26 +7,113 @@ This module contains:
 - RWWidget: The class of widgets which have access to the SyntaxController and the IndexAbstractor.
 
 """
-from PySide.QtCore import QObject, Signal
+from PySide.QtCore import Signal, Slot, QEvent, Qt
+from PySide.QtGui import QDockWidget
 from pysumo.indexabstractor import IndexAbstractor
 from pysumo.syntaxcontroller import SyntaxController
 
 import logging
 
-class Widget(QObject):
+class PySUMOWidget(QDockWidget):
     """ The main class representing a widget in the pySUMO GUI.
+    It catches the focus event on components in widget to 
+    connect them the application actions like cut, copy, 
+    paste, or undo, ...
 
     Methods:
 
     - refresh: Refreshes the view of the current widget according to the IndexAbstractor.
 
+    
     """
+    def __init__(self, mainwindow):
+        """ Initializes the Widget object.  
+        Initializes a pysumo widget with the parent which is the main window.
+        
+        Parameter: 
+        
+        - mainwindow : The main window.
+        """
+        super(PySUMOWidget, self).__init__()
+        
+        self.mw = mainwindow
+        self.mainWindow = mainwindow
+        self.isPopedOut = False
+        self.topLevelChanged.connect(self.setPopedOut)
+        self.widget = None
+        self.callback = None
+        self.prefixName = None
+        self.suffixName = None
+
+    def _setSuffixName_(self, s):
+        """ QT Slot which sets a suffix name to the title of the dock widget, 
+        like the name of the active ontology in the widget.
+        
+        Parameter:
+        
+        - s : The suffix name as a string.
+        """
+        if s is None :
+            return
+        s = s.strip()
+        if "" == s :
+            s = None
+        self.suffixName = s
+        self.updateTitle()
+
+    def setPrefixName(self, s):
+        """ 
+        Sets the prefix name which is the default title of a pysumo widget.
+        
+        Parameter:
+        
+        - s : The prefix or default name as a string.
+        """
+        if s is None :
+            return
+        s = s.strip()
+        if "" == s :
+            return
+        self.prefixName = s
+        self.updateTitle()
+
+    def updateTitle(self):
+        """ 
+        Updates the title of the pysumo widget according to it'S prefix and suffix name.
+        """
+        assert self.prefixName is not None
+        title = self.prefixName
+        if self.suffixName is not None :
+            title = title + " | " + self.suffixName
+        self.setWindowTitle(title)
+
+    @Slot()
+    def setPopedOut(self):
+        """ 
+        Qt Slot which customizes the pop out of a pysumo widget.
+        """
+        if not self.isPopedOut :
+            self.setWindowFlags(Qt.Window)
+            self.show()
+            self.isPopedOut = True
+        else :
+            self.isPopedOut = False
+
+    def eventFilter(self, source, event):
+        """
+        Filters event on a component where the pysumo was installed as event filter.
+        
+        Override from QObject.
+        """
+        if event.type() == QEvent.FocusIn:
+            self.callback = self.mainWindow.connectWidget(self)
+        elif event.type() == QEvent.FocusOut:
+            self.mainWindow.disconnectWidget(self, self.callback)
+        return super(PySUMOWidget, self).eventFilter(source, event)
+
+
     IA = IndexAbstractor()
 
-    def __init__(self, mainwindow):
-        super(Widget, self).__init__(mainwindow)
-        self.mw = mainwindow
-        """ Initializes the Widget object. """
 
     @classmethod
     def getIndexAbstractor(cls):
@@ -62,7 +149,7 @@ class Widget(QObject):
     def setSettings(self, settings):
         self.settings = settings
 
-class RWidget(Widget):
+class RWidget(PySUMOWidget):
 
     """ Class for Widgets which only has read-access to the Ontologies. This
     class should not be used directly, but extended.
@@ -73,7 +160,7 @@ class RWidget(Widget):
         super(RWidget, self).__init__(mainwindow)
 
 
-class RWWidget(Widget):
+class RWWidget(PySUMOWidget):
 
     """ Class for Widgets which have modify-access to the Ontologies. This
     class should not be used directly, but extended.
@@ -83,7 +170,7 @@ class RWWidget(Widget):
     - commit: Commits the modifications on the ontology and notifies the others widgets of changes.
 
     """
-    SyntaxController = SyntaxController(Widget.getIndexAbstractor())
+    SyntaxController = SyntaxController(PySUMOWidget.getIndexAbstractor())
     ontologyChanged = Signal()
 
     def __init__(self, mainwindow):

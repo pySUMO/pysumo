@@ -2,6 +2,7 @@
 Changes in v1.1
 ====================
 
+* Merge Widget and pySUMOWidget in pySUMOWidget
 * Rename:
 
 +---------------------+---------------------+

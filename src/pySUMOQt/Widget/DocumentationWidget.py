@@ -27,7 +27,7 @@ class DocumentationWidget(RWidget, Ui_Form):
     def __init__(self, mainwindow):
         """ Initializes the DocumentationWidget. """
         super(DocumentationWidget, self).__init__(mainwindow)
-        self.setupUi(self.mw)
+        self.setupUi(mainwindow)
         self.lineEdit.returnPressed.connect(self.search)
         self.log = logging.getLogger('.' + __name__)
         if len(DocumentationWidget._WN_TROOL) == 0:
