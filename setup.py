@@ -2,14 +2,14 @@ from setuptools import setup
 
 setup(
     name='pySUMO',
-    version='1.0.0',
+    version='1.1',
     description='A graphical IDE for Ontologies written in SUO-Kif',
     long_description='A graphical IDE for Ontologies written in SUO-Kif',
     url='',
     author='',
     author_email='',
     license='BSD',
-    classifiers=['Development Status :: 5 - Production/Stable',
+    classifiers=['Development Status :: 2 - Pre-Alpha',
                  'Intended Audience :: Developers',
                  'License :: OSI Approved :: BSD License',
                  'Programming Language :: Python :: 3.4',
