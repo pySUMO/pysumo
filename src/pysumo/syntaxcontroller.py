@@ -193,7 +193,7 @@ class Ontology:
     - name: The name of the Ontology.
     - path: The location of the Ontology in the filesystem.
     - url: The URL from which the Ontology can be updated.
-    - active: Whether or not the Ontology is currently loaded.
+    - lpath: The path to store logging information.
 
     """
 
